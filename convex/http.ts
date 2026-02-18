@@ -27,6 +27,14 @@ type WorldRulesPayload = {
   failForwardPolicy: string;
   escalationTrack: string;
 };
+type WorldMapPayload = {
+  name: string;
+  biome?: string;
+  camera?: string;
+  lightingPreset?: string;
+  ambience?: string[];
+  objectives?: string[];
+};
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -170,6 +178,30 @@ function parseWorldRules(value: unknown): WorldRulesPayload | undefined {
     failForwardPolicy: rules.failForwardPolicy,
     escalationTrack: rules.escalationTrack,
   };
+}
+
+function parseWorldMaps(value: unknown): WorldMapPayload[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+
+  const maps: WorldMapPayload[] = [];
+  for (const entry of value) {
+    const map = asObject(entry);
+    if (!map || typeof map.name !== "string") continue;
+    maps.push({
+      name: map.name,
+      biome: typeof map.biome === "string" ? map.biome : undefined,
+      camera: typeof map.camera === "string" ? map.camera : undefined,
+      lightingPreset: typeof map.lightingPreset === "string" ? map.lightingPreset : undefined,
+      ambience: Array.isArray(map.ambience)
+        ? map.ambience.filter((item): item is string => typeof item === "string")
+        : undefined,
+      objectives: Array.isArray(map.objectives)
+        ? map.objectives.filter((item): item is string => typeof item === "string")
+        : undefined,
+    });
+  }
+
+  return maps.length > 0 ? maps : undefined;
 }
 
 function toId<T extends TableNames>(value: string): Id<T> {
@@ -344,6 +376,7 @@ corsRoute({
       recommendedPartySize: typeof body?.recommendedPartySize === "string" ? body.recommendedPartySize : undefined,
       sessionLength: typeof body?.sessionLength === "string" ? body.sessionLength : undefined,
       rules: parseWorldRules(body?.rules),
+      maps: parseWorldMaps(body?.maps),
     });
 
     return jsonResponse(result, 201);

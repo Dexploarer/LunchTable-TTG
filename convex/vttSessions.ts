@@ -249,6 +249,77 @@ export const internalPostNarrationToSession = internalMutation({
   },
 });
 
+export const internalPostChatMessage = internalMutation({
+  args: {
+    sessionId: v.id("sessions"),
+    actorUserId: v.id("users"),
+    sender: v.string(),
+    text: v.string(),
+    meta: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.status === "ended") {
+      throw new Error("Session not available");
+    }
+
+    const participant = await ensureParticipant(ctx, session._id, args.actorUserId);
+    if (!participant) throw new Error("Actor is not a session participant");
+
+    const payload = {
+      sender: args.sender,
+      text: args.text,
+      ...(args.meta && typeof args.meta === "object" ? (args.meta as Record<string, unknown>) : {}),
+    };
+
+    const eventId = await ctx.db.insert("sessionEvents", {
+      sessionId: args.sessionId,
+      actorUserId: args.actorUserId,
+      eventType: "CHAT_MESSAGE",
+      payloadJson: JSON.stringify(payload),
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(participant._id, { lastActiveAt: Date.now() });
+    await ctx.db.patch(session._id, { updatedAt: Date.now() });
+
+    return { eventId };
+  },
+});
+
+export const internalRollDice = internalMutation({
+  args: {
+    sessionId: v.id("sessions"),
+    actorUserId: v.id("users"),
+    expression: v.string(),
+    total: v.number(),
+    result: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.status === "ended") {
+      throw new Error("Session not available");
+    }
+
+    const participant = await ensureParticipant(ctx, session._id, args.actorUserId);
+    if (!participant) throw new Error("Actor is not a session participant");
+
+    const diceRollId = await ctx.db.insert("diceRolls", {
+      sessionId: args.sessionId,
+      actorUserId: args.actorUserId,
+      expression: args.expression,
+      total: args.total,
+      resultJson: JSON.stringify(args.result ?? { total: args.total }),
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(participant._id, { lastActiveAt: Date.now() });
+    await ctx.db.patch(session._id, { updatedAt: Date.now() });
+
+    return { diceRollId };
+  },
+});
+
 export const invokeNarrator = mutation({
   args: {
     sessionId: v.id("sessions"),

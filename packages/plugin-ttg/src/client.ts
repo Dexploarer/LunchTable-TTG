@@ -1,11 +1,13 @@
 import type {
   TTGAgentMe,
+  TTGDiceCommandPayload,
   TTGGenerationJob,
   TTGGenerationJobCreateResult,
   TTGGenerationProvider,
   TTGJoinSessionResult,
   TTGSessionResult,
   TTGSessionRole,
+  TTGTokenUpsertPayload,
 } from "./types";
 
 export class TTGClient {
@@ -56,6 +58,14 @@ export class TTGClient {
       method: "POST",
       body: JSON.stringify({ command, payload }),
     });
+  }
+
+  rollDice(sessionId: string, payload: TTGDiceCommandPayload) {
+    return this.postCommand(sessionId, "DICE_ROLL", payload);
+  }
+
+  upsertToken(sessionId: string, payload: TTGTokenUpsertPayload) {
+    return this.postCommand(sessionId, "TOKEN_UPSERT", payload as Record<string, unknown>);
   }
 
   createGenerationJob({

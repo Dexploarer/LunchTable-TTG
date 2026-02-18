@@ -264,6 +264,31 @@ export default defineSchema(
     })
       .index("by_actor", ["actorUserId"])
       .index("by_world", ["worldId"]),
+
+    agentRuns: defineTable({
+      sessionId: v.id("sessions"),
+      worldId: v.id("worlds"),
+      ownerUserId: v.id("users"),
+      provider: v.union(v.literal("openai"), v.literal("anthropic"), v.literal("eliza")),
+      seed: v.number(),
+      playerCount: v.number(),
+      turn: v.number(),
+      maxTurns: v.number(),
+      tickIntervalMs: v.number(),
+      objectiveIndex: v.number(),
+      status: v.union(
+        v.literal("running"),
+        v.literal("stopped"),
+        v.literal("completed"),
+        v.literal("failed"),
+      ),
+      lastError: v.optional(v.string()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_session", ["sessionId"])
+      .index("by_owner", ["ownerUserId"])
+      .index("by_status", ["status"]),
   },
   { schemaValidation: false },
 );

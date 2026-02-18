@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
@@ -124,6 +124,81 @@ export const upsertToken = mutation({
     });
 
     return { tokenId, updatedBy: user._id };
+  },
+});
+
+export const internalUpsertTokenForSession = internalMutation({
+  args: {
+    actorUserId: v.id("users"),
+    worldId: v.id("worlds"),
+    mapId: v.id("maps"),
+    sessionId: v.id("sessions"),
+    tokenId: v.optional(v.id("tokens")),
+    name: v.string(),
+    x: v.number(),
+    y: v.number(),
+    layer: v.union(v.literal("ground"), v.literal("mid"), v.literal("air")),
+    color: v.optional(v.string()),
+    data: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const world = await ctx.db.get(args.worldId);
+    if (!world) throw new Error("World not found");
+    const map = await ctx.db.get(args.mapId);
+    if (!map) throw new Error("Map not found");
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+
+    if (map.worldId !== world._id) throw new Error("Map does not belong to world");
+    if (session.worldId !== world._id) throw new Error("Session does not belong to world");
+    if (session.status === "ended") throw new Error("Session has ended");
+
+    const participant = await getSessionParticipant(ctx, session._id, args.actorUserId);
+    if (!participant) throw new Error("Actor is not a session participant");
+
+    if (args.tokenId) {
+      const existing = await ctx.db.get(args.tokenId);
+      if (!existing) throw new Error("Token not found");
+      if (existing.worldId !== world._id || existing.mapId !== map._id) {
+        throw new Error("Token does not belong to map");
+      }
+      if (existing.sessionId && existing.sessionId !== args.sessionId) {
+        throw new Error("Token belongs to a different session");
+      }
+
+      await ctx.db.patch(args.tokenId, {
+        name: args.name,
+        x: args.x,
+        y: args.y,
+        layer: args.layer,
+        color: args.color,
+        dataJson: JSON.stringify(args.data ?? {}),
+        updatedAt: now,
+      });
+
+      await ctx.db.patch(participant._id, { lastActiveAt: now });
+      await ctx.db.patch(session._id, { updatedAt: now });
+      return { tokenId: args.tokenId, updatedBy: args.actorUserId };
+    }
+
+    const tokenId = await ctx.db.insert("tokens", {
+      worldId: args.worldId,
+      mapId: args.mapId,
+      sessionId: args.sessionId,
+      name: args.name,
+      x: args.x,
+      y: args.y,
+      layer: args.layer,
+      color: args.color,
+      dataJson: JSON.stringify(args.data ?? {}),
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await ctx.db.patch(participant._id, { lastActiveAt: now });
+    await ctx.db.patch(session._id, { updatedAt: now });
+    return { tokenId, updatedBy: args.actorUserId };
   },
 });
 

@@ -5,6 +5,64 @@ import type { Id } from "./_generated/dataModel";
 import { getOptionalUser, requireUser } from "./auth";
 import { isWorldVisibleToViewer } from "./permissions";
 
+type WorldRulesSnapshot =
+  | {
+      name: string;
+      summary: string;
+      turnLoop: string[];
+      failForwardPolicy: string;
+      escalationTrack: string;
+    }
+  | null;
+
+type WorldMapSnapshot = {
+  name: string;
+  biome?: string;
+  camera?: string;
+  lightingPreset?: string;
+  ambience: string[];
+  objectives: string[];
+};
+
+export function buildWorldVersionSnapshot(params: {
+  name: string;
+  tagline: string;
+  genre: string;
+  mood: string;
+  rules: WorldRulesSnapshot;
+  maps?: WorldMapSnapshot[];
+}) {
+  const maps =
+    params.maps && params.maps.length > 0
+      ? params.maps
+      : [
+          {
+            name: "Scene 1",
+            biome: params.genre,
+            camera: "topdown",
+            lightingPreset: "default",
+            ambience: [],
+            objectives: [],
+          } satisfies WorldMapSnapshot,
+        ];
+
+  return JSON.stringify({
+    name: params.name,
+    tagline: params.tagline,
+    genre: params.genre,
+    mood: params.mood,
+    rules: params.rules,
+    maps: maps.map((map) => ({
+      name: map.name,
+      biome: map.biome ?? "",
+      camera: map.camera ?? "",
+      lightingPreset: map.lightingPreset ?? "",
+      ambience: map.ambience,
+      objectives: map.objectives,
+    })),
+  });
+}
+
 async function ensureActiveWorkspace(ctx: MutationCtx, userId: Id<"users">) {
   const user = await ctx.db.get(userId);
   if (!user) throw new Error("User not found");
@@ -67,6 +125,18 @@ export const createWorld = mutation({
         escalationTrack: v.string(),
       }),
     ),
+    maps: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          biome: v.optional(v.string()),
+          camera: v.optional(v.string()),
+          lightingPreset: v.optional(v.string()),
+          ambience: v.optional(v.array(v.string())),
+          objectives: v.optional(v.array(v.string())),
+        }),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
@@ -103,32 +173,49 @@ export const createWorld = mutation({
       updatedAt: now,
     });
 
-    const defaultMapName = "Scene 1";
-    await ctx.db.insert("maps", {
-      worldId,
-      name: defaultMapName,
-      biome: args.genre,
-      camera: "topdown",
-      lightingPreset: "default",
-      ambience: [],
-      objectives: [],
-      sortOrder: 0,
-      createdAt: now,
-      updatedAt: now,
-    });
+    const mapsToCreate =
+      args.maps && args.maps.length > 0
+        ? args.maps.map((map) => ({
+            name: map.name,
+            biome: map.biome,
+            camera: map.camera,
+            lightingPreset: map.lightingPreset,
+            ambience: map.ambience ?? [],
+            objectives: map.objectives ?? [],
+          }))
+        : [
+            {
+              name: "Scene 1",
+              biome: args.genre,
+              camera: "topdown",
+              lightingPreset: "default",
+              ambience: [],
+              objectives: [],
+            },
+          ];
 
-    const snapshot = JSON.stringify({
+    for (const [index, map] of mapsToCreate.entries()) {
+      await ctx.db.insert("maps", {
+        worldId,
+        name: map.name,
+        biome: map.biome,
+        camera: map.camera,
+        lightingPreset: map.lightingPreset ?? "default",
+        ambience: map.ambience,
+        objectives: map.objectives,
+        sortOrder: index,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    const snapshot = buildWorldVersionSnapshot({
       name: args.name,
       tagline: args.tagline,
       genre: args.genre,
       mood: args.mood,
       rules: args.rules ?? null,
-      maps: [
-        {
-          name: defaultMapName,
-          biome: args.genre,
-        },
-      ],
+      maps: mapsToCreate,
     });
 
     const versionId = await ctx.db.insert("worldVersions", {

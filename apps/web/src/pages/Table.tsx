@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Stage } from "@/features/vttCanvas/Stage";
 import type { VttToken } from "@/features/vttCanvas/TokenLayer";
 import type { VttWall } from "@/features/vttCanvas/WallLayer";
+import { AgentMasterPanel } from "@/features/vttSession/AgentMasterPanel";
 import { ChatPanel, type SessionMessage } from "@/features/vttSession/ChatPanel";
 import { DicePanel, type DiceResult } from "@/features/vttSession/DicePanel";
 import { InitiativePanel } from "@/features/vttSession/InitiativePanel";
@@ -582,6 +583,13 @@ export function Table() {
           />
 
           <div className="space-y-3">
+            {convexSessionId ? (
+              <AgentMasterPanel
+                sessionId={convexSessionId}
+                isGm={currentParticipantRole === "gm"}
+                activeMapId={activeMapId}
+              />
+            ) : null}
             <ChatPanel
               messages={messages}
               onSend={async (text) => {

@@ -38,3 +38,21 @@ export interface TTGGenerationJob {
   createdAt: number;
   updatedAt: number;
 }
+
+export interface TTGDiceCommandPayload {
+  expression: string;
+  total: number;
+  result?: Record<string, unknown>;
+}
+
+export interface TTGTokenUpsertPayload {
+  tokenId?: string;
+  worldId?: string;
+  mapId: string;
+  name: string;
+  x: number;
+  y: number;
+  layer?: "ground" | "mid" | "air";
+  color?: string;
+  data?: Record<string, unknown>;
+}

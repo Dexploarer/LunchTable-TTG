@@ -227,6 +227,14 @@ export function Worlds() {
                               failForwardPolicy: world.rules.failForwardPolicy,
                               escalationTrack: world.rules.escalationTrack,
                             },
+                            maps: world.maps.map((map) => ({
+                              name: map.name,
+                              biome: map.biome,
+                              camera: map.camera,
+                              lightingPreset: map.lightingPreset,
+                              ambience: map.ambience,
+                              objectives: map.objectives,
+                            })),
                           });
                           const worldId = typeof result?.worldId === "string" ? result.worldId : "";
                           if (seededLiveWorldIds.has(worldId)) {

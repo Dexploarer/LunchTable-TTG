@@ -5,9 +5,16 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { canActorUseWorld } from "./permissions";
 import { evaluateModerationText } from "./vttModeration";
+import { buildWorldVersionSnapshot } from "./vttWorlds";
 
 function normalizeUsername(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 18) || "agent";
+}
+
+function asObject(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 async function ensureAgentParticipant(
@@ -208,20 +215,109 @@ export const agentPostCommand = mutation({
   handler: async (ctx, args) => {
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
+    if (session.status === "ended") throw new Error("Session has ended");
 
     const participant = await ensureAgentParticipant(ctx, session._id, args.agentUserId);
     if (!participant) throw new Error("Agent is not a participant in this session");
+
+    const payloadObject = asObject(args.payload ?? {}) ?? {};
+    const command = args.command.toUpperCase();
+    const now = Date.now();
+
+    if (command === "DICE_ROLL") {
+      const expression = typeof payloadObject.expression === "string" ? payloadObject.expression : "";
+      const total = typeof payloadObject.total === "number" ? payloadObject.total : Number.NaN;
+      if (!expression || !Number.isFinite(total)) {
+        throw new Error("DICE_ROLL requires expression (string) and total (number)");
+      }
+
+      await ctx.db.insert("diceRolls", {
+        sessionId: session._id,
+        actorUserId: args.agentUserId,
+        expression,
+        total,
+        resultJson: JSON.stringify(payloadObject.result ?? { total }),
+        createdAt: now,
+      });
+    }
+
+    if (command === "TOKEN_UPSERT") {
+      const tokenId =
+        typeof payloadObject.tokenId === "string" && payloadObject.tokenId.length > 0
+          ? (payloadObject.tokenId as Id<"tokens">)
+          : undefined;
+      const worldId =
+        typeof payloadObject.worldId === "string" && payloadObject.worldId.length > 0
+          ? (payloadObject.worldId as Id<"worlds">)
+          : session.worldId;
+      const mapId =
+        typeof payloadObject.mapId === "string" && payloadObject.mapId.length > 0
+          ? (payloadObject.mapId as Id<"maps">)
+          : undefined;
+      const name = typeof payloadObject.name === "string" ? payloadObject.name : "Token";
+      const x = typeof payloadObject.x === "number" ? payloadObject.x : Number.NaN;
+      const y = typeof payloadObject.y === "number" ? payloadObject.y : Number.NaN;
+      const layer =
+        payloadObject.layer === "ground" || payloadObject.layer === "mid" || payloadObject.layer === "air"
+          ? payloadObject.layer
+          : "mid";
+      const color = typeof payloadObject.color === "string" ? payloadObject.color : undefined;
+      const data = asObject(payloadObject.data ?? payloadObject);
+
+      if (!mapId) {
+        throw new Error("TOKEN_UPSERT requires mapId");
+      }
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        throw new Error("TOKEN_UPSERT requires x and y numbers");
+      }
+      const map = await ctx.db.get(mapId);
+      if (!map) throw new Error("Map not found");
+      if (map.worldId !== worldId) throw new Error("Map does not belong to world");
+      if (session.worldId !== worldId) throw new Error("Session does not belong to world");
+
+      const existingToken = tokenId ? await ctx.db.get(tokenId) : null;
+      if (tokenId && !existingToken) throw new Error("Token not found");
+      if (existingToken && existingToken.sessionId && existingToken.sessionId !== session._id) {
+        throw new Error("Token belongs to a different session");
+      }
+
+      if (tokenId) {
+        await ctx.db.patch(tokenId, {
+          name,
+          x,
+          y,
+          layer,
+          color,
+          dataJson: JSON.stringify(data ?? {}),
+          updatedAt: now,
+        });
+      } else {
+        await ctx.db.insert("tokens", {
+          worldId,
+          mapId,
+          sessionId: session._id,
+          name,
+          x,
+          y,
+          layer,
+          color,
+          dataJson: JSON.stringify(data ?? {}),
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+    }
 
     const eventId = await ctx.db.insert("sessionEvents", {
       sessionId: session._id,
       actorUserId: args.agentUserId,
       eventType: args.command,
       payloadJson: JSON.stringify(args.payload ?? {}),
-      createdAt: Date.now(),
+      createdAt: now,
     });
 
-    await ctx.db.patch(participant._id, { lastActiveAt: Date.now() });
-    await ctx.db.patch(session._id, { updatedAt: Date.now() });
+    await ctx.db.patch(participant._id, { lastActiveAt: now });
+    await ctx.db.patch(session._id, { updatedAt: now });
 
     return { eventId };
   },
@@ -284,6 +380,18 @@ export const agentCreateWorld = mutation({
         escalationTrack: v.string(),
       }),
     ),
+    maps: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          biome: v.optional(v.string()),
+          camera: v.optional(v.string()),
+          lightingPreset: v.optional(v.string()),
+          ambience: v.optional(v.array(v.string())),
+          objectives: v.optional(v.array(v.string())),
+        }),
+      ),
+    ),
   },
   handler: async (ctx, args) => {
     const workspaceId = await ensureActiveWorkspace(ctx, args.agentUserId);
@@ -319,32 +427,49 @@ export const agentCreateWorld = mutation({
       updatedAt: now,
     });
 
-    const defaultMapName = "Scene 1";
-    await ctx.db.insert("maps", {
-      worldId,
-      name: defaultMapName,
-      biome: args.genre,
-      camera: "topdown",
-      lightingPreset: "default",
-      ambience: [],
-      objectives: [],
-      sortOrder: 0,
-      createdAt: now,
-      updatedAt: now,
-    });
+    const mapsToCreate =
+      args.maps && args.maps.length > 0
+        ? args.maps.map((map) => ({
+            name: map.name,
+            biome: map.biome,
+            camera: map.camera,
+            lightingPreset: map.lightingPreset,
+            ambience: map.ambience ?? [],
+            objectives: map.objectives ?? [],
+          }))
+        : [
+            {
+              name: "Scene 1",
+              biome: args.genre,
+              camera: "topdown",
+              lightingPreset: "default",
+              ambience: [],
+              objectives: [],
+            },
+          ];
 
-    const snapshot = JSON.stringify({
+    for (const [index, map] of mapsToCreate.entries()) {
+      await ctx.db.insert("maps", {
+        worldId,
+        name: map.name,
+        biome: map.biome,
+        camera: map.camera,
+        lightingPreset: map.lightingPreset ?? "default",
+        ambience: map.ambience,
+        objectives: map.objectives,
+        sortOrder: index,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    const snapshot = buildWorldVersionSnapshot({
       name: args.name,
       tagline: args.tagline,
       genre: args.genre,
       mood: args.mood,
       rules: args.rules ?? null,
-      maps: [
-        {
-          name: defaultMapName,
-          biome: args.genre,
-        },
-      ],
+      maps: mapsToCreate,
     });
 
     const versionId = await ctx.db.insert("worldVersions", {

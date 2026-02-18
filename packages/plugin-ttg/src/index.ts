@@ -1,5 +1,11 @@
 import { TTGClient } from "./client";
-import type { TTGGenerationProvider, TTGPluginConfig, TTGSessionRole } from "./types";
+import type {
+  TTGDiceCommandPayload,
+  TTGGenerationProvider,
+  TTGPluginConfig,
+  TTGSessionRole,
+  TTGTokenUpsertPayload,
+} from "./types";
 
 export function createTTGPlugin(config: TTGPluginConfig) {
   const client = new TTGClient(config.apiUrl, config.apiKey);
@@ -18,6 +24,20 @@ export function createTTGPlugin(config: TTGPluginConfig) {
         sessionId: string;
         role?: TTGSessionRole;
       }) => client.joinSession(sessionId, role),
+      TTG_DICE_ROLL: async ({
+        sessionId,
+        payload,
+      }: {
+        sessionId: string;
+        payload: TTGDiceCommandPayload;
+      }) => client.rollDice(sessionId, payload),
+      TTG_TOKEN_UPSERT: async ({
+        sessionId,
+        payload,
+      }: {
+        sessionId: string;
+        payload: TTGTokenUpsertPayload;
+      }) => client.upsertToken(sessionId, payload),
       TTG_GENERATION_CREATE: async ({
         worldId,
         kind,
