@@ -27,6 +27,11 @@ bun install
 bun run dev
 ```
 
+## Environment
+
+- Convex local dev writes `CONVEX_DEPLOYMENT` (and typically `VITE_CONVEX_URL`) into `.env.local`.
+- BYOK key storage requires `BYOK_ENCRYPTION_SECRET` to be set (see `.env.example`).
+
 ## Main routes
 
 - `/studio`
