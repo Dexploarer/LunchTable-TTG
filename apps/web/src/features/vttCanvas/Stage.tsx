@@ -3,16 +3,23 @@ import { Application, Graphics } from "pixi.js";
 import { FogLayer } from "./FogLayer";
 import { TokenLayer, type VttToken } from "./TokenLayer";
 import { WallLayer, type VttWall } from "./WallLayer";
+import { clientPointToPercent, clampPercent } from "./geometry";
 
 interface StageProps {
   tokens: VttToken[];
   walls: VttWall[];
   fogEnabled: boolean;
-  onTokenMove?: (tokenId: string, x: number, y: number) => void;
+  onTokenMove?: (
+    tokenId: string,
+    x: number,
+    y: number,
+    options?: { commit?: boolean },
+  ) => void;
 }
 
 export function Stage({ tokens, walls, fogEnabled, onTokenMove }: StageProps) {
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const boundsRef = useRef<HTMLDivElement | null>(null);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(tokens[0]?.id ?? null);
 
   useEffect(() => {
@@ -99,18 +106,33 @@ export function Stage({ tokens, walls, fogEnabled, onTokenMove }: StageProps) {
       </div>
 
       <div
+        ref={boundsRef}
         className="relative w-full h-[420px] border-2 border-[#121212] overflow-hidden bg-[#f8f6f0]"
         onClick={(event) => {
           if (!selected || !onTokenMove) return;
           const bounds = event.currentTarget.getBoundingClientRect();
-          const x = ((event.clientX - bounds.left) / bounds.width) * 100;
-          const y = ((event.clientY - bounds.top) / bounds.height) * 100;
-          onTokenMove(selected.id, Math.max(2, Math.min(98, x)), Math.max(2, Math.min(98, y)));
+          const point = clientPointToPercent(
+            { clientX: event.clientX, clientY: event.clientY },
+            bounds,
+          );
+
+          onTokenMove(
+            selected.id,
+            clampPercent(point.x),
+            clampPercent(point.y),
+            { commit: true },
+          );
         }}
       >
         <div ref={canvasRef} className="absolute inset-0" />
         <WallLayer walls={walls} />
-        <TokenLayer tokens={tokens} />
+        <TokenLayer
+          tokens={tokens}
+          boundsRef={boundsRef}
+          selectedTokenId={selectedTokenId}
+          onSelectToken={(tokenId) => setSelectedTokenId(tokenId)}
+          onTokenMove={onTokenMove}
+        />
         <FogLayer enabled={fogEnabled} />
       </div>
     </div>

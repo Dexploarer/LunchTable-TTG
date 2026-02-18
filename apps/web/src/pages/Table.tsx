@@ -419,11 +419,13 @@ export function Table() {
             tokens={tokens}
             walls={START_WALLS}
             fogEnabled={fogEnabled}
-            onTokenMove={async (tokenId, x, y) => {
+            onTokenMove={async (tokenId, x, y, options) => {
               const token = tokens.find((entry) => entry.id === tokenId);
               setTokens((current) =>
                 current.map((token) => (token.id === tokenId ? { ...token, x, y } : token)),
               );
+
+              if (options?.commit === false) return;
               if (!token) return;
               if (!convexSessionId || !looksLikeConvexId(activeMapId) || !looksLikeConvexId(sessionWorldId)) {
                 return;
