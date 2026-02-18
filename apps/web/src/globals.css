@@ -67,8 +67,8 @@
 @layer utilities {
   .zine-border {
     border: 3px solid transparent;
-    border-image: url("/lunchtable/ink-frame.png") 30 stretch;
-    border-image-outset: 5px;
+    /* Keep explicit border-image width so CSS minification doesn't emit a `//` token. */
+    border-image: url("/lunchtable/ink-frame.png") 30 / 3px / 5px stretch;
   }
 
   .ink-bleed {

@@ -7,7 +7,19 @@ import path from "path";
 export default defineConfig({
   build: {
     sourcemap: true,
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
+      onwarn(warning, warn) {
+        const message = typeof warning === "string" ? warning : warning.message;
+
+        if (
+          message.includes("contains an annotation that Rollup cannot interpret due to the position of the comment")
+        ) {
+          return;
+        }
+
+        warn(warning);
+      },
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router'],

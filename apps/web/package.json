@@ -28,9 +28,9 @@
     }
   },
   "scripts": {
-    "dev": "vite --port 3334",
-    "build": "tsc -b && vite build",
-    "build:vercel": "vite build",
+    "dev": "VITE_CJS_IGNORE_WARNING=true vite --port 3334",
+    "build": "tsc -b && VITE_CJS_IGNORE_WARNING=true vite build",
+    "build:vercel": "VITE_CJS_IGNORE_WARNING=true vite build",
     "preview": "vite preview --port 3334",
     "type-check": "tsc --noEmit"
   },
