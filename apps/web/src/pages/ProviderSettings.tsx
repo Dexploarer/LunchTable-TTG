@@ -3,6 +3,21 @@ import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { TrayNav } from "@/components/layout/TrayNav";
 
 const PROVIDERS = ["openai", "anthropic", "eliza"];
+type ProviderKey = {
+  _id: string;
+  provider: string;
+  keyPreview: string;
+};
+
+function isProviderKey(value: unknown): value is ProviderKey {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate._id === "string" &&
+    typeof candidate.provider === "string" &&
+    typeof candidate.keyPreview === "string"
+  );
+}
 
 export function ProviderSettings() {
   const [provider, setProvider] = useState("openai");
@@ -12,6 +27,7 @@ export function ProviderSettings() {
   const providerKeys = useConvexQuery(apiAny.vttByok.listProviderKeys, {});
   const upsertProviderKey = useConvexMutation(apiAny.vttByok.upsertProviderKey);
   const disableProviderKey = useConvexMutation(apiAny.vttByok.disableProviderKey);
+  const providerKeyList = Array.isArray(providerKeys) ? providerKeys.filter(isProviderKey) : [];
 
   return (
     <div className="min-h-screen bg-[#fdfdfb] pb-24">
@@ -59,7 +75,7 @@ export function ProviderSettings() {
         <section className="paper-panel p-4">
           <h2 className="text-2xl uppercase mb-3">Stored Keys</h2>
           <div className="space-y-2">
-            {(providerKeys ?? []).map((key: any) => (
+            {providerKeyList.map((key) => (
               <div key={key._id} className="paper-panel-flat p-3 flex items-center justify-between">
                 <div>
                   <p className="font-black uppercase">{key.provider}</p>
@@ -76,7 +92,7 @@ export function ProviderSettings() {
                 </button>
               </div>
             ))}
-            {(providerKeys ?? []).length === 0 ? <p className="text-sm text-[#121212]/60">No provider keys saved.</p> : null}
+            {providerKeyList.length === 0 ? <p className="text-sm text-[#121212]/60">No provider keys saved.</p> : null}
           </div>
         </section>
       </main>
