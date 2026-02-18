@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation, query } from "./_generated/server";
 import { requireUser } from "./auth";
 import { fromBase64, getByokCryptoKey, toBase64 } from "./env";
 
@@ -111,7 +111,7 @@ export const disableProviderKey = mutation({
   },
 });
 
-export const getActiveProviderKey = query({
+export const internalGetActiveProviderKey = internalQuery({
   args: {
     userId: v.id("users"),
     provider: v.string(),
@@ -128,6 +128,28 @@ export const getActiveProviderKey = query({
       provider: keyRow.provider,
       keyPreview: keyRow.keyPreview,
       apiKey: await decryptKey(keyRow.encryptedKey),
+    };
+  },
+});
+
+export const getActiveProviderKeyPreview = query({
+  args: {
+    provider: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const keyRow = await ctx.db
+      .query("providerKeys")
+      .withIndex("by_user_provider", (q) => q.eq("userId", user._id).eq("provider", args.provider))
+      .first();
+
+    if (!keyRow || !keyRow.isActive) return null;
+
+    return {
+      provider: keyRow.provider,
+      keyPreview: keyRow.keyPreview,
+      isActive: keyRow.isActive,
+      updatedAt: keyRow.updatedAt,
     };
   },
 });

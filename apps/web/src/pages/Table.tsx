@@ -29,6 +29,7 @@ interface WorldRecord {
 interface SessionRecord {
   _id: string;
   worldId: string;
+  hostUserId: string;
   title: string;
   status: "waiting" | "active" | "ended";
 }
@@ -126,6 +127,7 @@ export function Table() {
   const joinSession = useConvexMutation(apiAny.vttSessions.joinSession);
   const postCommand = useConvexMutation(apiAny.vttSessions.postCommand);
   const rollDice = useConvexMutation(apiAny.vttSessions.rollDice);
+  const closeSession = useConvexMutation(apiAny.vttSessions.closeSession);
   const upsertToken = useConvexMutation(apiAny.vttMaps.upsertToken);
   const updateFog = useConvexMutation(apiAny.vttMaps.updateFog);
 
@@ -246,6 +248,9 @@ export function Table() {
     currentUser && sessionView?.participants
       ? sessionView.participants.find((participant) => participant.userId === currentUser._id)?.role ?? null
       : null;
+  const isSessionHost = Boolean(
+    currentUser && sessionView?.session?.hostUserId && currentUser._id === sessionView.session.hostUserId,
+  );
 
   const initiative = useMemo(
     () =>
@@ -359,31 +364,51 @@ export function Table() {
               </p>
             ) : null}
           </div>
-          <button
-            className="tcg-button"
-            disabled={Boolean(convexSessionId) && (!isParticipant || currentParticipantRole !== "gm")}
-            onClick={async () => {
-              if (convexSessionId && (!isParticipant || currentParticipantRole !== "gm")) {
-                setStatus("Only the GM can toggle fog in a Convex session.");
-                return;
-              }
-              const nextValue = !fogEnabled;
-              setFogEnabled(nextValue);
-              if (!convexSessionId || !looksLikeConvexId(activeMapId)) return;
-              if (!isParticipant) return;
-              try {
-                await updateFog({
-                  sessionId: convexSessionId,
-                  mapId: activeMapId,
-                  fog: { enabled: nextValue },
-                });
-              } catch (error) {
-                setStatus(error instanceof Error ? error.message : "Failed to sync fog state.");
-              }
-            }}
-          >
-            {fogEnabled ? "Disable Fog" : "Enable Fog"}
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              className="tcg-button"
+              disabled={Boolean(convexSessionId) && (!isParticipant || currentParticipantRole !== "gm")}
+              onClick={async () => {
+                if (convexSessionId && (!isParticipant || currentParticipantRole !== "gm")) {
+                  setStatus("Only the GM can toggle fog in a Convex session.");
+                  return;
+                }
+                const nextValue = !fogEnabled;
+                setFogEnabled(nextValue);
+                if (!convexSessionId || !looksLikeConvexId(activeMapId)) return;
+                if (!isParticipant) return;
+                try {
+                  await updateFog({
+                    sessionId: convexSessionId,
+                    mapId: activeMapId,
+                    fog: { enabled: nextValue },
+                  });
+                } catch (error) {
+                  setStatus(error instanceof Error ? error.message : "Failed to sync fog state.");
+                }
+              }}
+            >
+              {fogEnabled ? "Disable Fog" : "Enable Fog"}
+            </button>
+
+            {convexSessionId && isSessionHost && currentParticipantRole === "gm" ? (
+              <button
+                className="tcg-button"
+                disabled={sessionView?.session?.status === "ended"}
+                onClick={async () => {
+                  if (!convexSessionId) return;
+                  try {
+                    await closeSession({ sessionId: convexSessionId });
+                    setStatus("Session ended.");
+                  } catch (error) {
+                    setStatus(error instanceof Error ? error.message : "Failed to end session.");
+                  }
+                }}
+              >
+                End Session
+              </button>
+            ) : null}
+          </div>
         </header>
 
         {maps && maps.length > 0 ? (

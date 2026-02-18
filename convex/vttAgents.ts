@@ -318,13 +318,32 @@ export const agentCreateWorld = mutation({
       updatedAt: now,
     });
 
+    const defaultMapName = "Scene 1";
+    await ctx.db.insert("maps", {
+      worldId,
+      name: defaultMapName,
+      biome: args.genre,
+      camera: "topdown",
+      lightingPreset: "default",
+      ambience: [],
+      objectives: [],
+      sortOrder: 0,
+      createdAt: now,
+      updatedAt: now,
+    });
+
     const snapshot = JSON.stringify({
       name: args.name,
       tagline: args.tagline,
       genre: args.genre,
       mood: args.mood,
       rules: args.rules ?? null,
-      maps: [],
+      maps: [
+        {
+          name: defaultMapName,
+          biome: args.genre,
+        },
+      ],
     });
 
     const versionId = await ctx.db.insert("worldVersions", {
