@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
 import { serializeDraft, validateDraft } from "@/lib/ttrpgStudio";
+import { apiAny, useConvexMutation } from "@/lib/convexHelpers";
 import { useActiveProjectDraft, useTTGStudioStore } from "../state/useTTGStudioStore";
 
 const bumpVersion = (value: string, mode: "major" | "minor" | "patch") => {
-  const [a, b, c] = value.split(".").map((part) => Number(part || 0));
+  const parts = value.split(".").map((part) => Number(part || 0));
+  const a = parts[0] ?? 0;
+  const b = parts[1] ?? 0;
+  const c = parts[2] ?? 0;
   if (mode === "major") return `${a + 1}.0.0`;
   if (mode === "minor") return `${a}.${b + 1}.0`;
   return `${a}.${b}.${c + 1}`;
@@ -27,6 +31,8 @@ export function PublishTab() {
     exportActiveProjectJson: state.exportActiveProjectJson,
   }));
   const [importStatus, setImportStatus] = useState("");
+  const [moderationStatus, setModerationStatus] = useState("");
+  const assessPublish = useConvexMutation(apiAny.vttModeration.assessPublish);
 
   const preflight = useMemo(() => (draft ? validateDraft(draft) : []), [draft]);
   const hasErrors = preflight.some((issue) => issue.severity === "error");
@@ -181,6 +187,22 @@ export function PublishTab() {
         <p className={`text-sm font-bold ${hasErrors ? "text-[#b42318]" : "text-[#177245]"}`}>
           {hasErrors ? "Publishing blocked until errors are resolved." : "Preflight ready for release."}
         </p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className="tcg-button"
+            onClick={async () => {
+              const result = await assessPublish({
+                targetType: "studioProject",
+                targetId: draft.id,
+                content: `${draft.publish.packageName}\n${draft.publish.releaseNotes}\n${draft.publish.tags.join(" ")}`,
+              });
+              setModerationStatus(`${result.status}: ${result.reason}`);
+            }}
+          >
+            Run Moderation Gate
+          </button>
+          {moderationStatus ? <p className="text-xs uppercase">{moderationStatus}</p> : null}
+        </div>
       </section>
 
       <section className="paper-panel p-4 md:p-6 grid gap-4 lg:grid-cols-2">

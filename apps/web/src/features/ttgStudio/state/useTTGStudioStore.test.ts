@@ -33,7 +33,8 @@ describe("useTTGStudioStore", () => {
 
   it("creates drafts from world seeds and handles tab transitions", () => {
     const before = useTTGStudioStore.getState().projectOrder.length;
-    const worldId = playableWorlds[0].id;
+    const worldId = playableWorlds.at(0)?.id;
+    if (!worldId) throw new Error("No playable worlds are configured");
     useTTGStudioStore.getState().createProjectFromWorld(worldId);
     const after = useTTGStudioStore.getState().projectOrder.length;
     expect(after).toBe(before + 1);

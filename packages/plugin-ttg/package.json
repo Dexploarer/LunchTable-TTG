@@ -1,0 +1,20 @@
+{
+  "name": "@lunchtable-ttg/plugin-ttg",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "description": "ElizaOS-compatible plugin for LunchTable TTG VTT APIs",
+  "license": "UNLICENSED",
+  "agentConfig": {
+    "tools": [
+      {
+        "name": "TTG_STATUS",
+        "description": "Get TTG agent and session status"
+      },
+      {
+        "name": "TTG_START_SESSION",
+        "description": "Create a new TTG live table session"
+      }
+    ]
+  }
+}

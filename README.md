@@ -1,93 +1,41 @@
-# LunchTable: School of Hard Knocks (LTCG-v2)
+# LunchTable TTG
 
-White-label trading card game built for both humans and ElizaOS agents. Embedded as iframe in the milaidy Electron app. Agents stream gameplay via retake.tv.
+AI-native tabletop platform inspired by Roll20-style workflows, rebuilt for creator-first world design and live agent-assisted play.
 
-## Tech Stack
+## Stack
 
-| Layer | Tech |
-|-------|------|
-| Runtime | Bun 1.3.5 |
-| Frontend | Vite 6 + React 19.2 + React Router 7 |
-| Styling | Tailwind CSS 4 |
-| Backend | Convex 1.31.6 (white-label components) |
-| Auth | Privy 3.12 |
-| State | Zustand 5.0 |
-| Animation | Framer Motion 12 |
-| UI | Radix UI + custom zine components |
-| AI Agents | ElizaOS 1.7.2 |
-| Streaming | retake.tv |
+- Runtime: Bun
+- Frontend: Vite + React 19 + React Router 7 + Tailwind 4
+- Backend: Convex
+- Auth: Privy
+- State: Zustand
+- Live Table Rendering: PixiJS (2D/2.5D)
 
+## Key Domains
 
-## Development Rules
+- World/rules authoring and versioning
+- Live sessions (map, tokens, fog, chat/event stream, dice)
+- AI generation jobs
+- BYOK provider vault (encrypted)
+- Publish/fork/discover/LFG loop
+- Agent runtime API (`/api/vtt/*`)
 
-> [!IMPORTANT]
-> **Use Bun Exclusively**
-> This project uses [Bun](https://bun.sh) for everything.
-> - **Install**: `bun install`
-> - **Run**: `bun run <script>`
-> - **Add**: `bun add <package>`
-> - **Do NOT use**: `npm`, `yarn`, or `pnpm`.
-
-## Quick Start
-
+## Quick start
 
 ```bash
-# Install dependencies
 bun install
-
-# Start development (Convex + Web)
 bun run dev
-
-# Or run individually:
-bun run dev:convex  # Backend only
-bun run dev:web     # Frontend only (port 3334)
 ```
 
-## Project Structure
+## Main routes
 
-```
-LTCG-v2/
-├── convex/                    # Convex backend (host layer)
-├── packages/
-│   ├── engine/                # Pure TS game engine
-│   ├── plugin-ltcg/           # ElizaOS plugin
-│   ├── lunchtable-tcg-cards/  # Card inventory + decks
-│   ├── lunchtable-tcg-match/  # Event-sourced matches
-│   └── lunchtable-tcg-story/  # Story mode progression
-├── apps/web/                  # Frontend (Vite + React SPA)
-└── docs/                      # Architecture + agent docs
-```
+- `/studio`
+- `/worlds`
+- `/worlds/:worldId`
+- `/table/:sessionId`
+- `/lfg`
+- `/publish`
+- `/agent-ops`
+- `/settings/providers`
 
-## Audio Soundtrack
-
-- Manifest file: `apps/web/public/soundtrack.in`
-- Agent-readable endpoint: `GET /api/soundtrack` (optional `?context=play`)
-- Plugin env (optional): `LTCG_SOUNDTRACK_API_URL=https://your-app.com/api/soundtrack`
-
-`soundtrack.in` supports:
-- Playlist sections like `[landing]`, `[play]`, `[story]`, `[watch]`, `[default]`
-- SFX section `[sfx]` with key/value pairs like `attack=/audio/sfx/attack.wav`
-
-Landing context is shuffled automatically; other contexts loop in order.
-
-## Game
-
-A vice-themed trading card game with 6 archetypes:
-- **Dropout** (Red) - Aggro
-- **Prep** (Blue) - Midrange  
-- **Geek** (Yellow) - Combo
-- **Freak** (Purple) - Chaos
-- **Nerd** (Green) - Control
-- **Goodie Two-Shoes** (White) - Attrition
-
-## Development
-
-```bash
-# Run tests
-bun run test        # Watch mode
-bun run test:once   # Single run
-```
-
-## License
-
-Proprietary - All rights reserved.
+Legacy gameplay routes are redirected for one release cycle.

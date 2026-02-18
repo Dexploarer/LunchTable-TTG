@@ -1,23 +1,26 @@
 {
-  "name": "@lunchtable-tcg/web",
-  "version": "0.1.0",
+  "name": "@lunchtable-ttg/web",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "elizaos": {
     "kind": "app",
     "app": {
-      "displayName": "LunchTable: School of Hard Knocks",
+      "displayName": "LunchTable TTG",
       "category": "game",
       "launchType": "connect",
       "launchUrl": "http://localhost:3334",
-      "capabilities": ["observe", "control"],
+      "capabilities": [
+        "observe",
+        "control"
+      ],
       "minPlayers": 1,
-      "maxPlayers": 2,
+      "maxPlayers": 8,
       "viewer": {
         "url": "http://localhost:3334",
         "embedParams": {
           "embedded": "true",
-          "mode": "play"
+          "mode": "vtt"
         },
         "postMessageAuth": true,
         "sandbox": "allow-scripts allow-same-origin allow-popups allow-forms"
@@ -29,10 +32,7 @@
     "build": "tsc -b && vite build",
     "build:vercel": "vite build",
     "preview": "vite preview --port 3334",
-    "type-check": "tsc --noEmit",
-    "avatars:standardize": "bun run scripts/standardize-signup-avatars.ts",
-    "avatars:upload": "bun run scripts/upload-signup-avatars-to-blob.ts",
-    "upload:soundtrack": "bun run scripts/migrate-soundtrack-to-blob.ts"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.12.0",
@@ -43,11 +43,11 @@
     "@sentry/react": "^9.41.0",
     "@sentry/vite-plugin": "^4.9.1",
     "@telegram-apps/bridge": "^2.11.0",
-    "@vercel/blob": "^2.2.0",
     "clsx": "^2.1.1",
     "convex": "^1.31.6",
     "framer-motion": "^12.29.0",
     "lucide-react": "^0.562.0",
+    "pixi.js": "^8.10.1",
     "posthog-js": "^1.347.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -60,7 +60,6 @@
     "@tailwindcss/vite": "^4.1.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@vercel/node": "^5.6.3",
     "@vitejs/plugin-react": "^4.5.2",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.8.0",

@@ -1,67 +1,87 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
+import type { ActionCtx } from "./_generated/server";
 import { api } from "./_generated/api";
+import type { Id, TableNames } from "./_generated/dataModel";
+import {
+  parseAgentApiKey,
+  parseGenerationJobRoute,
+  parseSessionPostRoute,
+  parseSessionViewRoute,
+  parseWorldPatchRoute,
+  parseWorldPostRoute,
+} from "./httpRoutes";
 
 const http = httpRouter();
+const registeredOptions = new Set<string>();
 
-// CORS configuration
 const ALLOWED_HEADERS = ["Content-Type", "Authorization"];
+type HttpMethod = "GET" | "POST" | "PATCH";
+type HttpHandler = (ctx: ActionCtx, request: Request) => Promise<Response>;
+type SessionRole = "player" | "observer" | "npc";
+type WorldVisibility = "public" | "private" | "unlisted";
+type WorldRulesPayload = {
+  name: string;
+  summary: string;
+  turnLoop: string[];
+  failForwardPolicy: string;
+  escalationTrack: string;
+};
 
-/**
- * Wrap a handler with CORS headers
- */
-function corsHandler(
-  handler: (ctx: any, request: Request) => Promise<Response>
-): (ctx: any, request: Request) => Promise<Response> {
-  return async (ctx, request) => {
-    // Handle preflight OPTIONS request
+function jsonResponse(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+function errorResponse(message: string, status = 400) {
+  return jsonResponse({ error: message }, status);
+}
+
+function corsHandler(handler: HttpHandler) {
+  return async (ctx: ActionCtx, request: Request) => {
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
           "Access-Control-Allow-Headers": ALLOWED_HEADERS.join(", "),
           "Access-Control-Max-Age": "86400",
         },
       });
     }
 
-    // Call actual handler
     const response = await handler(ctx, request);
-    
-    // Add CORS headers to response
-    const newHeaders = new Headers(response.headers);
-    newHeaders.set("Access-Control-Allow-Origin", "*");
-    newHeaders.set("Access-Control-Allow-Headers", ALLOWED_HEADERS.join(", "));
-    
+    const headers = new Headers(response.headers);
+    headers.set("Access-Control-Allow-Origin", "*");
+    headers.set("Access-Control-Allow-Headers", ALLOWED_HEADERS.join(", "));
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
-      headers: newHeaders,
+      headers,
     });
   };
 }
 
-/**
- * Register a route with CORS support (includes OPTIONS preflight)
- */
 function corsRoute({
   path,
   method,
   handler,
 }: {
   path: string;
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  handler: (ctx: any, request: Request) => Promise<Response>;
+  method: HttpMethod;
+  handler: HttpHandler;
 }) {
-  // Register the actual method
   http.route({
     path,
     method,
     handler: httpAction(corsHandler(handler)),
   });
-  // Register OPTIONS preflight for the same path
+
   if (!registeredOptions.has(path)) {
     registeredOptions.add(path);
     http.route({
@@ -72,185 +92,132 @@ function corsRoute({
   }
 }
 
-const registeredOptions = new Set<string>();
-
-// ── Agent Auth Middleware ─────────────────────────────────────────
-
-async function authenticateAgent(
-  ctx: { runQuery: any },
-  request: Request,
-) {
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return null;
-  }
-
-  const apiKey = authHeader.slice(7);
-  if (!apiKey.startsWith("ltcg_")) {
-    return null;
-  }
-
-  // Hash the key and look up
-  const encoder = new TextEncoder();
-  const data = encoder.encode(apiKey);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const apiKeyHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-
-  const agent = await ctx.runQuery(api.agentAuth.getAgentByKeyHash, { apiKeyHash });
-  if (!agent || !agent.isActive) return null;
-
-  return agent;
-}
-
-function jsonResponse(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
+function corsPrefixRoute({
+  pathPrefix,
+  method,
+  handler,
+}: {
+  pathPrefix: string;
+  method: HttpMethod;
+  handler: HttpHandler;
+}) {
+  http.route({
+    pathPrefix,
+    method,
+    handler: httpAction(corsHandler(handler)),
   });
-}
 
-function errorResponse(message: string, status = 400) {
-  return jsonResponse({ error: message }, status);
-}
-
-type MatchSeat = "host" | "away";
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
-}
-
-function parseLegacyResponseType(
-  responseType: unknown,
-): boolean | undefined {
-  if (typeof responseType === "boolean") return responseType;
-  if (typeof responseType !== "string") return undefined;
-
-  const normalized = responseType.toLowerCase().trim();
-  if (normalized === "pass") return true;
-  if (normalized === "play" || normalized === "continue" || normalized === "no") {
-    return false;
+  if (!registeredOptions.has(pathPrefix)) {
+    registeredOptions.add(pathPrefix);
+    http.route({
+      pathPrefix,
+      method: "OPTIONS",
+      handler: httpAction(corsHandler(async () => new Response(null, { status: 204 }))),
+    });
   }
+}
 
+async function parseJson(request: Request): Promise<unknown | null> {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
+
+function asObject(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function parseSessionRole(value: unknown): SessionRole | undefined {
+  if (value === "player" || value === "observer" || value === "npc") return value;
   return undefined;
 }
 
-function normalizeGameCommand(rawCommand: unknown): unknown {
-  if (!isPlainObject(rawCommand)) {
-    return rawCommand;
-  }
+function parseWorldVisibility(value: unknown, fallback: WorldVisibility): WorldVisibility {
+  if (value === "public" || value === "private" || value === "unlisted") return value;
+  return fallback;
+}
 
-  const command = { ...rawCommand };
+function parseOptionalWorldVisibility(value: unknown): WorldVisibility | undefined {
+  return value === "public" || value === "private" || value === "unlisted" ? value : undefined;
+}
 
-  const legacyToCanonical: Record<string, string> = {
-    cardInstanceId: "cardId",
-    attackerInstanceId: "attackerId",
-    targetInstanceId: "targetId",
-    newPosition: "position",
-  };
+function parseWorldRules(value: unknown): WorldRulesPayload | undefined {
+  const rules = asObject(value);
+  if (!rules) return undefined;
 
-  for (const [legacyKey, canonicalKey] of Object.entries(legacyToCanonical)) {
-    if (legacyKey in command && !(canonicalKey in command)) {
-      command[canonicalKey] = command[legacyKey];
-    }
-    if (legacyKey in command) {
-      delete command[legacyKey];
-    }
-  }
+  const turnLoop = Array.isArray(rules.turnLoop)
+    ? rules.turnLoop.filter((item): item is string => typeof item === "string")
+    : null;
 
   if (
-    command.type === "CHAIN_RESPONSE" &&
-    !("pass" in command) &&
-    "responseType" in command
+    typeof rules.name !== "string" ||
+    typeof rules.summary !== "string" ||
+    !turnLoop ||
+    typeof rules.failForwardPolicy !== "string" ||
+    typeof rules.escalationTrack !== "string"
   ) {
-    const parsedPass = parseLegacyResponseType(command.responseType);
-    if (parsedPass !== undefined) {
-      command.pass = parsedPass;
-      delete command.responseType;
-    }
+    return undefined;
   }
 
-  return command;
+  return {
+    name: rules.name,
+    summary: rules.summary,
+    turnLoop,
+    failForwardPolicy: rules.failForwardPolicy,
+    escalationTrack: rules.escalationTrack,
+  };
 }
 
-async function resolveMatchAndSeat(
-  ctx: { runQuery: any },
-  agentUserId: string,
-  matchId: string,
-  requestedSeat?: string,
-) {
-  const meta = await ctx.runQuery(api.game.getMatchMeta, { matchId });
-  if (!meta) {
-    throw new Error("Match not found");
-  }
-
-  const hostId = (meta as any).hostId;
-  const awayId = (meta as any).awayId;
-
-  if (requestedSeat !== undefined && requestedSeat !== "host" && requestedSeat !== "away") {
-    throw new Error("seat must be 'host' or 'away'.");
-  }
-
-  const seat = requestedSeat as MatchSeat | undefined;
-
-  if (seat === "host") {
-    if (hostId !== agentUserId) {
-      throw new Error("You are not the host in this match.");
-    }
-    return { meta, seat: "host" as MatchSeat };
-  }
-
-  if (seat === "away") {
-    if (awayId !== agentUserId) {
-      throw new Error("You are not the away player in this match.");
-    }
-    return { meta, seat: "away" as MatchSeat };
-  }
-
-  if (hostId === agentUserId) {
-    return { meta, seat: "host" as MatchSeat };
-  }
-  if (awayId === agentUserId) {
-    return { meta, seat: "away" as MatchSeat };
-  }
-
-  throw new Error("You are not a participant in this match.");
+function toId<T extends TableNames>(value: string): Id<T> {
+  return value as Id<T>;
 }
 
-// ── Routes ───────────────────────────────────────────────────────
+async function authenticateAgent(ctx: ActionCtx, request: Request) {
+  const apiKey = parseAgentApiKey(request.headers.get("Authorization"));
+  if (!apiKey) return null;
+
+  const bytes = new TextEncoder().encode(apiKey);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+  const hash = Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  const agent = await ctx.runQuery(api.vttAgents.getAgentByKeyHash, { apiKeyHash: hash });
+  if (!agent || !agent.isActive) return null;
+
+  await ctx.runMutation(api.vttAgents.touchAgent, { agentId: agent._id });
+  return agent;
+}
 
 corsRoute({
-  path: "/api/agent/register",
+  path: "/api/vtt/agents/register",
   method: "POST",
   handler: async (ctx, request) => {
-    const body = await request.json();
-    const { name } = body;
+    const body = asObject(await parseJson(request));
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
 
-    if (!name || typeof name !== "string" || name.length < 1 || name.length > 50) {
-      return errorResponse("Name is required (1-50 characters).");
+    if (!name) {
+      return errorResponse("name is required", 400);
     }
 
-    // Generate a random API key
     const randomBytes = new Uint8Array(32);
     crypto.getRandomValues(randomBytes);
     const keyBody = Array.from(randomBytes)
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
-    const apiKey = `ltcg_${keyBody}`;
-    const apiKeyPrefix = `ltcg_${keyBody.slice(0, 8)}...`;
 
-    // Hash the key for storage
-    const encoder = new TextEncoder();
-    const data = encoder.encode(apiKey);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const apiKeyHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+    const apiKey = `ttg_${keyBody}`;
+    const apiKeyPrefix = `ttg_${keyBody.slice(0, 8)}...`;
+    const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(apiKey));
+    const apiKeyHash = Array.from(new Uint8Array(hashBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
 
-    const result = await ctx.runMutation(api.agentAuth.registerAgent, {
+    const result = await ctx.runMutation(api.vttAgents.registerAgent, {
       name,
       apiKeyHash,
       apiKeyPrefix,
@@ -259,25 +226,19 @@ corsRoute({
     return jsonResponse({
       agentId: result.agentId,
       userId: result.userId,
-      apiKey, // Shown once — cannot be retrieved again
+      apiKey,
       apiKeyPrefix,
-      message: "Save your API key! It cannot be retrieved again.",
+      warning: "Store this API key securely. It is shown only once.",
     });
   },
 });
 
 corsRoute({
-  path: "/api/agent/me",
+  path: "/api/vtt/agents/me",
   method: "GET",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
-
-    // Check if there's an unread daily briefing
-    const briefing = await ctx.runQuery(api.dailyBriefing.getAgentDailyBriefing, {
-      agentId: agent._id,
-      userId: agent.userId,
-    });
 
     return jsonResponse({
       id: agent._id,
@@ -286,431 +247,233 @@ corsRoute({
       apiKeyPrefix: agent.apiKeyPrefix,
       isActive: agent.isActive,
       createdAt: agent.createdAt,
-      dailyBriefing: briefing?.active
-        ? {
-            available: true,
-            checkedIn: briefing.checkedIn,
-            event: briefing.event,
-            announcement: briefing.announcement,
-          }
-        : { available: false, checkedIn: false },
+      lastSeenAt: agent.lastSeenAt,
     });
   },
 });
 
 corsRoute({
-  path: "/api/agent/game/start",
+  path: "/api/vtt/sessions",
   method: "POST",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const body = await request.json();
-    const { chapterId, stageNumber } = body;
+    const body = asObject(await parseJson(request));
+    const worldId = typeof body?.worldId === "string" ? body.worldId : null;
+    if (!worldId) return errorResponse("worldId is required", 400);
 
-    if (!chapterId || typeof chapterId !== "string") {
-      return errorResponse("chapterId is required.");
-    }
+    const result = await ctx.runMutation(api.vttAgents.agentCreateSession, {
+      agentUserId: agent.userId,
+      worldId: toId<"worlds">(worldId),
+      title: typeof body?.title === "string" ? body.title : undefined,
+    });
 
-    try {
-      const result = await ctx.runMutation(api.agentAuth.agentStartBattle, {
-        agentUserId: agent.userId,
-        chapterId,
-        stageNumber: typeof stageNumber === "number" ? stageNumber : undefined,
-      });
-      return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
+    return jsonResponse({ sessionId: result.sessionId, status: "active" });
   },
 });
 
-corsRoute({
-  path: "/api/agent/game/start-duel",
+corsPrefixRoute({
+  pathPrefix: "/api/vtt/sessions/",
   method: "POST",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    try {
-      const result = await ctx.runMutation(api.agentAuth.agentStartDuel, {
+    const route = parseSessionPostRoute(new URL(request.url).pathname);
+    if (!route) return errorResponse("Not found", 404);
+
+    const body = asObject(await parseJson(request));
+
+    if (route.kind === "join") {
+      const role = parseSessionRole(body?.role);
+      const result = await ctx.runMutation(api.vttAgents.agentJoinSession, {
         agentUserId: agent.userId,
+        sessionId: toId<"sessions">(route.sessionId),
+        role,
       });
       return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-  },
-});
-
-corsRoute({
-  path: "/api/agent/game/join",
-  method: "POST",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const body = await request.json();
-    const { matchId } = body;
-
-    if (!matchId || typeof matchId !== "string") {
-      return errorResponse("matchId is required.");
     }
 
-    try {
-      const result = await ctx.runMutation(api.agentAuth.agentJoinMatch, {
-        agentUserId: agent.userId,
-        matchId,
-      });
-      return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-  },
-});
-
-corsRoute({
-  path: "/api/agent/game/action",
-  method: "POST",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const body = await request.json();
-    const {
-      matchId,
+    const command = typeof body?.command === "string" ? body.command : "NOOP";
+    const result = await ctx.runMutation(api.vttAgents.agentPostCommand, {
+      agentUserId: agent.userId,
+      sessionId: toId<"sessions">(route.sessionId),
       command,
-      seat: requestedSeat,
-      expectedVersion,
-    } = body;
-
-    if (!matchId || !command) {
-      return errorResponse("matchId and command are required.");
-    }
-    if (expectedVersion !== undefined && typeof expectedVersion !== "number") {
-      return errorResponse("expectedVersion must be a number.");
-    }
-
-    let resolvedSeat: MatchSeat;
-    try {
-      ({ seat: resolvedSeat } = await resolveMatchAndSeat(
-        ctx,
-        agent.userId,
-        matchId,
-        requestedSeat,
-      ));
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-
-    let parsedCommand = command;
-    if (typeof command === "string") {
-      try {
-        parsedCommand = JSON.parse(command);
-      } catch {
-        return errorResponse("command must be valid JSON or a JSON-compatible object.");
-      }
-    }
-    if (!isPlainObject(parsedCommand)) {
-      return errorResponse("command must be an object.");
-    }
-
-    const normalizedCommand = normalizeGameCommand(parsedCommand);
-    if (!isPlainObject(normalizedCommand)) {
-      return errorResponse("command must be an object after normalization.");
-    }
-
-    try {
-      const result = await ctx.runMutation(api.game.submitAction, {
-        matchId,
-        command: JSON.stringify(normalizedCommand),
-        seat: resolvedSeat,
-        expectedVersion:
-          typeof expectedVersion === "number" ? Number(expectedVersion) : undefined,
-      });
-      return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
+      payload: body?.payload ?? {},
+    });
+    return jsonResponse(result);
   },
 });
 
-corsRoute({
-  path: "/api/agent/game/view",
+corsPrefixRoute({
+  pathPrefix: "/api/vtt/sessions/",
   method: "GET",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const url = new URL(request.url);
-    const matchId = url.searchParams.get("matchId");
-    const requestedSeat = url.searchParams.get("seat") ?? undefined;
+    const route = parseSessionViewRoute(new URL(request.url).pathname);
+    if (!route) return errorResponse("Not found", 404);
 
-    if (!matchId) {
-      return errorResponse("matchId query parameter is required.");
-    }
+    const result = await ctx.runQuery(api.vttAgents.agentSessionView, {
+      agentUserId: agent.userId,
+      sessionId: toId<"sessions">(route.sessionId),
+    });
 
-    let seat: MatchSeat;
-    try {
-      ({ seat } = await resolveMatchAndSeat(
-        ctx,
-        agent.userId,
-        matchId,
-        requestedSeat,
-      ));
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-
-    try {
-      const view = await ctx.runQuery(api.game.getPlayerView, { matchId, seat });
-      if (!view) return errorResponse("Match state not found", 404);
-      // getPlayerView returns a JSON string — parse before wrapping
-      const parsed = typeof view === "string" ? JSON.parse(view) : view;
-      return jsonResponse(parsed);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-  },
-});
-
-// ── Agent Setup Routes ──────────────────────────────────────────
-
-corsRoute({
-  path: "/api/agent/game/chapters",
-  method: "GET",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const chapters = await ctx.runQuery(api.game.getChapters, {});
-    return jsonResponse(chapters);
+    return jsonResponse(result ?? { session: null });
   },
 });
 
 corsRoute({
-  path: "/api/agent/game/starter-decks",
-  method: "GET",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const decks = await ctx.runQuery(api.game.getStarterDecks, {});
-    return jsonResponse(decks);
-  },
-});
-
-corsRoute({
-  path: "/api/agent/game/select-deck",
+  path: "/api/vtt/worlds",
   method: "POST",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const body = await request.json();
-    const { deckCode } = body;
+    const body = asObject(await parseJson(request));
+    const name = typeof body?.name === "string" ? body.name : "Untitled World";
+    const result = await ctx.runMutation(api.vttWorlds.createWorld, {
+      name,
+      tagline: typeof body?.tagline === "string" ? body.tagline : "",
+      genre: typeof body?.genre === "string" ? body.genre : "Custom",
+      mood: typeof body?.mood === "string" ? body.mood : "Neutral",
+      visibility: parseWorldVisibility(body?.visibility, "private"),
+      recommendedPartySize: typeof body?.recommendedPartySize === "string" ? body.recommendedPartySize : undefined,
+      sessionLength: typeof body?.sessionLength === "string" ? body.sessionLength : undefined,
+      rules: parseWorldRules(body?.rules),
+    });
 
-    if (!deckCode || typeof deckCode !== "string") {
-      return errorResponse("deckCode is required.");
-    }
-
-    try {
-      const result = await ctx.runMutation(api.agentAuth.agentSelectStarterDeck, {
-        agentUserId: agent.userId,
-        deckCode,
-      });
-      return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
+    return jsonResponse(result, 201);
   },
 });
 
-// ── Agent Story Endpoints ──────────────────────────────────────
-
-corsRoute({
-  path: "/api/agent/story/progress",
-  method: "GET",
+corsPrefixRoute({
+  pathPrefix: "/api/vtt/worlds/",
+  method: "PATCH",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const result = await ctx.runQuery(api.game.getFullStoryProgress, {});
+    const route = parseWorldPatchRoute(new URL(request.url).pathname);
+    if (!route) return errorResponse("Not found", 404);
+
+    const body = asObject(await parseJson(request));
+
+    const result = await ctx.runMutation(api.vttWorlds.updateWorld, {
+      worldId: toId<"worlds">(route.worldId),
+      name: typeof body?.name === "string" ? body.name : undefined,
+      tagline: typeof body?.tagline === "string" ? body.tagline : undefined,
+      genre: typeof body?.genre === "string" ? body.genre : undefined,
+      mood: typeof body?.mood === "string" ? body.mood : undefined,
+      visibility: parseOptionalWorldVisibility(body?.visibility),
+      recommendedPartySize:
+        typeof body?.recommendedPartySize === "string" ? body.recommendedPartySize : undefined,
+      sessionLength: typeof body?.sessionLength === "string" ? body.sessionLength : undefined,
+    });
+
+    return jsonResponse(result);
+  },
+});
+
+corsPrefixRoute({
+  pathPrefix: "/api/vtt/worlds/",
+  method: "POST",
+  handler: async (ctx, request) => {
+    const agent = await authenticateAgent(ctx, request);
+    if (!agent) return errorResponse("Unauthorized", 401);
+
+    const route = parseWorldPostRoute(new URL(request.url).pathname);
+    if (!route) return errorResponse("Not found", 404);
+
+    if (route.kind === "fork") {
+      const result = await ctx.runMutation(api.vttWorlds.forkWorld, {
+        worldId: toId<"worlds">(route.worldId),
+      });
+      return jsonResponse(result, 201);
+    }
+
+    const body = asObject(await parseJson(request));
+    const tags = Array.isArray(body?.tags)
+      ? body.tags.filter((value): value is string => typeof value === "string")
+      : undefined;
+
+    const result = await ctx.runMutation(api.vttPublish.publishWorld, {
+      worldId: toId<"worlds">(route.worldId),
+      title: typeof body?.title === "string" ? body.title : undefined,
+      description: typeof body?.description === "string" ? body.description : undefined,
+      tags,
+    });
     return jsonResponse(result);
   },
 });
 
 corsRoute({
-  path: "/api/agent/story/stage",
+  path: "/api/vtt/discovery/worlds",
   method: "GET",
   handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const url = new URL(request.url);
-    const chapterId = url.searchParams.get("chapterId");
-    const stageNumber = url.searchParams.get("stageNumber");
-
-    if (!chapterId || !stageNumber) {
-      return errorResponse("chapterId and stageNumber query params required.");
-    }
-
-    const stage = await ctx.runQuery(api.game.getStageWithNarrative, {
-      chapterId,
-      stageNumber: parseInt(stageNumber, 10),
-    });
-
-    if (!stage) return errorResponse("Stage not found", 404);
-    return jsonResponse(stage);
+    const search = new URL(request.url).searchParams.get("search") ?? undefined;
+    const worlds = await ctx.runQuery(api.vttDiscovery.listDiscoveryWorlds, { search });
+    return jsonResponse(worlds);
   },
 });
 
 corsRoute({
-  path: "/api/agent/story/complete-stage",
+  path: "/api/vtt/discovery/lfg",
+  method: "GET",
+  handler: async (ctx, request) => {
+    const statusParam = new URL(request.url).searchParams.get("status");
+    const status =
+      statusParam === "open" || statusParam === "filled" || statusParam === "closed"
+        ? statusParam
+        : undefined;
+
+    const posts = await ctx.runQuery(api.vttDiscovery.listLfgPosts, { status });
+    return jsonResponse(posts);
+  },
+});
+
+corsRoute({
+  path: "/api/vtt/generation/jobs",
   method: "POST",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const body = await request.json();
-    const { matchId } = body;
+    const body = asObject(await parseJson(request));
+    const kind = typeof body?.kind === "string" ? body.kind : "world";
+    const provider = typeof body?.provider === "string" ? body.provider : "openai";
 
-    if (!matchId || typeof matchId !== "string") {
-      return errorResponse("matchId is required.");
-    }
+    const result = await ctx.runMutation(api.vttGeneration.createGenerationJob, {
+      actorUserId: agent.userId,
+      worldId:
+        typeof body?.worldId === "string" ? toId<"worlds">(body.worldId) : undefined,
+      kind,
+      provider,
+      input: body?.input ?? {},
+    });
 
-    try {
-      const result = await ctx.runMutation(api.game.completeStoryStage, {
-        matchId,
-        actorUserId: agent.userId,
-      });
-      return jsonResponse(result);
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
+    return jsonResponse(result, 201);
   },
 });
 
-corsRoute({
-  path: "/api/agent/game/match-status",
+corsPrefixRoute({
+  pathPrefix: "/api/vtt/generation/jobs/",
   method: "GET",
   handler: async (ctx, request) => {
     const agent = await authenticateAgent(ctx, request);
     if (!agent) return errorResponse("Unauthorized", 401);
 
-    const url = new URL(request.url);
-    const matchId = url.searchParams.get("matchId");
+    const route = parseGenerationJobRoute(new URL(request.url).pathname);
+    if (!route) return errorResponse("Not found", 404);
 
-    if (!matchId) {
-      return errorResponse("matchId query parameter is required.");
-    }
-
-    try {
-      const { meta: validatedMeta, seat } = await resolveMatchAndSeat(
-        ctx,
-        agent.userId,
-        matchId,
-      );
-      const storyCtx = await ctx.runQuery(api.game.getStoryMatchContext, { matchId });
-
-      return jsonResponse({
-        matchId,
-        status: (validatedMeta as any)?.status,
-        mode: (validatedMeta as any)?.mode,
-        winner: (validatedMeta as any)?.winner ?? null,
-        endReason: (validatedMeta as any)?.endReason ?? null,
-        isGameOver: (validatedMeta as any)?.status === "ended",
-        hostId: (validatedMeta as any)?.hostId ?? null,
-        awayId: (validatedMeta as any)?.awayId ?? null,
-        seat,
-        chapterId: storyCtx?.chapterId ?? null,
-        stageNumber: storyCtx?.stageNumber ?? null,
-        outcome: storyCtx?.outcome ?? null,
-        starsEarned: storyCtx?.starsEarned ?? null,
-      });
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-  },
-});
-
-// ── Agent Active Match ──────────────────────────────────────
-
-corsRoute({
-  path: "/api/agent/active-match",
-  method: "GET",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const activeMatch = await ctx.runQuery(api.game.getActiveMatchByHost, {
-      hostId: agent.userId,
+    const result = await ctx.runQuery(api.vttGeneration.getGenerationJob, {
+      jobId: toId<"generationJobs">(route.jobId),
     });
+    if (!result) return errorResponse("Job not found", 404);
 
-    if (!activeMatch) {
-      return jsonResponse({ matchId: null, status: null });
-    }
-
-    let seat: MatchSeat;
-    try {
-      ({ seat } = await resolveMatchAndSeat(ctx, agent.userId, activeMatch._id));
-    } catch (e: any) {
-      return errorResponse(e.message, 422);
-    }
-
-    return jsonResponse({
-      matchId: activeMatch._id,
-      status: activeMatch.status,
-      mode: activeMatch.mode,
-      createdAt: activeMatch.createdAt,
-      hostId: (activeMatch as any).hostId,
-      awayId: (activeMatch as any).awayId,
-      seat,
-    });
-  },
-});
-
-// ── Agent Daily Briefing ─────────────────────────────────────
-
-corsRoute({
-  path: "/api/agent/daily-briefing",
-  method: "GET",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    const briefing = await ctx.runQuery(api.dailyBriefing.getAgentDailyBriefing, {
-      agentId: agent._id,
-      userId: agent.userId,
-    });
-
-    return jsonResponse(briefing);
-  },
-});
-
-corsRoute({
-  path: "/api/agent/checkin",
-  method: "POST",
-  handler: async (ctx, request) => {
-    const agent = await authenticateAgent(ctx, request);
-    if (!agent) return errorResponse("Unauthorized", 401);
-
-    // Record check-in
-    const checkinResult = await ctx.runMutation(api.dailyBriefing.agentCheckin, {
-      agentId: agent._id,
-      userId: agent.userId,
-    });
-
-    // Return full briefing with check-in status
-    const briefing = await ctx.runQuery(api.dailyBriefing.getAgentDailyBriefing, {
-      agentId: agent._id,
-      userId: agent.userId,
-    });
-
-    return jsonResponse({
-      ...briefing,
-      checkinStatus: checkinResult,
-    });
+    return jsonResponse(result);
   },
 });
 

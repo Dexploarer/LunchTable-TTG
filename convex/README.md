@@ -1,33 +1,22 @@
-# LTCG-v2 Convex Backend
+# Convex Backend (LunchTable TTG)
 
-## Structure
+This backend now runs the AI-native VTT domain.
 
-```
-convex/
-├── _generated/              # Auto-generated Convex types
-├── auth.ts                  # Privy auth integration
-├── agentAuth.ts             # ElizaOS agent authentication
-├── cardData.ts              # 132 card definitions (~71K)
-├── game.ts                  # Main API orchestration (~18K)
-├── http.ts                  # HTTP endpoints for agents (~15K)
-├── seed.ts                  # Seeds cards, decks, story content (~62K)
-├── schema.ts                # Users table definition
-├── auth.config.ts           # Auth configuration
-├── crons.ts                 # Scheduled jobs
-└── convex.config.ts         # Component configuration
-```
+## Core modules
 
-## Key Functions
+- `auth.ts`: Privy user sync and profile bootstrap
+- `vttWorlds.ts`: world/rules/map authoring
+- `vttSessions.ts`: live table session lifecycle + command stream
+- `vttMaps.ts`: token + fog state
+- `vttAgents.ts`: API-key agent registration/runtime helpers
+- `vttGeneration.ts`: generation jobs
+- `vttPublish.ts`: publish listing workflow
+- `vttDiscovery.ts`: discovery + LFG queries
+- `vttByok.ts`: encrypted BYOK provider key vault
+- `vttModeration.ts`: publish moderation gate
+- `http.ts`: `/api/vtt/*` HTTP surface
 
-- `api.game.*` - Main game operations (start match, submit action, etc.)
-- `api.auth.*` - User authentication
-- Internal functions for AI turn execution
+## Auth model
 
-## White-Label Components
-
-Uses `@lunchtable-tcg/*` component packages:
-- `lunchtable-tcg-cards` - Card inventory & decks
-- `lunchtable-tcg-match` - Match lifecycle & state
-- `lunchtable-tcg-story` - Story mode progression
-
-See `.claude/skills/convex-*` for patterns.
+- Human users authenticate with Privy and sync through `auth.syncUser`.
+- Agents authenticate with API keys (`ttg_*`) over `/api/vtt/agents/*`.

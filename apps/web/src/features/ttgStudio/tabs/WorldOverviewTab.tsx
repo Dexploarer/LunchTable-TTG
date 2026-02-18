@@ -35,7 +35,10 @@ export function WorldOverviewTab() {
   }));
 
   const items = useMemo(
-    () => projectOrder.map((id) => projects[id]).filter(Boolean),
+    () =>
+      projectOrder
+        .map((id) => projects[id])
+        .filter((item): item is NonNullable<(typeof projects)[string]> => item != null),
     [projectOrder, projects],
   );
 

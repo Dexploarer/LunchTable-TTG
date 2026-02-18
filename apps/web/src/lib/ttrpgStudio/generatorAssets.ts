@@ -113,11 +113,13 @@ export function buildWorldCreationKit(input: BuildKitInput): WorldCreationKit {
     exportPackage: [
       "world.json",
       "rules.json",
+      "npcs.json",
+      "agents.json",
       "maps/*.json",
       "dungeons/*.json",
-      "agents/*.json",
       "campaign/*.json",
       "prompts/*.md",
+      "moderation-report.json",
     ],
   };
 }

@@ -4,7 +4,9 @@ import { createAgentAdapter, SimulatedAgentAdapter } from "./agentAdapters";
 
 describe("agentAdapters", () => {
   it("generates deterministic simulated turns for identical seeds", async () => {
-    const draft = createDraftFromWorld(playableWorlds[0].id);
+    const seedWorld = playableWorlds.at(0);
+    if (!seedWorld) throw new Error("No playable worlds are configured");
+    const draft = createDraftFromWorld(seedWorld.id);
 
     const adapterA = new SimulatedAgentAdapter();
     const adapterB = new SimulatedAgentAdapter();

@@ -1,38 +1,36 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
-import { components } from "./_generated/api";
-import { LTCGCards } from "@lunchtable-tcg/cards";
 
-/**
- * Extracts user identity from JWT via ctx.auth.getUserIdentity().
- * Throws if not authenticated.
- */
+const DEFAULT_SIGNUP_AVATAR_PATH = "avatars/signup/avatar-001.png";
+
+const VALID_SIGNUP_AVATAR_PATHS = new Set(
+  Array.from({ length: 29 }, (_, index) => {
+    const suffix = String(index + 1).padStart(3, "0");
+    return `avatars/signup/avatar-${suffix}.png`;
+  }),
+);
+
 export async function requireAuth(ctx: QueryCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not authenticated");
-  const privyId = identity.subject;
-  return { privyId, identity };
+  return { identity, privyId: identity.subject };
 }
 
-/**
- * Resolves the full user document from the authenticated JWT.
- * Throws if not authenticated or user not found.
- */
 export async function requireUser(ctx: QueryCtx | MutationCtx) {
   const { privyId } = await requireAuth(ctx);
   const user = await ctx.db
     .query("users")
     .withIndex("by_privyId", (q) => q.eq("privyId", privyId))
     .first();
-  if (!user) throw new Error("User not found. Complete signup first.");
+
+  if (!user) {
+    throw new Error("User not found. Sync user first.");
+  }
+
   return user;
 }
 
-/**
- * Syncs or creates a user based on JWT identity.
- * Uses JWT subject as privyId, no longer accepts it as an arg.
- */
 export const syncUser = mutation({
   args: {
     email: v.optional(v.string()),
@@ -41,6 +39,7 @@ export const syncUser = mutation({
   },
   handler: async (ctx, args) => {
     const { privyId, identity } = await requireAuth(ctx);
+    const now = Date.now();
     const email = args.email ?? identity.email ?? undefined;
 
     const existing = await ctx.db
@@ -49,122 +48,90 @@ export const syncUser = mutation({
       .first();
 
     if (existing) {
-      // Update email if provided and changed
-      if (email && email !== existing.email) {
-        await ctx.db.patch(existing._id, { email });
-      }
+      await ctx.db.patch(existing._id, {
+        email,
+        updatedAt: now,
+      });
       return existing._id;
     }
 
     return await ctx.db.insert("users", {
       privyId,
-      username: `player_${Date.now()}`,
+      username: `builder_${now}`,
       avatarPath: DEFAULT_SIGNUP_AVATAR_PATH,
       email,
-      createdAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     });
   },
 });
 
-/**
- * Returns the current user based on JWT identity.
- * Returns null if not authenticated or user not found.
- */
 export const currentUser = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
-    return ctx.db
+
+    return await ctx.db
       .query("users")
       .withIndex("by_privyId", (q) => q.eq("privyId", identity.subject))
       .first();
   },
 });
 
-const cards = new LTCGCards(components.lunchtable_tcg_cards as any);
-const DEFAULT_SIGNUP_AVATAR_PATH = "avatars/signup/avatar-001.png";
-const RESERVED_DECK_IDS = new Set(["undefined", "null", "skip"]);
-const VALID_SIGNUP_AVATAR_PATHS = new Set(
-  Array.from({ length: 29 }, (_, index) => {
-    const suffix = String(index + 1).padStart(3, "0");
-    return `avatars/signup/avatar-${suffix}.png`;
-  }),
-);
-const normalizeDeckId = (deckId: string | undefined): string | null => {
-  if (!deckId) return null;
-  const trimmed = deckId.trim();
-  if (!trimmed) return null;
-  if (RESERVED_DECK_IDS.has(trimmed.toLowerCase())) return null;
-  return trimmed;
-};
-
-/**
- * Returns onboarding status for the authenticated user.
- */
 export const getOnboardingStatus = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
+
     const user = await ctx.db
       .query("users")
       .withIndex("by_privyId", (q) => q.eq("privyId", identity.subject))
       .first();
-    if (!user)
+
+    if (!user) {
       return {
         exists: false,
         hasUsername: false,
         hasAvatar: false,
-        hasStarterDeck: false,
+        hasWorkspace: false,
       };
-
-    const userDecks = await cards.decks.getUserDecks(ctx, user._id);
-    const activeDeckId = normalizeDeckId(user.activeDeckId);
-    const hasActiveDeck = activeDeckId
-      ? userDecks?.some((deck: { deckId: string }) => deck.deckId === activeDeckId)
-      : false;
+    }
 
     return {
       exists: true,
-      hasUsername: !user.username.startsWith("player_"),
+      hasUsername: Boolean(user.username && !user.username.startsWith("builder_")),
       hasAvatar: Boolean(user.avatarPath),
-      hasStarterDeck: hasActiveDeck,
+      hasWorkspace: Boolean(user.activeWorkspaceId),
     };
   },
 });
 
-/**
- * Sets the username for the authenticated user.
- * Validates format and uniqueness.
- */
 export const setUsername = mutation({
   args: { username: v.string() },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    // Validate: 3-20 chars, alphanumeric + underscores
     const trimmed = args.username.trim();
+
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(trimmed)) {
-      throw new Error(
-        "Username must be 3-20 characters, alphanumeric and underscores only."
-      );
+      throw new Error("Username must be 3-20 chars (letters, numbers, underscores).");
     }
-    // Check uniqueness
-    const taken = await ctx.db
+
+    const existing = await ctx.db
       .query("users")
       .withIndex("by_username", (q) => q.eq("username", trimmed))
       .first();
-    if (taken && taken._id !== user._id) {
+
+    if (existing && existing._id !== user._id) {
       throw new Error("Username is already taken.");
     }
-    await ctx.db.patch(user._id, { username: trimmed });
+
+    await ctx.db.patch(user._id, { username: trimmed, updatedAt: Date.now() });
     return { success: true };
   },
 });
 
-/**
- * Sets the signup avatar path for the authenticated user.
- */
 export const setAvatarPath = mutation({
   args: { avatarPath: v.string() },
   handler: async (ctx, args) => {
@@ -175,7 +142,7 @@ export const setAvatarPath = mutation({
       throw new Error("Invalid avatar selection.");
     }
 
-    await ctx.db.patch(user._id, { avatarPath });
+    await ctx.db.patch(user._id, { avatarPath, updatedAt: Date.now() });
     return { success: true, avatarPath };
   },
 });

@@ -1,4 +1,5 @@
 import { playableWorlds } from "./worlds";
+import { getAiProvider } from "@/lib/ai/providerRegistry";
 import type {
   DiceRollResult,
   PromptTemplate,
@@ -33,8 +34,9 @@ function buildDefaultMapTokens(archetypeNames: string[]): TTGMapToken[] {
     { x: 44, y: 48, layer: "mid" as const, color: "#33ccff" },
     { x: 70, y: 32, layer: "air" as const, color: "#ff7f50" },
   ];
+  const fallback = { x: 20, y: 24, layer: "ground" as const, color: "#ffcc00" };
   return archetypeNames.slice(0, 6).map((name, index) => {
-    const baseline = defaults[index % defaults.length];
+    const baseline = defaults[index % defaults.length] ?? fallback;
     return {
       id: makeId("token"),
       name,
@@ -317,6 +319,44 @@ export function runDeterministicDice(expression: string, seed: number): DiceRoll
 
 export function serializeDraft(draft: TTGProjectDraft): string {
   return JSON.stringify(draft, null, 2);
+}
+
+export interface GeneratedArtifactSet {
+  rules: string;
+  world: string;
+  maps: string;
+  npcs: string;
+  provider: string;
+}
+
+export async function generateArtifactSet(
+  draft: TTGProjectDraft,
+  providerId: string,
+): Promise<GeneratedArtifactSet> {
+  const provider = getAiProvider(providerId);
+  if (!provider) {
+    throw new Error("No AI provider registered.");
+  }
+
+  const worldPrompt = `Create world canon for ${draft.world.name}: ${draft.world.tagline}`;
+  const rulesPrompt = `Define concise rules summary for ${draft.world.name} with fail-forward policy.`;
+  const mapsPrompt = `Generate map objective expansions for ${draft.world.maps.map((scene) => scene.name).join(", ")}`;
+  const npcsPrompt = `Generate narrator + NPC prompt pack for ${draft.world.name}`;
+
+  const [world, rules, maps, npcs] = await Promise.all([
+    provider.generate({ prompt: worldPrompt, context: { world: draft.world.name } }),
+    provider.generate({ prompt: rulesPrompt, context: { rules: draft.world.rules } }),
+    provider.generate({ prompt: mapsPrompt, context: { maps: draft.world.maps } }),
+    provider.generate({ prompt: npcsPrompt, context: { agents: draft.world.hostedAgents } }),
+  ]);
+
+  return {
+    provider: provider.id,
+    world: world.text,
+    rules: rules.text,
+    maps: maps.text,
+    npcs: npcs.text,
+  };
 }
 
 export function deserializeDraft(payload: string): TTGProjectDraft {
