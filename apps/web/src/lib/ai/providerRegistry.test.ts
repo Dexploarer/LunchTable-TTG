@@ -18,7 +18,13 @@ describe("providerRegistry", () => {
     ensureAiProvidersRegistered();
     ensureAiProvidersRegistered();
 
-    expect(listAiProviders().sort()).toEqual(["anthropic", "eliza", "openai"]);
+    expect(listAiProviders().sort()).toEqual([
+      "anthropic",
+      "eliza",
+      "openai",
+      "openrouter",
+      "vercel_gateway",
+    ]);
   });
 
   it("supports deterministic scaffold responses", async () => {

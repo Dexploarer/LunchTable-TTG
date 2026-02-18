@@ -1,4 +1,9 @@
-export type AgentRunProvider = "openai" | "anthropic" | "eliza";
+export type AgentRunProvider =
+  | "openai"
+  | "anthropic"
+  | "openrouter"
+  | "vercel_gateway"
+  | "eliza";
 
 export interface AgentRunFormState {
   provider: AgentRunProvider;
@@ -26,4 +31,3 @@ export function normalizeAgentRunFormState(input: AgentRunFormState): AgentRunFo
 export function formatProviderFallbackMessage(provider: Exclude<AgentRunProvider, "eliza">) {
   return `No active ${provider} BYOK key found. Falling back to eliza.`;
 }
-

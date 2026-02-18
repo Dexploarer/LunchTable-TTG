@@ -67,6 +67,8 @@ export function AgentMasterPanel({ sessionId, isGm, activeMapId }: AgentMasterPa
           >
             <option value="openai">openai</option>
             <option value="anthropic">anthropic</option>
+            <option value="openrouter">openrouter</option>
+            <option value="vercel_gateway">vercel_gateway</option>
             <option value="eliza">eliza</option>
           </select>
         </label>

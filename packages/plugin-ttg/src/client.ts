@@ -53,7 +53,7 @@ export class TTGClient {
     return this.request(`/api/vtt/sessions/${sessionId}/view`);
   }
 
-  postCommand(sessionId: string, command: string, payload: Record<string, unknown> = {}) {
+  postCommand(sessionId: string, command: string, payload: unknown = {}) {
     return this.request(`/api/vtt/sessions/${sessionId}/commands`, {
       method: "POST",
       body: JSON.stringify({ command, payload }),
@@ -65,7 +65,7 @@ export class TTGClient {
   }
 
   upsertToken(sessionId: string, payload: TTGTokenUpsertPayload) {
-    return this.postCommand(sessionId, "TOKEN_UPSERT", payload as Record<string, unknown>);
+    return this.postCommand(sessionId, "TOKEN_UPSERT", payload);
   }
 
   createGenerationJob({

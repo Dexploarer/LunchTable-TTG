@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
+import { vVttProvider } from "./vttAiProviders";
 
 async function ensureParticipant(
   ctx: MutationCtx | QueryCtx,
@@ -323,7 +324,7 @@ export const internalRollDice = internalMutation({
 export const invokeNarrator = mutation({
   args: {
     sessionId: v.id("sessions"),
-    provider: v.union(v.literal("openai"), v.literal("anthropic"), v.literal("eliza")),
+    provider: vVttProvider,
     prompt: v.optional(v.string()),
     mapId: v.optional(v.id("maps")),
   },

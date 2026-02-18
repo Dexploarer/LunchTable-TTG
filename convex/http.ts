@@ -480,7 +480,15 @@ corsRoute({
 
     const body = asObject(await parseJson(request));
     const kind = typeof body?.kind === "string" ? body.kind : "world";
-    const provider = typeof body?.provider === "string" ? body.provider : "openai";
+    const rawProvider = typeof body?.provider === "string" ? body.provider : "openai";
+    const provider =
+      rawProvider === "openai" ||
+      rawProvider === "anthropic" ||
+      rawProvider === "openrouter" ||
+      rawProvider === "vercel_gateway" ||
+      rawProvider === "eliza"
+        ? rawProvider
+        : "openai";
 
     const result = await ctx.runMutation(api.vttAgents.agentCreateGenerationJob, {
       agentUserId: agent.userId,

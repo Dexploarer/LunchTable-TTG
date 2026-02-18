@@ -6,6 +6,7 @@ import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { canActorUseWorld } from "./permissions";
 import { evaluateModerationText } from "./vttModeration";
 import { buildWorldVersionSnapshot } from "./vttWorlds";
+import { vVttProvider } from "./vttAiProviders";
 
 function normalizeUsername(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 18) || "agent";
@@ -643,7 +644,7 @@ export const agentCreateGenerationJob = mutation({
     agentUserId: v.id("users"),
     worldId: v.optional(v.id("worlds")),
     kind: v.string(),
-    provider: v.string(),
+    provider: vVttProvider,
     input: v.optional(v.any()),
   },
   handler: async (ctx, args) => {

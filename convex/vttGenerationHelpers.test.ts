@@ -10,15 +10,22 @@ describe("vttGeneration helpers", () => {
   it("selects default models when none provided", () => {
     expect(defaultModelForProvider("openai")).toBe("gpt-4.1-mini");
     expect(defaultModelForProvider("anthropic")).toBe("claude-3-5-sonnet-20240620");
+    expect(defaultModelForProvider("openrouter")).toBe("openai/gpt-4.1-mini");
+    expect(defaultModelForProvider("vercel_gateway")).toBe("openai/gpt-4.1-mini");
     expect(defaultModelForProvider("eliza")).toBe("synthetic");
 
     expect(selectModel("openai", {})).toBe("gpt-4.1-mini");
     expect(selectModel("anthropic", {})).toBe("claude-3-5-sonnet-20240620");
+    expect(selectModel("openrouter", {})).toBe("openai/gpt-4.1-mini");
+    expect(selectModel("vercel_gateway", {})).toBe("openai/gpt-4.1-mini");
   });
 
   it("allows explicit model override in input", () => {
     expect(selectModel("openai", { model: "gpt-4.1" })).toBe("gpt-4.1");
     expect(selectModel("anthropic", { model: "claude-test" })).toBe("claude-test");
+    expect(selectModel("openrouter", { model: "anthropic/claude-3.5-sonnet" })).toBe(
+      "anthropic/claude-3.5-sonnet",
+    );
   });
 
   it("extracts json objects and arrays from text", () => {

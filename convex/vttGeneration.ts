@@ -5,6 +5,25 @@ import type { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
 import { selectNarrationFromNarrationOutput } from "./vttNarrator";
+import { generateText } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import type { DefaultFunctionArgs, FunctionReference } from "convex/server";
+import {
+  isExternalVttProvider,
+  type ExternalVttProvider,
+  vVttProvider,
+  type VttProvider,
+} from "./vttAiProviders";
+
+type InternalMutationRef = FunctionReference<"mutation", "internal", DefaultFunctionArgs>;
+const internalUsage = (
+  internal as unknown as {
+    vttAiUsage: {
+      internalRecordUsageEvent: InternalMutationRef;
+    };
+  }
+).vttAiUsage;
 
 export function makeSyntheticOutput(kind: string, input: Record<string, unknown>) {
   if (kind === "world") {
@@ -63,6 +82,8 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 export function defaultModelForProvider(provider: string) {
   if (provider === "openai") return "gpt-4.1-mini";
   if (provider === "anthropic") return "claude-3-5-sonnet-20240620";
+  if (provider === "openrouter") return "openai/gpt-4.1-mini";
+  if (provider === "vercel_gateway") return "openai/gpt-4.1-mini";
   return "synthetic";
 }
 
@@ -165,88 +186,121 @@ export function extractJsonFromText(text: string): unknown | null {
   }
 }
 
-async function openaiChatCompletion({
-  apiKey,
-  model,
-  prompt,
-}: {
-  apiKey: string;
-  model: string;
-  prompt: string;
-}) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: "Return JSON only. Do not wrap in markdown." },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 1200,
-    }),
-  });
-
-  const payload = (await response.json().catch(() => null)) as unknown;
-  if (!response.ok) {
-    const rawError = asRecord(payload)?.error;
-    const errorObject = asRecord(rawError);
-    const errorMessage =
-      typeof rawError === "string"
-        ? rawError
-        : typeof errorObject?.message === "string"
-          ? errorObject.message
-          : `OpenAI request failed (${response.status})`;
-    throw new Error(errorMessage);
+function normalizeProvider(provider: string): VttProvider | null {
+  if (
+    provider === "openai" ||
+    provider === "anthropic" ||
+    provider === "openrouter" ||
+    provider === "vercel_gateway" ||
+    provider === "eliza"
+  ) {
+    return provider;
   }
-
-  const choices = asRecord(payload)?.choices;
-  const firstChoice = Array.isArray(choices) ? asRecord(choices[0]) : null;
-  const content = asRecord(firstChoice?.message)?.content;
-  return typeof content === "string" ? content : "";
+  return null;
 }
 
-async function anthropicMessage({
-  apiKey,
-  model,
-  prompt,
-}: {
+function getLanguageModel(params: {
+  provider: ExternalVttProvider;
   apiKey: string;
   model: string;
-  prompt: string;
 }) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 1200,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
-
-  const payload = (await response.json().catch(() => null)) as unknown;
-  if (!response.ok) {
-    const errorObject = asRecord(asRecord(payload)?.error);
-    const errorMessage =
-      typeof errorObject?.message === "string"
-        ? errorObject.message
-        : `Anthropic request failed (${response.status})`;
-    throw new Error(errorMessage);
+  if (params.provider === "openai") {
+    const openai = createOpenAI({ apiKey: params.apiKey });
+    return openai(params.model);
   }
 
-  const content = asRecord(payload)?.content;
-  const firstBlock = Array.isArray(content) ? asRecord(content[0]) : null;
-  const text = firstBlock?.text;
-  return typeof text === "string" ? text : "";
+  if (params.provider === "anthropic") {
+    const anthropic = createAnthropic({ apiKey: params.apiKey });
+    return anthropic(params.model);
+  }
+
+  if (params.provider === "openrouter") {
+    const openrouter = createOpenAI({
+      apiKey: params.apiKey,
+      baseURL: "https://openrouter.ai/api/v1",
+      headers: {
+        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "https://lunchtable-ttg.local",
+        "X-Title": process.env.OPENROUTER_APP_TITLE ?? "LunchTable TTG",
+      },
+    });
+    return openrouter(params.model);
+  }
+
+  const gateway = createOpenAI({
+    apiKey: params.apiKey,
+    baseURL: "https://ai-gateway.vercel.sh/v1",
+  });
+  return gateway(params.model);
+}
+
+export type ProviderGenerationResult = {
+  text: string;
+  usage: {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+    finishReason?: string;
+    requestId?: string;
+  } | null;
+};
+
+function readNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
+}
+
+function extractUsage(result: unknown): ProviderGenerationResult["usage"] {
+  const payload = asRecord(result);
+  const usage = asRecord(payload?.usage);
+  const response = asRecord(payload?.response);
+
+  return {
+    inputTokens: readNumber(usage?.inputTokens),
+    outputTokens: readNumber(usage?.outputTokens),
+    totalTokens: readNumber(usage?.totalTokens),
+    finishReason: readString(payload?.finishReason),
+    requestId: readString(response?.id),
+  };
+}
+
+export async function generateTextForProvider(params: {
+  provider: VttProvider;
+  kind: string;
+  model: string;
+  prompt: string;
+  input?: Record<string, unknown>;
+  apiKey?: string;
+}): Promise<ProviderGenerationResult> {
+  if (params.provider === "eliza") {
+    const output = makeSyntheticOutput(params.kind, params.input ?? {});
+    return { text: JSON.stringify(output), usage: null };
+  }
+
+  if (!params.apiKey) {
+    throw new Error(`No API key provided for provider "${params.provider}"`);
+  }
+
+  const model = getLanguageModel({
+    provider: params.provider,
+    apiKey: params.apiKey,
+    model: params.model,
+  });
+
+  const result = await generateText({
+    model,
+    temperature: 0.7,
+    maxTokens: 1200,
+    system: "Return JSON only. Do not wrap in markdown.",
+    prompt: params.prompt,
+  });
+
+  return {
+    text: result.text ?? "",
+    usage: extractUsage(result as unknown),
+  };
 }
 
 export const internalGetGenerationJobForRunner = internalQuery({
@@ -302,41 +356,52 @@ export const runGenerationJob = internalAction({
     }
 
     const prompt = buildPrompt(job.kind, input);
-    const model = selectModel(job.provider, input);
+    const provider = normalizeProvider(job.provider);
+    if (!provider) {
+      await ctx.runMutation(internal.vttGeneration.internalPatchGenerationJob, {
+        jobId: job._id,
+        status: "failed",
+        error: `Unsupported provider "${job.provider}"`,
+      });
+      return { ok: false };
+    }
+
+    const model = selectModel(provider, input);
 
     try {
-      let text = "";
-      if (job.provider === "openai" || job.provider === "anthropic") {
+      let apiKey: string | undefined;
+      if (isExternalVttProvider(provider)) {
         const keyRow = await ctx
           .runQuery(internal.vttByok.internalGetActiveProviderKey, {
             userId: job.actorUserId,
-            provider: job.provider,
+            provider,
           })
           .catch(() => null);
 
         if (!keyRow?.apiKey) {
-          throw new Error(`No active BYOK key configured for provider "${job.provider}"`);
+          throw new Error(`No active BYOK key configured for provider "${provider}"`);
         }
-
-        if (job.provider === "openai") {
-          text = await openaiChatCompletion({ apiKey: keyRow.apiKey, model, prompt });
-        } else {
-          text = await anthropicMessage({ apiKey: keyRow.apiKey, model, prompt });
-        }
-      } else if (job.provider === "eliza") {
-        const output = makeSyntheticOutput(job.kind, input);
-        text = JSON.stringify(output);
-      } else {
-        throw new Error(`Unsupported provider "${job.provider}"`);
+        apiKey = keyRow.apiKey;
       }
+
+      const generated = await generateTextForProvider({
+        provider,
+        kind: job.kind,
+        model,
+        prompt,
+        input,
+        apiKey,
+      });
+      const text = generated.text;
 
       const parsed = extractJsonFromText(text);
       const output = {
-        provider: job.provider,
+        provider,
         model,
         kind: job.kind,
         text,
         parsed,
+        usage: generated.usage,
       };
 
       const outputJson = JSON.stringify(output);
@@ -371,6 +436,23 @@ export const runGenerationJob = internalAction({
         outputJson,
       });
 
+      await ctx.runMutation(internalUsage.internalRecordUsageEvent, {
+        actorUserId: job.actorUserId,
+        provider,
+        model,
+        kind: job.kind,
+        inputTokens: generated.usage?.inputTokens,
+        outputTokens: generated.usage?.outputTokens,
+        totalTokens: generated.usage?.totalTokens,
+        finishReason: generated.usage?.finishReason,
+        requestId: generated.usage?.requestId,
+        worldId: job.worldId,
+        jobId: job._id,
+        metadata: {
+          source: "generation_job",
+        },
+      });
+
       return { ok: true };
     } catch (error) {
       await ctx.runMutation(internal.vttGeneration.internalPatchGenerationJob, {
@@ -387,7 +469,7 @@ export const createGenerationJob = mutation({
   args: {
     worldId: v.optional(v.id("worlds")),
     kind: v.string(),
-    provider: v.string(),
+    provider: vVttProvider,
     input: v.optional(v.any()),
   },
   handler: async (ctx, args) => {

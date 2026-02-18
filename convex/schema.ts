@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { vVttProvider } from "./vttAiProviders";
 
 export default defineSchema(
   {
@@ -269,7 +270,7 @@ export default defineSchema(
       sessionId: v.id("sessions"),
       worldId: v.id("worlds"),
       ownerUserId: v.id("users"),
-      provider: v.union(v.literal("openai"), v.literal("anthropic"), v.literal("eliza")),
+      provider: vVttProvider,
       seed: v.number(),
       playerCount: v.number(),
       turn: v.number(),
@@ -289,6 +290,29 @@ export default defineSchema(
       .index("by_session", ["sessionId"])
       .index("by_owner", ["ownerUserId"])
       .index("by_status", ["status"]),
+
+    aiUsageEvents: defineTable({
+      actorUserId: v.id("users"),
+      provider: vVttProvider,
+      model: v.string(),
+      kind: v.string(),
+      inputTokens: v.optional(v.number()),
+      outputTokens: v.optional(v.number()),
+      totalTokens: v.optional(v.number()),
+      finishReason: v.optional(v.string()),
+      requestId: v.optional(v.string()),
+      sessionId: v.optional(v.id("sessions")),
+      worldId: v.optional(v.id("worlds")),
+      runId: v.optional(v.id("agentRuns")),
+      jobId: v.optional(v.id("generationJobs")),
+      metadataJson: v.optional(v.string()),
+      createdAt: v.number(),
+    })
+      .index("by_actor", ["actorUserId"])
+      .index("by_provider", ["provider"])
+      .index("by_session", ["sessionId"])
+      .index("by_world", ["worldId"])
+      .index("by_run", ["runId"]),
   },
   { schemaValidation: false },
 );

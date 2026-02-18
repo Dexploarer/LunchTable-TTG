@@ -10,35 +10,27 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
-import { buildPrompt } from "./vttGeneration";
+import {
+  buildPrompt,
+  defaultModelForProvider,
+  extractJsonFromText,
+  generateTextForProvider,
+} from "./vttGeneration";
 import { selectNarrationFromNarrationOutput } from "./vttNarrator";
-import type { DefaultFunctionArgs, FunctionReference } from "convex/server";
 import {
   advanceRunState,
   computeNextTokenPosition,
   makeSeededRng,
 } from "./vttAgentRunsLogic";
+import {
+  formatProviderFallbackMessage,
+  isExternalVttProvider,
+  vVttProvider,
+  type VttProvider,
+} from "./vttAiProviders";
 
-type ProviderKind = "openai" | "anthropic" | "eliza";
-type InternalRef<TType extends "query" | "mutation" | "action"> = FunctionReference<
-  TType,
-  "internal",
-  DefaultFunctionArgs
->;
-const internalAgentRuns = (
-  internal as unknown as {
-    vttAgentRuns: {
-      getInternalRun: InternalRef<"query">;
-      getInternalSession: InternalRef<"query">;
-      getInternalWorld: InternalRef<"query">;
-      getInternalMapsForWorld: InternalRef<"query">;
-      getInternalSessionMapTokens: InternalRef<"query">;
-      internalAdvanceRunTurn: InternalRef<"mutation">;
-      internalPatchRun: InternalRef<"mutation">;
-      internalTickRun: InternalRef<"action">;
-    };
-  }
-).vttAgentRuns;
+const internalAgentRuns: any = (internal as any).vttAgentRuns;
+const internalTickRunRef: any = (internal as any).vttAgentRuns.internalTickRun;
 
 interface SessionMapToken {
   _id: Id<"tokens">;
@@ -156,9 +148,13 @@ export const internalTickRun = internalAction({
     runId: v.id("agentRuns"),
     singleStep: v.optional(v.boolean()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ ok: boolean; skipped?: string; stopped?: string; completed?: boolean; error?: string }> => {
     const run = await ctx.runQuery(internalAgentRuns.getInternalRun, { runId: args.runId });
     if (!run || run.status !== "running") return { ok: false };
+
     try {
       const session = await ctx.runQuery(internalAgentRuns.getInternalSession, {
         sessionId: run.sessionId,
@@ -171,121 +167,133 @@ export const internalTickRun = internalAction({
         return { ok: true, stopped: "session_ended" };
       }
 
-    const advanced = await ctx.runMutation(internalAgentRuns.internalAdvanceRunTurn, {
-      runId: run._id,
-      expectedTurn: run.turn,
-    });
-    if (!advanced.ok) return { ok: false, skipped: advanced.reason };
-
-    const nextTurn = advanced.turn;
-    const world = await ctx.runQuery(internalAgentRuns.getInternalWorld, {
-      worldId: run.worldId,
-    });
-    if (!world) {
-      await ctx.runMutation(internalAgentRuns.internalPatchRun, {
+      const advanced = await ctx.runMutation(internalAgentRuns.internalAdvanceRunTurn, {
         runId: run._id,
-        status: "failed",
-        lastError: "World not found",
+        expectedTurn: run.turn,
       });
-      return { ok: false };
-    }
+      if (!advanced.ok) return { ok: false, skipped: advanced.reason };
 
-    const maps = await ctx.runQuery(internalAgentRuns.getInternalMapsForWorld, {
-      worldId: run.worldId,
-    });
-    const activeMap = maps[0] ?? null;
-    if (!activeMap) {
-      await ctx.runMutation(internalAgentRuns.internalPatchRun, {
-        runId: run._id,
-        status: "failed",
-        lastError: "No map found for world",
-      });
-      return { ok: false };
-    }
-
-    const existingTokens = (await ctx.runQuery(internalAgentRuns.getInternalSessionMapTokens, {
-      sessionId: run.sessionId,
-      mapId: activeMap._id,
-    })) as SessionMapToken[];
-
-    const personaNames = ["Narrator", ...Array.from({ length: run.playerCount }, (_, index) => playerName(index))];
-    const tokenByName = new Map<string, SessionMapToken>(existingTokens.map((token) => [token.name, token]));
-
-    const seededRng = makeSeededRng(run.seed + nextTurn);
-    const initialSpawns = [
-      { name: "Narrator", x: 14, y: 18, color: "#ffcc00" },
-      { name: "Player A", x: 30, y: 50, color: "#33ccff" },
-      { name: "Player B", x: 50, y: 58, color: "#f97316" },
-      { name: "Player C", x: 68, y: 44, color: "#eab308" },
-    ];
-
-    for (const persona of personaNames) {
-      if (tokenByName.has(persona)) continue;
-      const spawn = initialSpawns.find((entry) => entry.name === persona) ?? {
-        name: persona,
-        x: clamp(20 + seededRng() * 60, 2, 98),
-        y: clamp(20 + seededRng() * 60, 2, 98),
-        color: "#cbd5e1",
-      };
-
-      const created = await ctx.runMutation(internal.vttMaps.internalUpsertTokenForSession, {
-        actorUserId: run.ownerUserId,
+      const nextTurn = advanced.turn;
+      const world = await ctx.runQuery(internalAgentRuns.getInternalWorld, {
         worldId: run.worldId,
-        mapId: activeMap._id,
+      });
+      if (!world) {
+        await ctx.runMutation(internalAgentRuns.internalPatchRun, {
+          runId: run._id,
+          status: "failed",
+          lastError: "World not found",
+        });
+        return { ok: false };
+      }
+
+      const maps = await ctx.runQuery(internalAgentRuns.getInternalMapsForWorld, {
+        worldId: run.worldId,
+      });
+      const activeMap = maps[0] ?? null;
+      if (!activeMap) {
+        await ctx.runMutation(internalAgentRuns.internalPatchRun, {
+          runId: run._id,
+          status: "failed",
+          lastError: "No map found for world",
+        });
+        return { ok: false };
+      }
+
+      const existingTokens = (await ctx.runQuery(internalAgentRuns.getInternalSessionMapTokens, {
         sessionId: run.sessionId,
-        name: spawn.name,
-        x: spawn.x,
-        y: spawn.y,
-        layer: "mid",
-        color: spawn.color,
-      });
+        mapId: activeMap._id,
+      })) as SessionMapToken[];
 
-      tokenByName.set(persona, {
-        _id: created.tokenId,
-        name: spawn.name,
-        x: spawn.x,
-        y: spawn.y,
-        layer: "mid",
-        color: spawn.color,
-      });
-    }
+      const personaNames = [
+        "Narrator",
+        ...Array.from({ length: run.playerCount }, (_, index) => playerName(index)),
+      ];
+      const tokenByName = new Map<string, SessionMapToken>(
+        existingTokens.map((token) => [token.name, token]),
+      );
 
-    const fallbackObjectives = ["Secure the lead", "Survive the complication", "Extract safely"];
-    const objectives =
-      Array.isArray(activeMap.objectives) && activeMap.objectives.length > 0
-        ? activeMap.objectives
-        : fallbackObjectives;
-    const objectiveText = objectives[Math.min(run.objectiveIndex, objectives.length - 1)] ?? "Push forward";
+      const seededRng = makeSeededRng(run.seed + nextTurn);
+      const initialSpawns = [
+        { name: "Narrator", x: 14, y: 18, color: "#ffcc00" },
+        { name: "Player A", x: 30, y: 50, color: "#33ccff" },
+        { name: "Player B", x: 50, y: 58, color: "#f97316" },
+        { name: "Player C", x: 68, y: 44, color: "#eab308" },
+      ];
 
-    let providerInUse: ProviderKind = run.provider;
-    let narrationText = "";
-    const mapBiome = activeMap.biome ?? "Unknown";
+      for (const persona of personaNames) {
+        if (tokenByName.has(persona)) continue;
+        const spawn = initialSpawns.find((entry) => entry.name === persona) ?? {
+          name: persona,
+          x: clamp(20 + seededRng() * 60, 2, 98),
+          y: clamp(20 + seededRng() * 60, 2, 98),
+          color: "#cbd5e1",
+        };
 
-    if (run.provider === "openai" || run.provider === "anthropic") {
-      const key = await ctx.runQuery(internal.vttByok.internalGetActiveProviderKey, {
-        userId: run.ownerUserId,
-        provider: run.provider,
-      });
+        const created = await ctx.runMutation(internal.vttMaps.internalUpsertTokenForSession, {
+          actorUserId: run.ownerUserId,
+          worldId: run.worldId,
+          mapId: activeMap._id,
+          sessionId: run.sessionId,
+          name: spawn.name,
+          x: spawn.x,
+          y: spawn.y,
+          layer: "mid",
+          color: spawn.color,
+        });
 
-      if (!key?.apiKey) {
-        providerInUse = "eliza";
-        if (nextTurn === 1) {
-          await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
-            sessionId: run.sessionId,
-            actorUserId: run.ownerUserId,
-            sender: "SYSTEM",
-            text: `No active ${run.provider} BYOK key found. Falling back to eliza.`,
-            meta: { source: "agent_run" },
-          });
+        tokenByName.set(persona, {
+          _id: created.tokenId,
+          name: spawn.name,
+          x: spawn.x,
+          y: spawn.y,
+          layer: "mid",
+          color: spawn.color,
+        });
+      }
+
+      const fallbackObjectives = ["Secure the lead", "Survive the complication", "Extract safely"];
+      const objectives =
+        Array.isArray(activeMap.objectives) && activeMap.objectives.length > 0
+          ? activeMap.objectives
+          : fallbackObjectives;
+      const objectiveText =
+        objectives[Math.min(run.objectiveIndex, objectives.length - 1)] ?? "Push forward";
+
+      let providerInUse: VttProvider = run.provider;
+      let narrationText = "";
+      let narrationUsage: {
+        inputTokens?: number;
+        outputTokens?: number;
+        totalTokens?: number;
+        finishReason?: string;
+        requestId?: string;
+      } | null = null;
+      const mapBiome = activeMap.biome ?? "Unknown";
+      let providerApiKey: string | undefined;
+
+      if (isExternalVttProvider(run.provider)) {
+        const key = await ctx.runQuery(internal.vttByok.internalGetActiveProviderKey, {
+          userId: run.ownerUserId,
+          provider: run.provider,
+        });
+
+        if (!key?.apiKey) {
+          providerInUse = "eliza";
+          if (nextTurn === 1) {
+            await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
+              sessionId: run.sessionId,
+              actorUserId: run.ownerUserId,
+              sender: "SYSTEM",
+              text: formatProviderFallbackMessage(run.provider),
+              meta: { source: "agent_run" },
+            });
+          }
+        } else {
+          providerApiKey = key.apiKey;
         }
       }
-    }
 
-    if (providerInUse === "eliza") {
-      narrationText = `Turn ${nextTurn}: ${world.name} tightens around the party in ${activeMap.name}. Objective in focus: ${objectiveText}.`;
-    } else {
-      // Keep prompt structure aligned with vttGeneration narration flow.
-      const prompt = buildPrompt("narration", {
+      const narrationInput = {
         worldName: world.name,
         genre: world.genre,
         mood: world.mood,
@@ -293,115 +301,146 @@ export const internalTickRun = internalAction({
         mapName: activeMap.name,
         mapBiome,
         prompt: `Turn: ${nextTurn}\nObjective index: ${run.objectiveIndex}\nCurrent objective: ${objectiveText}`,
-      });
+      };
+      const prompt = buildPrompt("narration", narrationInput);
+      const model = defaultModelForProvider(providerInUse);
 
-      // Reuse synthetic fallback if a provider errors.
-      // External provider calls are intentionally deferred for this deterministic milestone.
-      narrationText = selectNarrationFromNarrationOutput(
-        { narration: `Turn ${nextTurn}: ${prompt.slice(0, 120)}...` },
-        "",
-      );
-    }
+      if (providerInUse === "eliza") {
+        narrationText = `Turn ${nextTurn}: ${world.name} tightens around the party in ${activeMap.name}. Objective in focus: ${objectiveText}.`;
+      } else {
+        const generated = await generateTextForProvider({
+          provider: providerInUse,
+          kind: "narration",
+          model,
+          prompt,
+          input: narrationInput,
+          apiKey: providerApiKey,
+        });
+        narrationUsage = generated.usage;
+        const parsed = extractJsonFromText(generated.text);
+        narrationText = selectNarrationFromNarrationOutput(parsed, generated.text);
+      }
 
-    await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
-      sessionId: run.sessionId,
-      actorUserId: run.ownerUserId,
-      sender: "NARRATOR",
-      text: narrationText,
-      meta: { turn: nextTurn, provider: providerInUse, source: "agent_run" },
-    });
-
-    const playerRollTotals: number[] = [];
-    for (let index = 0; index < run.playerCount; index += 1) {
-      const name = playerName(index);
-      const token = tokenByName.get(name);
-      if (!token) continue;
-
-      const deterministicTotal = run.seed + nextTurn * 100 + index;
-      playerRollTotals.push(deterministicTotal);
-
-      await ctx.runMutation(internal.vttSessions.internalRollDice, {
+      await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
         sessionId: run.sessionId,
         actorUserId: run.ownerUserId,
-        expression: "1d20+2",
-        total: deterministicTotal,
-        result: {
-          formula: "seed + turn*100 + playerIndex",
-          seed: run.seed,
+        sender: "NARRATOR",
+        text: narrationText,
+        meta: { turn: nextTurn, provider: providerInUse, model, source: "agent_run" },
+      });
+
+      await ctx.runMutation(internal.vttAiUsage.internalRecordUsageEvent, {
+        actorUserId: run.ownerUserId,
+        provider: providerInUse,
+        model,
+        kind: "narration",
+        inputTokens: narrationUsage?.inputTokens,
+        outputTokens: narrationUsage?.outputTokens,
+        totalTokens: narrationUsage?.totalTokens,
+        finishReason: narrationUsage?.finishReason,
+        requestId: narrationUsage?.requestId,
+        sessionId: run.sessionId,
+        worldId: run.worldId,
+        runId: run._id,
+        metadata: {
+          source: "agent_run_tick",
           turn: nextTurn,
-          playerIndex: index,
-          source: "agent_run",
-          player: name,
+          mapId: activeMap._id,
+          objectiveIndex: run.objectiveIndex,
         },
       });
 
-      await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
-        sessionId: run.sessionId,
-        actorUserId: run.ownerUserId,
-        sender: name,
-        text: `${name} takes action (1d20+2) and rolls ${deterministicTotal}.`,
-        meta: { turn: nextTurn, source: "agent_run", player: name },
+      const playerRollTotals: number[] = [];
+      for (let index = 0; index < run.playerCount; index += 1) {
+        const name = playerName(index);
+        const token = tokenByName.get(name);
+        if (!token) continue;
+
+        const deterministicTotal = run.seed + nextTurn * 100 + index;
+        playerRollTotals.push(deterministicTotal);
+
+        await ctx.runMutation(internal.vttSessions.internalRollDice, {
+          sessionId: run.sessionId,
+          actorUserId: run.ownerUserId,
+          expression: "1d20+2",
+          total: deterministicTotal,
+          result: {
+            formula: "seed + turn*100 + playerIndex",
+            seed: run.seed,
+            turn: nextTurn,
+            playerIndex: index,
+            source: "agent_run",
+            player: name,
+          },
+        });
+
+        await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
+          sessionId: run.sessionId,
+          actorUserId: run.ownerUserId,
+          sender: name,
+          text: `${name} takes action (1d20+2) and rolls ${deterministicTotal}.`,
+          meta: { turn: nextTurn, source: "agent_run", player: name },
+        });
+
+        const nextPos = computeNextTokenPosition(
+          { x: token.x, y: token.y },
+          makeSeededRng(run.seed + nextTurn * 1000 + index),
+        );
+
+        await ctx.runMutation(internal.vttMaps.internalUpsertTokenForSession, {
+          actorUserId: run.ownerUserId,
+          worldId: run.worldId,
+          mapId: activeMap._id,
+          sessionId: run.sessionId,
+          tokenId: token._id,
+          name,
+          x: nextPos.x,
+          y: nextPos.y,
+          layer: token.layer ?? "mid",
+          color: token.color,
+        });
+      }
+
+      const next = advanceRunState({
+        turn: nextTurn - 1,
+        objectiveIndex: run.objectiveIndex,
+        maxTurns: run.maxTurns,
+        objectiveTarget: 2,
+        rollTotals: playerRollTotals,
+        objectiveThreshold: 12,
       });
 
-      const nextPos = computeNextTokenPosition(
-        { x: token.x, y: token.y },
-        makeSeededRng(run.seed + nextTurn * 1000 + index),
-      );
+      if (next.objectiveAdvanced) {
+        const completedObjective = objectives[Math.max(0, next.nextObjectiveIndex - 1)] ?? "Objective";
+        await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
+          sessionId: run.sessionId,
+          actorUserId: run.ownerUserId,
+          sender: "SYSTEM",
+          text: `Objective completed: ${completedObjective}`,
+          meta: { turn: nextTurn, source: "agent_run", objectiveIndex: next.nextObjectiveIndex },
+        });
+      }
 
-      await ctx.runMutation(internal.vttMaps.internalUpsertTokenForSession, {
-        actorUserId: run.ownerUserId,
-        worldId: run.worldId,
-        mapId: activeMap._id,
-        sessionId: run.sessionId,
-        tokenId: token._id,
-        name,
-        x: nextPos.x,
-        y: nextPos.y,
-        layer: token.layer ?? "mid",
-        color: token.color,
+      await ctx.runMutation(internalAgentRuns.internalPatchRun, {
+        runId: run._id,
+        objectiveIndex: next.nextObjectiveIndex,
+        status: next.completed ? "completed" : args.singleStep ? "stopped" : "running",
+        lastError: "",
       });
-    }
 
-    const next = advanceRunState({
-      turn: nextTurn - 1,
-      objectiveIndex: run.objectiveIndex,
-      maxTurns: run.maxTurns,
-      objectiveTarget: 2,
-      rollTotals: playerRollTotals,
-      objectiveThreshold: 12,
-    });
-
-    if (next.objectiveAdvanced) {
-      const completedObjective = objectives[Math.max(0, next.nextObjectiveIndex - 1)] ?? "Objective";
-      await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
-        sessionId: run.sessionId,
-        actorUserId: run.ownerUserId,
-        sender: "SYSTEM",
-        text: `Objective completed: ${completedObjective}`,
-        meta: { turn: nextTurn, source: "agent_run", objectiveIndex: next.nextObjectiveIndex },
-      });
-    }
-
-    await ctx.runMutation(internalAgentRuns.internalPatchRun, {
-      runId: run._id,
-      objectiveIndex: next.nextObjectiveIndex,
-      status: next.completed ? "completed" : args.singleStep ? "stopped" : "running",
-      lastError: "",
-    });
-
-    if (next.completed) {
-      await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
-        sessionId: run.sessionId,
-        actorUserId: run.ownerUserId,
-        sender: "SYSTEM",
-        text: `AI one-shot complete in ${next.nextTurn} turns.`,
-        meta: { source: "agent_run", turn: next.nextTurn },
-      });
-      return { ok: true, completed: true };
-    }
+      if (next.completed) {
+        await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
+          sessionId: run.sessionId,
+          actorUserId: run.ownerUserId,
+          sender: "SYSTEM",
+          text: `AI one-shot complete in ${next.nextTurn} turns.`,
+          meta: { source: "agent_run", turn: next.nextTurn },
+        });
+        return { ok: true, completed: true };
+      }
 
       if (!args.singleStep) {
-        await ctx.scheduler.runAfter(run.tickIntervalMs, internalAgentRuns.internalTickRun, {
+        await ctx.scheduler.runAfter(run.tickIntervalMs, internalTickRunRef, {
           runId: run._id,
         });
       }
@@ -474,7 +513,7 @@ export const getInternalSessionMapTokens = internalQuery({
 export const startRun = mutation({
   args: {
     sessionId: v.id("sessions"),
-    provider: v.union(v.literal("openai"), v.literal("anthropic"), v.literal("eliza")),
+    provider: vVttProvider,
     seed: v.number(),
     playerCount: v.optional(v.number()),
     maxTurns: v.optional(v.number()),
@@ -519,7 +558,7 @@ export const startRun = mutation({
         lastError: "",
         updatedAt: now,
       });
-      await ctx.scheduler.runAfter(0, internalAgentRuns.internalTickRun, {
+      await ctx.scheduler.runAfter(0, internalTickRunRef, {
         runId: existing._id,
       });
       return { runId: existing._id, status: "running" as const };
@@ -541,7 +580,7 @@ export const startRun = mutation({
       updatedAt: now,
     });
 
-    await ctx.scheduler.runAfter(0, internalAgentRuns.internalTickRun, { runId });
+    await ctx.scheduler.runAfter(0, internalTickRunRef, { runId });
     return { runId, status: "running" as const };
   },
 });
@@ -598,7 +637,7 @@ export const stepRun = mutation({
       updatedAt: Date.now(),
     });
 
-    await ctx.scheduler.runAfter(0, internalAgentRuns.internalTickRun, {
+    await ctx.scheduler.runAfter(0, internalTickRunRef, {
       runId: run._id,
       singleStep: true,
     });

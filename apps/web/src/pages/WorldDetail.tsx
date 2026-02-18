@@ -7,7 +7,13 @@ import { looksLikeConvexId } from "@/lib/convexId";
 import { useUserSync } from "@/hooks/auth/useUserSync";
 import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
-const GENERATION_PROVIDERS = ["openai", "anthropic", "eliza"] as const;
+const GENERATION_PROVIDERS = [
+  "openai",
+  "anthropic",
+  "openrouter",
+  "vercel_gateway",
+  "eliza",
+] as const;
 type GenerationProvider = (typeof GENERATION_PROVIDERS)[number];
 
 interface LiveWorld {

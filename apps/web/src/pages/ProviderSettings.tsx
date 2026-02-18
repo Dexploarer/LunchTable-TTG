@@ -2,7 +2,13 @@ import { useState } from "react";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { TrayNav } from "@/components/layout/TrayNav";
 
-const PROVIDERS = ["openai", "anthropic", "eliza"];
+const PROVIDERS = [
+  "openai",
+  "anthropic",
+  "openrouter",
+  "vercel_gateway",
+  "eliza",
+];
 type ProviderKey = {
   _id: string;
   provider: string;

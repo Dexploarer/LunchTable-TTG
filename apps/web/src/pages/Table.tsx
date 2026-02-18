@@ -119,7 +119,9 @@ export function Table() {
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [narratorProvider, setNarratorProvider] = useState<"openai" | "anthropic" | "eliza">(
+  const [narratorProvider, setNarratorProvider] = useState<
+    "openai" | "anthropic" | "openrouter" | "vercel_gateway" | "eliza"
+  >(
     "eliza",
   );
   const [narratorPrompt, setNarratorPrompt] = useState("");
@@ -450,11 +452,20 @@ export function Table() {
                   className="border-2 border-[#121212] px-2 py-1 bg-white text-xs uppercase"
                   value={narratorProvider}
                   onChange={(event) =>
-                    setNarratorProvider(event.target.value as "openai" | "anthropic" | "eliza")
+                    setNarratorProvider(
+                      event.target.value as
+                        | "openai"
+                        | "anthropic"
+                        | "openrouter"
+                        | "vercel_gateway"
+                        | "eliza",
+                    )
                   }
                 >
                   <option value="openai">openai</option>
                   <option value="anthropic">anthropic</option>
+                  <option value="openrouter">openrouter</option>
+                  <option value="vercel_gateway">vercel_gateway</option>
                   <option value="eliza">eliza</option>
                 </select>
                 <input

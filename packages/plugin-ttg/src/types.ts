@@ -4,7 +4,12 @@ export interface TTGPluginConfig {
 }
 
 export type TTGSessionRole = "player" | "observer" | "npc";
-export type TTGGenerationProvider = "openai" | "anthropic" | "eliza";
+export type TTGGenerationProvider =
+  | "openai"
+  | "anthropic"
+  | "openrouter"
+  | "vercel_gateway"
+  | "eliza";
 
 export interface TTGAgentMe {
   id: string;

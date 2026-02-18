@@ -23,6 +23,7 @@ describe("agentMasterPanelLogic", () => {
   it("formats provider fallback messages", () => {
     expect(formatProviderFallbackMessage("openai")).toContain("openai");
     expect(formatProviderFallbackMessage("anthropic")).toContain("anthropic");
+    expect(formatProviderFallbackMessage("openrouter")).toContain("openrouter");
+    expect(formatProviderFallbackMessage("vercel_gateway")).toContain("vercel_gateway");
   });
 });
-
