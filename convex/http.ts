@@ -449,8 +449,8 @@ corsRoute({
     const kind = typeof body?.kind === "string" ? body.kind : "world";
     const provider = typeof body?.provider === "string" ? body.provider : "openai";
 
-    const result = await ctx.runMutation(api.vttGeneration.createGenerationJob, {
-      actorUserId: agent.userId,
+    const result = await ctx.runMutation(api.vttAgents.agentCreateGenerationJob, {
+      agentUserId: agent.userId,
       worldId:
         typeof body?.worldId === "string" ? toId<"worlds">(body.worldId) : undefined,
       kind,
@@ -472,7 +472,8 @@ corsPrefixRoute({
     const route = parseGenerationJobRoute(new URL(request.url).pathname);
     if (!route) return errorResponse("Not found", 404);
 
-    const result = await ctx.runQuery(api.vttGeneration.getGenerationJob, {
+    const result = await ctx.runQuery(api.vttAgents.agentGetGenerationJob, {
+      agentUserId: agent.userId,
       jobId: toId<"generationJobs">(route.jobId),
     });
     if (!result) return errorResponse("Job not found", 404);

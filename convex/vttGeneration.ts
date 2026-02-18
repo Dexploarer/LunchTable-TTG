@@ -1,10 +1,9 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
-import type { ActionCtx } from "./_generated/server";
-import { api } from "./_generated/api";
+import { requireUser } from "./auth";
+import { canActorUseWorld } from "./permissions";
 
-function makeSyntheticOutput(kind: string, input: Record<string, unknown>) {
+export function makeSyntheticOutput(kind: string, input: Record<string, unknown>) {
   if (kind === "world") {
     return {
       summary: "Generated world scaffold",
@@ -39,18 +38,32 @@ function makeSyntheticOutput(kind: string, input: Record<string, unknown>) {
 
 export const createGenerationJob = mutation({
   args: {
-    actorUserId: v.id("users"),
     worldId: v.optional(v.id("worlds")),
     kind: v.string(),
     provider: v.string(),
     input: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
     const now = Date.now();
     const input = (args.input ?? {}) as Record<string, unknown>;
 
+    if (args.worldId) {
+      const world = await ctx.db.get(args.worldId);
+      if (!world) throw new Error("World not found");
+      if (
+        !canActorUseWorld({
+          visibility: world.visibility,
+          ownerUserId: world.ownerUserId,
+          actorUserId: user._id,
+        })
+      ) {
+        throw new Error("Forbidden");
+      }
+    }
+
     const jobId = await ctx.db.insert("generationJobs", {
-      actorUserId: args.actorUserId,
+      actorUserId: user._id,
       worldId: args.worldId,
       kind: args.kind,
       provider: args.provider,
@@ -84,8 +97,10 @@ export const getGenerationJob = query({
     jobId: v.id("generationJobs"),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
     const job = await ctx.db.get(args.jobId);
     if (!job) return null;
+    if (job.actorUserId !== user._id) return null;
 
     return {
       ...job,
@@ -100,12 +115,26 @@ export const getLatestGenerationJobForWorld = query({
     worldId: v.id("worlds"),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const world = await ctx.db.get(args.worldId);
+    if (!world) return null;
+    if (
+      !canActorUseWorld({
+        visibility: world.visibility,
+        ownerUserId: world.ownerUserId,
+        actorUserId: user._id,
+      })
+    ) {
+      return null;
+    }
     const jobs = await ctx.db
       .query("generationJobs")
       .withIndex("by_world", (q) => q.eq("worldId", args.worldId))
       .collect();
 
-    const latest = jobs.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+    const latest = jobs
+      .filter((job) => job.actorUserId === user._id)
+      .sort((a, b) => b.updatedAt - a.updatedAt)[0];
     if (!latest) return null;
 
     return {
@@ -115,22 +144,3 @@ export const getLatestGenerationJobForWorld = query({
     };
   },
 });
-
-export async function createAgentGenerationJob(
-  ctx: ActionCtx,
-  actorUserId: Id<"users">,
-  kind: string,
-  provider: string,
-  worldId?: Id<"worlds">,
-  input?: Record<string, unknown>,
-) {
-  const result = await ctx.runMutation(api.vttGeneration.createGenerationJob, {
-    actorUserId,
-    worldId,
-    kind,
-    provider,
-    input,
-  });
-
-  return result;
-}

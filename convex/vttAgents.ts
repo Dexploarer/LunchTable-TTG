@@ -4,6 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { canActorUseWorld } from "./permissions";
 import { evaluateModerationText } from "./vttModeration";
+import { makeSyntheticOutput } from "./vttGeneration";
 
 function normalizeUsername(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 18) || "agent";
@@ -508,6 +509,80 @@ export const agentPublishWorld = mutation({
       listingId,
       moderationStatus: moderation.status,
       visible: moderation.status === "approved",
+    };
+  },
+});
+
+export const agentCreateGenerationJob = mutation({
+  args: {
+    agentUserId: v.id("users"),
+    worldId: v.optional(v.id("worlds")),
+    kind: v.string(),
+    provider: v.string(),
+    input: v.optional(v.any()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const input = (args.input ?? {}) as Record<string, unknown>;
+
+    if (args.worldId) {
+      const world = await ctx.db.get(args.worldId);
+      if (!world) throw new Error("World not found");
+      if (
+        !canActorUseWorld({
+          visibility: world.visibility,
+          ownerUserId: world.ownerUserId,
+          actorUserId: args.agentUserId,
+        })
+      ) {
+        throw new Error("Forbidden");
+      }
+    }
+
+    const jobId = await ctx.db.insert("generationJobs", {
+      actorUserId: args.agentUserId,
+      worldId: args.worldId,
+      kind: args.kind,
+      provider: args.provider,
+      inputJson: JSON.stringify(input),
+      status: "running",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    try {
+      const output = makeSyntheticOutput(args.kind, input);
+      await ctx.db.patch(jobId, {
+        status: "completed",
+        outputJson: JSON.stringify(output),
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      await ctx.db.patch(jobId, {
+        status: "failed",
+        error: error instanceof Error ? error.message : "Generation failed",
+        updatedAt: Date.now(),
+      });
+    }
+
+    return { jobId };
+  },
+});
+
+export const agentGetGenerationJob = query({
+  args: {
+    agentUserId: v.id("users"),
+    jobId: v.id("generationJobs"),
+  },
+  handler: async (ctx, args) => {
+    const job = await ctx.db.get(args.jobId);
+    if (!job) return null;
+    if (job.actorUserId !== args.agentUserId) return null;
+
+    return {
+      ...job,
+      input: JSON.parse(job.inputJson),
+      output: job.outputJson ? JSON.parse(job.outputJson) : null,
     };
   },
 });
