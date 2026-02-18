@@ -1,10 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { canActorUseWorld } from "./permissions";
 import { evaluateModerationText } from "./vttModeration";
-import { makeSyntheticOutput } from "./vttGeneration";
 
 function normalizeUsername(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 18) || "agent";
@@ -545,25 +545,12 @@ export const agentCreateGenerationJob = mutation({
       kind: args.kind,
       provider: args.provider,
       inputJson: JSON.stringify(input),
-      status: "running",
+      status: "queued",
       createdAt: now,
       updatedAt: now,
     });
 
-    try {
-      const output = makeSyntheticOutput(args.kind, input);
-      await ctx.db.patch(jobId, {
-        status: "completed",
-        outputJson: JSON.stringify(output),
-        updatedAt: Date.now(),
-      });
-    } catch (error) {
-      await ctx.db.patch(jobId, {
-        status: "failed",
-        error: error instanceof Error ? error.message : "Generation failed",
-        updatedAt: Date.now(),
-      });
-    }
+    await ctx.scheduler.runAfter(0, internal.vttGeneration.runGenerationJob, { jobId });
 
     return { jobId };
   },
