@@ -128,6 +128,7 @@ export function Table() {
   const postCommand = useConvexMutation(apiAny.vttSessions.postCommand);
   const rollDice = useConvexMutation(apiAny.vttSessions.rollDice);
   const closeSession = useConvexMutation(apiAny.vttSessions.closeSession);
+  const invokeNarrator = useConvexMutation(apiAny.vttSessions.invokeNarrator);
   const upsertToken = useConvexMutation(apiAny.vttMaps.upsertToken);
   const updateFog = useConvexMutation(apiAny.vttMaps.updateFog);
 
@@ -406,6 +407,24 @@ export function Table() {
                 }}
               >
                 End Session
+              </button>
+            ) : null}
+
+            {convexSessionId && currentParticipantRole === "gm" ? (
+              <button
+                className="tcg-button"
+                disabled={sessionView?.session?.status === "ended"}
+                onClick={async () => {
+                  if (!convexSessionId) return;
+                  try {
+                    await invokeNarrator({ sessionId: convexSessionId });
+                    setStatus("Narrator invoked.");
+                  } catch (error) {
+                    setStatus(error instanceof Error ? error.message : "Failed to invoke narrator.");
+                  }
+                }}
+              >
+                Summon Narrator
               </button>
             ) : null}
           </div>

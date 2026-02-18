@@ -4,6 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
+import { makeSyntheticOutput } from "./vttGeneration";
 
 async function ensureParticipant(
   ctx: MutationCtx | QueryCtx,
@@ -203,6 +204,53 @@ export const rollDice = mutation({
     });
 
     return { ok: true };
+  },
+});
+
+export const invokeNarrator = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+    prompt: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+
+    const participant = await ensureParticipant(ctx, session._id, user._id);
+    if (!participant) throw new Error("Not a session participant");
+    if (participant.role !== "gm") throw new Error("Only the GM can invoke the narrator");
+
+    const output = makeSyntheticOutput("npc", {
+      prompt: args.prompt ?? "",
+      sessionId: session._id,
+      worldId: session.worldId,
+    });
+
+    const npcProfile =
+      output && typeof output === "object"
+        ? (output as { npcProfile?: { scenePrompts?: unknown } }).npcProfile
+        : undefined;
+    const promptList = Array.isArray(npcProfile?.scenePrompts)
+      ? npcProfile?.scenePrompts.filter((value): value is string => typeof value === "string")
+      : [];
+    const narration = promptList[0] ?? "The narrator takes the stage.";
+
+    const eventId = await ctx.db.insert("sessionEvents", {
+      sessionId: session._id,
+      actorUserId: user._id,
+      eventType: "CHAT_MESSAGE",
+      payloadJson: JSON.stringify({
+        sender: "NARRATOR",
+        text: narration,
+      }),
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(participant._id, { lastActiveAt: Date.now() });
+    await ctx.db.patch(session._id, { updatedAt: Date.now() });
+
+    return { eventId, narration };
   },
 });
 
