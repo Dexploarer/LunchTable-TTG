@@ -5,8 +5,13 @@ import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { useUserSync } from "@/hooks/auth/useUserSync";
 import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
+interface CurrentUser {
+  _id: string;
+}
+
 interface WorldSummary {
   _id: string;
+  ownerUserId: string;
   name: string;
   tagline: string;
   genre: string;
@@ -30,7 +35,15 @@ export function Publish() {
   const { authenticated } = useAppAuth();
   useUserSync();
 
+  const currentUser = useConvexQuery(
+    apiAny.auth.currentUser,
+    convexEnabled ? {} : "skip",
+  ) as CurrentUser | null | undefined;
   const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as WorldSummary[] | undefined;
+  const ownedWorlds = useMemo(() => {
+    if (!currentUser) return [];
+    return (worlds ?? []).filter((world) => world.ownerUserId === currentUser._id);
+  }, [currentUser, worlds]);
   const listings = useConvexQuery(apiAny.vttPublish.listPublishedWorlds, convexEnabled ? {} : "skip") as
     | PublishListing[]
     | undefined;
@@ -44,18 +57,18 @@ export function Publish() {
   const [isPublishing, setIsPublishing] = useState(false);
 
   useEffect(() => {
-    if (worldId || !worlds || worlds.length === 0) return;
-    const firstWorld = worlds[0];
+    if (worldId || ownedWorlds.length === 0) return;
+    const firstWorld = ownedWorlds[0];
     if (!firstWorld) return;
     setWorldId(firstWorld._id);
     setTitle(firstWorld.name);
     setDescription(firstWorld.tagline);
     setTags([firstWorld.genre, firstWorld.mood].join(", "));
-  }, [worldId, worlds]);
+  }, [ownedWorlds, worldId]);
 
   const selectedWorld = useMemo(
-    () => (worlds ?? []).find((world) => world._id === worldId) ?? null,
-    [worldId, worlds],
+    () => ownedWorlds.find((world) => world._id === worldId) ?? null,
+    [ownedWorlds, worldId],
   );
 
   return (
@@ -84,7 +97,7 @@ export function Publish() {
                   onChange={(event) => {
                     const nextWorldId = event.target.value;
                     setWorldId(nextWorldId);
-                    const world = (worlds ?? []).find((entry) => entry._id === nextWorldId);
+                    const world = ownedWorlds.find((entry) => entry._id === nextWorldId);
                     if (world) {
                       setTitle(world.name);
                       setDescription(world.tagline);
@@ -92,7 +105,7 @@ export function Publish() {
                     }
                   }}
                 >
-                  {(worlds ?? []).map((world) => (
+                  {ownedWorlds.map((world) => (
                     <option key={world._id} value={world._id}>
                       {world.name}
                     </option>

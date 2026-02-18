@@ -12,6 +12,7 @@ import type * as auth from "../auth.js";
 import type * as env from "../env.js";
 import type * as http from "../http.js";
 import type * as httpRoutes from "../httpRoutes.js";
+import type * as permissions from "../permissions.js";
 import type * as vttAgents from "../vttAgents.js";
 import type * as vttByok from "../vttByok.js";
 import type * as vttDiscovery from "../vttDiscovery.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   env: typeof env;
   http: typeof http;
   httpRoutes: typeof httpRoutes;
+  permissions: typeof permissions;
   vttAgents: typeof vttAgents;
   vttByok: typeof vttByok;
   vttDiscovery: typeof vttDiscovery;

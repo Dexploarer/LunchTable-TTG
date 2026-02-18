@@ -31,6 +31,16 @@ export async function requireUser(ctx: QueryCtx | MutationCtx) {
   return user;
 }
 
+export async function getOptionalUser(ctx: QueryCtx | MutationCtx) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return null;
+
+  return await ctx.db
+    .query("users")
+    .withIndex("by_privyId", (q) => q.eq("privyId", identity.subject))
+    .first();
+}
+
 export const syncUser = mutation({
   args: {
     email: v.optional(v.string()),

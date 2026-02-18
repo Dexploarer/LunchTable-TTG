@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import { requireUser } from "./auth";
+import { getOptionalUser, requireUser } from "./auth";
+import { isWorldVisibleToViewer } from "./permissions";
 
 async function ensureActiveWorkspace(ctx: MutationCtx, userId: Id<"users">) {
   const user = await ctx.db.get(userId);
@@ -165,6 +166,9 @@ export const forkWorld = mutation({
     const user = await requireUser(ctx);
     const source = await ctx.db.get(args.worldId);
     if (!source) throw new Error("World not found");
+    if (source.visibility === "private" && source.ownerUserId !== user._id) {
+      throw new Error("Forbidden");
+    }
 
     const workspaceId = await ensureActiveWorkspace(ctx, user._id);
     const now = Date.now();
@@ -221,6 +225,20 @@ export const getWorld = query({
     worldId: v.id("worlds"),
   },
   handler: async (ctx, args) => {
+    const world = await ctx.db.get(args.worldId);
+    if (!world) return null;
+
+    const viewer = await getOptionalUser(ctx);
+    if (
+      !isWorldVisibleToViewer({
+        visibility: world.visibility,
+        ownerUserId: world.ownerUserId,
+        viewerUserId: viewer?._id ?? null,
+      })
+    ) {
+      return null;
+    }
+
     return await getWorldSnapshot(ctx, args.worldId);
   },
 });
@@ -230,10 +248,18 @@ export const listWorlds = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const viewer = await getOptionalUser(ctx);
     const worlds = await ctx.db.query("worlds").collect();
     const search = args.search?.trim().toLowerCase();
 
     return worlds
+      .filter((world) =>
+        isWorldVisibleToViewer({
+          visibility: world.visibility,
+          ownerUserId: world.ownerUserId,
+          viewerUserId: viewer?._id ?? null,
+        }),
+      )
       .filter((world) => {
         if (!search) return true;
         return (

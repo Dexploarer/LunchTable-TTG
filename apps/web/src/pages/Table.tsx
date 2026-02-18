@@ -138,7 +138,9 @@ export function Table() {
 
   const maps = useConvexQuery(
     apiAny.vttMaps.listMaps,
-    convexEnabled && looksLikeConvexId(sessionWorldId) ? { worldId: sessionWorldId } : "skip",
+    convexEnabled && convexSessionId && looksLikeConvexId(sessionWorldId)
+      ? { worldId: sessionWorldId, sessionId: convexSessionId }
+      : "skip",
   ) as MapRecord[] | undefined;
 
   const [activeMapId, setActiveMapId] = useState("");
@@ -240,6 +242,10 @@ export function Table() {
   const isParticipant = Boolean(
     currentUser && sessionView?.participants?.some((participant) => participant.userId === currentUser._id),
   );
+  const currentParticipantRole =
+    currentUser && sessionView?.participants
+      ? sessionView.participants.find((participant) => participant.userId === currentUser._id)?.role ?? null
+      : null;
 
   const initiative = useMemo(
     () =>
@@ -355,7 +361,12 @@ export function Table() {
           </div>
           <button
             className="tcg-button"
+            disabled={Boolean(convexSessionId) && (!isParticipant || currentParticipantRole !== "gm")}
             onClick={async () => {
+              if (convexSessionId && (!isParticipant || currentParticipantRole !== "gm")) {
+                setStatus("Only the GM can toggle fog in a Convex session.");
+                return;
+              }
               const nextValue = !fogEnabled;
               setFogEnabled(nextValue);
               if (!convexSessionId || !looksLikeConvexId(activeMapId)) return;

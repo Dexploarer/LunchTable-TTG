@@ -8,6 +8,7 @@ import { useAppAuth } from "@/hooks/auth/useAppAuth";
 interface LfgPost {
   _id: string;
   worldId: string;
+  worldName?: string | null;
   sessionId?: string;
   title: string;
   description: string;
@@ -221,7 +222,7 @@ export function Lfg() {
             <article key={post._id} className="paper-panel p-4 flex flex-wrap justify-between gap-3">
               <div>
                 <p className="text-xs uppercase text-[#121212]/60">
-                  {worldNameById.get(post.worldId) ?? "Unknown world"}
+                  {post.worldName ?? worldNameById.get(post.worldId) ?? "Unknown world"}
                 </p>
                 <h2 className="text-2xl">{post.title}</h2>
                 <p className="text-sm text-[#121212]/70">{post.description}</p>

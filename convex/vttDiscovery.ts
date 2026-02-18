@@ -38,7 +38,21 @@ export const listLfgPosts = query({
       .withIndex("by_status", (q) => q.eq("status", status))
       .collect();
 
-    return posts.sort((a, b) => b.updatedAt - a.updatedAt);
+    const sorted = posts.sort((a, b) => b.updatedAt - a.updatedAt);
+    const uniqueWorldIds = Array.from(new Set(sorted.map((post) => post.worldId)));
+    const worldNameById = new Map<string, string>();
+
+    for (const worldId of uniqueWorldIds) {
+      const world = await ctx.db.get(worldId);
+      if (world) {
+        worldNameById.set(worldId, world.name);
+      }
+    }
+
+    return sorted.map((post) => ({
+      ...post,
+      worldName: worldNameById.get(post.worldId) ?? null,
+    }));
   },
 });
 

@@ -1,11 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-import type { MutationCtx } from "./_generated/server";
-import { requireUser } from "./auth";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { getOptionalUser, requireUser } from "./auth";
+import { canActorUseWorld } from "./permissions";
 
 async function ensureParticipant(
-  ctx: MutationCtx,
+  ctx: MutationCtx | QueryCtx,
   sessionId: Id<"sessions">,
   userId: Id<"users">,
 ) {
@@ -27,6 +28,15 @@ export const createSession = mutation({
     const user = await requireUser(ctx);
     const world = await ctx.db.get(args.worldId);
     if (!world) throw new Error("World not found");
+    if (
+      !canActorUseWorld({
+        visibility: world.visibility,
+        ownerUserId: world.ownerUserId,
+        actorUserId: user._id,
+      })
+    ) {
+      throw new Error("Forbidden");
+    }
 
     const now = Date.now();
     const sessionId = await ctx.db.insert("sessions", {
@@ -130,29 +140,36 @@ export const getSessionView = query({
     const session = await ctx.db.get(args.sessionId);
     if (!session) return null;
 
+    const viewer = await getOptionalUser(ctx);
     const participants = await ctx.db
       .query("sessionParticipants")
       .withIndex("by_session", (q) => q.eq("sessionId", session._id))
       .collect();
 
-    const events = await ctx.db
-      .query("sessionEvents")
-      .withIndex("by_session", (q) => q.eq("sessionId", session._id))
-      .collect();
+    const isParticipant = Boolean(
+      viewer && participants.some((participant) => participant.userId === viewer._id),
+    );
 
-    const sortedEvents = events
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, Math.max(1, Math.min(200, args.limit ?? 50)))
-      .reverse();
+    const limit = Math.max(1, Math.min(200, args.limit ?? 50));
+    const events = isParticipant
+      ? await ctx.db
+          .query("sessionEvents")
+          .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+          .collect()
+      : [];
 
-    const recentDice = await ctx.db
-      .query("diceRolls")
-      .withIndex("by_session", (q) => q.eq("sessionId", session._id))
-      .collect();
+    const sortedEvents = events.sort((a, b) => b.createdAt - a.createdAt).slice(0, limit).reverse();
+
+    const recentDice = isParticipant
+      ? await ctx.db
+          .query("diceRolls")
+          .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+          .collect()
+      : [];
 
     return {
       session,
-      participants,
+      participants: viewer ? participants : [],
       events: sortedEvents.map((event) => ({
         ...event,
         payload: JSON.parse(event.payloadJson || "{}"),
@@ -173,6 +190,8 @@ export const rollDice = mutation({
     const user = await requireUser(ctx);
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
+    const participant = await ensureParticipant(ctx, session._id, user._id);
+    if (!participant) throw new Error("Not a session participant");
 
     await ctx.db.insert("diceRolls", {
       sessionId: session._id,
@@ -212,12 +231,15 @@ export const listActiveSessions = query({
     worldId: v.optional(v.id("worlds")),
   },
   handler: async (ctx, args) => {
+    const user = await getOptionalUser(ctx);
+    if (!user) return [];
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_status", (q) => q.eq("status", "active"))
       .collect();
 
     return sessions
+      .filter((session) => session.hostUserId === user._id)
       .filter((session) => (args.worldId ? session.worldId === args.worldId : true))
       .sort((a, b) => b.updatedAt - a.updatedAt);
   },

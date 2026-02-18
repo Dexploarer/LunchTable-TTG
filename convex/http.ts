@@ -334,7 +334,8 @@ corsRoute({
 
     const body = asObject(await parseJson(request));
     const name = typeof body?.name === "string" ? body.name : "Untitled World";
-    const result = await ctx.runMutation(api.vttWorlds.createWorld, {
+    const result = await ctx.runMutation(api.vttAgents.agentCreateWorld, {
+      agentUserId: agent.userId,
       name,
       tagline: typeof body?.tagline === "string" ? body.tagline : "",
       genre: typeof body?.genre === "string" ? body.genre : "Custom",
@@ -361,7 +362,8 @@ corsPrefixRoute({
 
     const body = asObject(await parseJson(request));
 
-    const result = await ctx.runMutation(api.vttWorlds.updateWorld, {
+    const result = await ctx.runMutation(api.vttAgents.agentUpdateWorld, {
+      agentUserId: agent.userId,
       worldId: toId<"worlds">(route.worldId),
       name: typeof body?.name === "string" ? body.name : undefined,
       tagline: typeof body?.tagline === "string" ? body.tagline : undefined,
@@ -388,7 +390,8 @@ corsPrefixRoute({
     if (!route) return errorResponse("Not found", 404);
 
     if (route.kind === "fork") {
-      const result = await ctx.runMutation(api.vttWorlds.forkWorld, {
+      const result = await ctx.runMutation(api.vttAgents.agentForkWorld, {
+        agentUserId: agent.userId,
         worldId: toId<"worlds">(route.worldId),
       });
       return jsonResponse(result, 201);
@@ -399,7 +402,8 @@ corsPrefixRoute({
       ? body.tags.filter((value): value is string => typeof value === "string")
       : undefined;
 
-    const result = await ctx.runMutation(api.vttPublish.publishWorld, {
+    const result = await ctx.runMutation(api.vttAgents.agentPublishWorld, {
+      agentUserId: agent.userId,
       worldId: toId<"worlds">(route.worldId),
       title: typeof body?.title === "string" ? body.title : undefined,
       description: typeof body?.description === "string" ? body.description : undefined,
