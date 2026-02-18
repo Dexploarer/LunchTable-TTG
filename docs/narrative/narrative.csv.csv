@@ -1,0 +1,33 @@
+Month,Year,Week,Event_Name,Narrative_Beat,Global_Modifier,Vice_Rules,Reputation_Rules,Stability_Rules,Special_Mechanics,Agent_Memory_Flag,Loop_Impact,Unlock_Condition,Boss_Trigger,Environment_Override,Failure_State,Success_State
+
+1,Freshman,1,Seating Chart Posted,"The cafeteria reorganizes. Identity is assigned before chosen.",Reputation_Gain+20%,Vice_Disabled,Reputation_Gain_Increased,Stability_Static,"No Breakdowns allowed","Loop_Stability+1","Initialize_Seating_Archetypes",None,"Table Captain Duel","Cafeteria_Bright","No_Seat_Claimed","Seat_Claimed"
+
+1,Freshman,2,Tryouts & Auditions,"Everyone competes to define themselves.",None,Vice_On_Loss+1,Reputation_On_Win+100,Stability_On_Loss-100,"Permanent_Reputation_Modifier","Identity_Formation_Logged","Archetype_Power_Shift",Win_1_Duel,None,None,"Vice_Accumulation","Permanent_Reputation_Bonus"
+
+1,Freshman,3,Parking Lot Kickback,"The first party cracks the illusion.",None,Vice_Types_Unlock_Alcohol_Validation_Gambling,Reputation_On_Vice+200,Stability_On_Vice-200,"Breakdowns_Enabled","First_Vice_Event_Logged","Loop_Instability+1",Vice_Triggered>=1,None,"Parking_Lot_Environment","Early_Breakdown","Vice_Chain_Activated"
+
+1,Freshman,4,Screenshots Circulating,"Rumors spiral through group chats.",Trap_Cost-1,Random_Vice_Assigned,Reputation_Static,Stability_On_Rumor-150,"Random_Target_Trap_Amplify","Rumor_System_Activated","Loop_Instability+1",Random_Target_Assigned,None,None,"Reputation_Drop","Rumor_Survival"
+
+2,Sophomore,1,Table Realignment,"Seating reshuffles. Déjà vu spreads.",Deck_Modify_Required,Vice_Reset_None,Reputation_Static,Stability_Static,"Forced_Deck_Swap_1_Card","Memory_Glitch_1","Archetype_Shift",Deck_Modified,None,None,"Invalid_Deck","Adaptation_Success"
+
+2,Sophomore,2,Performance Review,"Midterms apply pressure.",None,Vice_Triggers_Double,Reputation_Static,All_Stability-200,"Stress_Amplifier","Stress_Event_Logged","Loop_Instability+1",All_Players,Top_Stability_Player,None,"Mass_Breakdown","Stress_Managed"
+
+2,Sophomore,3,Homecoming Peak,"Popularity surges before collapse.",Reputation_Gain_Double,Vice_On_Win+1,Reputation_On_Win+300,Stability_On_Loss-300,"High_Risk_Window","Peak_Event_Logged","Loop_Instability+2",Win_Streak>=2,None,"Gym_Environment","Overextension","Dominance_Claimed"
+
+2,Sophomore,4,Hall Monitors Watching,"Authority senses instability.",Trap_Cost-2,Vice_On_Trap+1,Reputation_Static,Stability_On_Trap-200,"Control_Week","Authority_Awareness_1","Principal_Presence+1",Trap_Activated>=1,None,"Detention_Shadow","Trap_Lock","Controlled_Play"
+
+3,Junior,1,Standardized Evaluation,"The system measures everyone.",None,Auto_Vice_Trigger_If>=2,Reputation_Static,Stability_On_Vice-300,"Forced_Minor_Breakdowns","System_Test_1","Loop_Instability+2",Vice_Count>=2,None,None,"Mass_Collapse","Resilience_Logged"
+
+3,Junior,2,Senior Party Early,"Time accelerates unnaturally.",None,All_Vice_Active,Reputation_On_Vice+300,Stability_On_Vice-400,"Vice_Chain_Reaction","Time_Glitch_1","Loop_Instability+3",Any_Vice,Multi_Player_Event,"Senior_Party_Environment","Vice_Overload","Chaos_Controlled"
+
+3,Junior,3,Expulsion Event,"Someone vanishes from the cafeteria.",None,Highest_Vice_Destroyed,Reputation_On_Destroy+200,Stability_Static,"Auto_Remove_Highest_Vice","Population_Decrease_1","Cafeteria_Count-1",Highest_Vice>=3,None,None,"Loss_of_Key_Unit","Survival_Adaptation"
+
+3,Junior,4,The Bell Doesn't Ring,"Reality glitches.",Random_Modifier,Random_Vice,Random_Reputation_Swap,Random_Stability_Swap,"Card_Text_Shuffle","Glitch_Week_Logged","Loop_Instability+3",Random_Trigger,None,"Cafeteria_Dim","Total_Disorder","Stability_Recovered"
+
+4,Senior,1,Future Planning,"Escape seems possible.",Player_Select_Path,Vice_Modify_Based_On_Path,Reputation_Path_Buff,Stability_Path_Buff,"Path_Lock_Selected","Escape_Path_Chosen","Principal_Presence+1",Path_Selected,None,None,"Path_Conflict","Path_Empowered"
+
+4,Senior,2,Final Rankings,"The system rewards dominance.",Leaderboard_Modifier,Vice_Static,Top_Player_Reputation+500,Low_Stability_UI_Crack,"Leaderboard_Event","Ranking_Logged","Hierarchy_Finalized",Leaderboard_Set,None,"Gym_Final","Rank_Loss","Rank_Ascend"
+
+4,Senior,3,Graduation Rehearsal,"The exit doors appear.",No_New_Vice,Vice_Effects_Double,Reputation_Static,Stability_On_Vice-500,"Tension_Amplified","Pre_Graduation_Flag","Principal_Presence+2",Vice_Count>=1,None,None,"Pre_Final_Collapse","Prepared_For_Final"
+
+4,Senior,4,Graduation Day,"Face yourself or repeat forever.",None,Vice_Reset_After_Duel,Reputation_On_Win+1000,Stability_On_Loss-1000,"Final_Self_Duel","Loop_Reset_If_Loss","Cycle_End",Final_Duel,Self_Stereotype,"Cafeteria_Empty","Loop_Reset","Memory_Fragment_Unlocked"
