@@ -118,6 +118,13 @@ export function Table() {
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [narratorProvider, setNarratorProvider] = useState<"openai" | "anthropic" | "eliza">(
+    "eliza",
+  );
+  const [narratorPrompt, setNarratorPrompt] = useState("");
+  const [narratorJobId, setNarratorJobId] = useState("");
+  const [narratorJobStatus, setNarratorJobStatus] = useState("");
+
   const [tokens, setTokens] = useState<TableToken[]>(START_TOKENS);
   const [fogEnabled, setFogEnabled] = useState(false);
   const [localMessages, setLocalMessages] = useState<SessionMessage[]>([]);
@@ -153,6 +160,11 @@ export function Table() {
       ? { sessionId: convexSessionId, mapId: activeMapId }
       : "skip",
   ) as MapState | null | undefined;
+
+  const narratorJob = useConvexQuery(
+    apiAny.vttGeneration.getGenerationJob,
+    convexEnabled && looksLikeConvexId(narratorJobId) ? { jobId: narratorJobId } : "skip",
+  ) as { status: "queued" | "running" | "completed" | "failed"; error?: string } | null | undefined;
 
   useEffect(() => {
     if (!selectedWorldId && looksLikeConvexId(requestedWorldId)) {
@@ -199,6 +211,27 @@ export function Table() {
       setFogEnabled(Boolean(mapState.fog.enabled));
     }
   }, [mapState?.fog]);
+
+  useEffect(() => {
+    if (!narratorJobId) return;
+    if (!narratorJob) return;
+
+    if (narratorJob.status === "queued" || narratorJob.status === "running") {
+      setNarratorJobStatus("Narrator is thinking...");
+      return;
+    }
+
+    if (narratorJob.status === "completed") {
+      setNarratorJobStatus("");
+      setNarratorJobId("");
+      return;
+    }
+
+    setNarratorJobStatus(
+      narratorJob.error ? `Narration failed: ${narratorJob.error}` : "Narration failed.",
+    );
+    setNarratorJobId("");
+  }, [narratorJob, narratorJobId]);
 
   useEffect(() => {
     if (!selectedWorldId || !worlds) return;
@@ -411,21 +444,55 @@ export function Table() {
             ) : null}
 
             {convexSessionId && currentParticipantRole === "gm" ? (
-              <button
-                className="tcg-button"
-                disabled={sessionView?.session?.status === "ended"}
-                onClick={async () => {
-                  if (!convexSessionId) return;
-                  try {
-                    await invokeNarrator({ sessionId: convexSessionId });
-                    setStatus("Narrator invoked.");
-                  } catch (error) {
-                    setStatus(error instanceof Error ? error.message : "Failed to invoke narrator.");
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  className="border-2 border-[#121212] px-2 py-1 bg-white text-xs uppercase"
+                  value={narratorProvider}
+                  onChange={(event) =>
+                    setNarratorProvider(event.target.value as "openai" | "anthropic" | "eliza")
                   }
-                }}
-              >
-                Summon Narrator
-              </button>
+                >
+                  <option value="openai">openai</option>
+                  <option value="anthropic">anthropic</option>
+                  <option value="eliza">eliza</option>
+                </select>
+                <input
+                  className="border-2 border-[#121212] px-2 py-1 bg-white text-sm min-w-[220px]"
+                  value={narratorPrompt}
+                  onChange={(event) => setNarratorPrompt(event.target.value)}
+                  placeholder="Narrator prompt (optional)"
+                />
+                <button
+                  className="tcg-button"
+                  disabled={sessionView?.session?.status === "ended" || Boolean(narratorJobId)}
+                  onClick={async () => {
+                    if (!convexSessionId) return;
+                    setNarratorJobStatus("Narrator is thinking...");
+                    setNarratorJobId("");
+                    try {
+                      const result = await invokeNarrator({
+                        sessionId: convexSessionId,
+                        provider: narratorProvider,
+                        prompt: narratorPrompt.trim() ? narratorPrompt.trim() : undefined,
+                        mapId: looksLikeConvexId(activeMapId) ? activeMapId : undefined,
+                      });
+                      const nextJobId = typeof result?.jobId === "string" ? result.jobId : "";
+                      if (!nextJobId) {
+                        setNarratorJobStatus("Narration job queued but no job id returned.");
+                        return;
+                      }
+                      setNarratorJobId(nextJobId);
+                    } catch (error) {
+                      setNarratorJobStatus(
+                        error instanceof Error ? error.message : "Failed to invoke narrator.",
+                      );
+                    }
+                  }}
+                >
+                  Summon Narrator
+                </button>
+                {narratorJobStatus ? <p className="text-xs uppercase">{narratorJobStatus}</p> : null}
+              </div>
             ) : null}
           </div>
         </header>

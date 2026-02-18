@@ -1,4 +1,12 @@
-import type { TTGAgentMe, TTGSessionResult } from "./types";
+import type {
+  TTGAgentMe,
+  TTGGenerationJob,
+  TTGGenerationJobCreateResult,
+  TTGGenerationProvider,
+  TTGJoinSessionResult,
+  TTGSessionResult,
+  TTGSessionRole,
+} from "./types";
 
 export class TTGClient {
   constructor(private readonly apiUrl: string, private readonly apiKey: string) {}
@@ -32,6 +40,13 @@ export class TTGClient {
     });
   }
 
+  joinSession(sessionId: string, role?: TTGSessionRole) {
+    return this.request<TTGJoinSessionResult>(`/api/vtt/sessions/${sessionId}/join`, {
+      method: "POST",
+      body: JSON.stringify({ role }),
+    });
+  }
+
   sessionView(sessionId: string) {
     return this.request(`/api/vtt/sessions/${sessionId}/view`);
   }
@@ -40,6 +55,64 @@ export class TTGClient {
     return this.request(`/api/vtt/sessions/${sessionId}/commands`, {
       method: "POST",
       body: JSON.stringify({ command, payload }),
+    });
+  }
+
+  createGenerationJob({
+    worldId,
+    kind,
+    provider,
+    input,
+  }: {
+    worldId?: string;
+    kind: string;
+    provider: TTGGenerationProvider | string;
+    input?: Record<string, unknown>;
+  }) {
+    return this.request<TTGGenerationJobCreateResult>("/api/vtt/generation/jobs", {
+      method: "POST",
+      body: JSON.stringify({ worldId, kind, provider, input }),
+    });
+  }
+
+  getGenerationJob(jobId: string) {
+    return this.request<TTGGenerationJob>(`/api/vtt/generation/jobs/${jobId}`);
+  }
+
+  invokeNarrator({
+    sessionId,
+    provider,
+    prompt,
+    mapName,
+    mapBiome,
+    worldName,
+    genre,
+    mood,
+    tagline,
+  }: {
+    sessionId: string;
+    provider: TTGGenerationProvider;
+    prompt?: string;
+    mapName?: string;
+    mapBiome?: string;
+    worldName?: string;
+    genre?: string;
+    mood?: string;
+    tagline?: string;
+  }) {
+    return this.createGenerationJob({
+      kind: "narration",
+      provider,
+      input: {
+        sessionId,
+        ...(prompt ? { prompt } : {}),
+        ...(mapName ? { mapName } : {}),
+        ...(mapBiome ? { mapBiome } : {}),
+        ...(worldName ? { worldName } : {}),
+        ...(genre ? { genre } : {}),
+        ...(mood ? { mood } : {}),
+        ...(tagline ? { tagline } : {}),
+      },
     });
   }
 }

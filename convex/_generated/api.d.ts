@@ -19,6 +19,7 @@ import type * as vttDiscovery from "../vttDiscovery.js";
 import type * as vttGeneration from "../vttGeneration.js";
 import type * as vttMaps from "../vttMaps.js";
 import type * as vttModeration from "../vttModeration.js";
+import type * as vttNarrator from "../vttNarrator.js";
 import type * as vttPublish from "../vttPublish.js";
 import type * as vttSessions from "../vttSessions.js";
 import type * as vttWorlds from "../vttWorlds.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   vttGeneration: typeof vttGeneration;
   vttMaps: typeof vttMaps;
   vttModeration: typeof vttModeration;
+  vttNarrator: typeof vttNarrator;
   vttPublish: typeof vttPublish;
   vttSessions: typeof vttSessions;
   vttWorlds: typeof vttWorlds;

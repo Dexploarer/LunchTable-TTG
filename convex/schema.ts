@@ -139,6 +139,7 @@ export default defineSchema(
       role: v.union(v.literal("gm"), v.literal("player"), v.literal("observer"), v.literal("npc")),
       joinedAt: v.number(),
       lastActiveAt: v.number(),
+      lastNarrationAt: v.optional(v.number()),
     })
       .index("by_session", ["sessionId"])
       .index("by_user", ["userId"]),

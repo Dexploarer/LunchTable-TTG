@@ -1,8 +1,10 @@
 import { v } from "convex/values";
 import { internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
+import { selectNarrationFromNarrationOutput } from "./vttNarrator";
 
 export function makeSyntheticOutput(kind: string, input: Record<string, unknown>) {
   if (kind === "world") {
@@ -27,6 +29,14 @@ export function makeSyntheticOutput(kind: string, input: Record<string, unknown>
         goals: ["Secure leverage", "Protect network"],
         scenePrompts: ["Offer a costly shortcut", "Reveal partial truth"],
       },
+      input,
+    };
+  }
+
+  if (kind === "narration") {
+    return {
+      narration:
+        "Lanternlight flickers across the table as distant thunder rolls in from the horizon. The air tastes of salt and rain, and every creak of timber sounds like a warning. Somewhere nearby, a door opens just a little too slowly.",
       input,
     };
   }
@@ -88,6 +98,39 @@ export function buildPrompt(kind: string, input: Record<string, unknown>) {
       `Input JSON: ${JSON.stringify(input)}\n\n` +
       `Return JSON only (no markdown) with key npcProfile:\n` +
       `npcProfile: { archetype: string, goals: string[], scenePrompts: string[] }\n`
+    );
+  }
+
+  if (kind === "narration") {
+    const worldName = typeof input.worldName === "string" ? input.worldName : "";
+    const genre = typeof input.genre === "string" ? input.genre : "";
+    const mood = typeof input.mood === "string" ? input.mood : "";
+    const tagline = typeof input.tagline === "string" ? input.tagline : "";
+    const mapName = typeof input.mapName === "string" ? input.mapName : "";
+    const mapBiome = typeof input.mapBiome === "string" ? input.mapBiome : "";
+    const prompt = typeof input.prompt === "string" ? input.prompt : "";
+
+    return (
+      base +
+      `Write brief narration for the next beat of a live tabletop session.\n\n` +
+      `Hard requirements:\n` +
+      `- Return JSON only (no markdown).\n` +
+      `- Output must match exactly: { "narration": string }\n` +
+      `- 2-4 sentences.\n` +
+      `- Present tense.\n` +
+      `- No markdown.\n\n` +
+      `Incorporate these details when present:\n` +
+      `- worldName, genre, mood, tagline\n` +
+      `- mapName, mapBiome\n` +
+      `- prompt (GM guidance)\n\n` +
+      `Context:\n` +
+      `World name: ${worldName}\n` +
+      `Genre: ${genre}\n` +
+      `Mood: ${mood}\n` +
+      `Tagline: ${tagline}\n` +
+      `Map name: ${mapName}\n` +
+      `Map biome: ${mapBiome}\n` +
+      `GM prompt: ${prompt}\n`
     );
   }
 
@@ -296,10 +339,36 @@ export const runGenerationJob = internalAction({
         parsed,
       };
 
+      const outputJson = JSON.stringify(output);
+
+      if (job.kind === "narration") {
+        const sessionIdRaw = typeof input.sessionId === "string" ? input.sessionId : "";
+        if (sessionIdRaw) {
+          const narrationText = selectNarrationFromNarrationOutput(parsed, text);
+          try {
+            await ctx.runMutation(internal.vttSessions.internalPostNarrationToSession, {
+              sessionId: sessionIdRaw as Id<"sessions">,
+              actorUserId: job.actorUserId,
+              narration: narrationText,
+              jobId: job._id,
+            });
+          } catch (postError) {
+            await ctx.runMutation(internal.vttGeneration.internalPatchGenerationJob, {
+              jobId: job._id,
+              status: "failed",
+              outputJson,
+              error:
+                postError instanceof Error ? postError.message : "Failed to post narration to session",
+            });
+            return { ok: false };
+          }
+        }
+      }
+
       await ctx.runMutation(internal.vttGeneration.internalPatchGenerationJob, {
         jobId: job._id,
         status: "completed",
-        outputJson: JSON.stringify(output),
+        outputJson,
       });
 
       return { ok: true };

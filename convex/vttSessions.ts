@@ -1,11 +1,10 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
-import { DEFAULT_NARRATION, selectNarrationFromNpcOutput } from "./vttNarrator";
-import { makeSyntheticOutput } from "./vttGeneration";
 
 async function ensureParticipant(
   ctx: MutationCtx | QueryCtx,
@@ -208,35 +207,37 @@ export const rollDice = mutation({
   },
 });
 
-export const invokeNarrator = mutation({
+export const internalPostNarrationToSession = internalMutation({
   args: {
     sessionId: v.id("sessions"),
-    prompt: v.optional(v.string()),
+    actorUserId: v.id("users"),
+    narration: v.string(),
+    jobId: v.optional(v.id("generationJobs")),
   },
   handler: async (ctx, args) => {
-    const user = await requireUser(ctx);
     const session = await ctx.db.get(args.sessionId);
-    if (!session) throw new Error("Session not found");
+    if (!session || session.status === "ended") {
+      throw new Error("Session not available");
+    }
 
-    const participant = await ensureParticipant(ctx, session._id, user._id);
-    if (!participant) throw new Error("Not a session participant");
-    if (participant.role !== "gm") throw new Error("Only the GM can invoke the narrator");
+    const participants = await ctx.db
+      .query("sessionParticipants")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .collect();
 
-    const output = makeSyntheticOutput("npc", {
-      prompt: args.prompt ?? "",
-      sessionId: session._id,
-      worldId: session.worldId,
-    });
-
-    const narration = selectNarrationFromNpcOutput(output) || DEFAULT_NARRATION;
+    const participant = participants.find((entry) => entry.userId === args.actorUserId) ?? null;
+    if (!participant || participant.role !== "gm") {
+      throw new Error("Only the GM can invoke the narrator");
+    }
 
     const eventId = await ctx.db.insert("sessionEvents", {
-      sessionId: session._id,
-      actorUserId: user._id,
+      sessionId: args.sessionId,
+      actorUserId: args.actorUserId,
       eventType: "CHAT_MESSAGE",
       payloadJson: JSON.stringify({
         sender: "NARRATOR",
-        text: narration,
+        text: args.narration,
+        jobId: args.jobId,
       }),
       createdAt: Date.now(),
     });
@@ -244,7 +245,72 @@ export const invokeNarrator = mutation({
     await ctx.db.patch(participant._id, { lastActiveAt: Date.now() });
     await ctx.db.patch(session._id, { updatedAt: Date.now() });
 
-    return { eventId, narration };
+    return { eventId };
+  },
+});
+
+export const invokeNarrator = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+    provider: v.union(v.literal("openai"), v.literal("anthropic"), v.literal("eliza")),
+    prompt: v.optional(v.string()),
+    mapId: v.optional(v.id("maps")),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+    if (session.status !== "active") throw new Error("Session must be active");
+
+    const participant = await ensureParticipant(ctx, session._id, user._id);
+    if (!participant) throw new Error("Not a session participant");
+    if (participant.role !== "gm") throw new Error("Only the GM can invoke the narrator");
+
+    const now = Date.now();
+    if (participant.lastNarrationAt && now - participant.lastNarrationAt < 10_000) {
+      throw new Error("Narrator is on cooldown. Try again in a moment.");
+    }
+
+    const world = await ctx.db.get(session.worldId);
+    if (!world) throw new Error("World not found");
+
+    let map: { name: string; biome?: string } | null = null;
+    if (args.mapId) {
+      const mapRow = await ctx.db.get(args.mapId);
+      if (mapRow && mapRow.worldId === world._id) {
+        map = { name: mapRow.name, biome: mapRow.biome };
+      }
+    }
+
+    const input = {
+      sessionId: session._id,
+      prompt: args.prompt ?? "",
+      worldName: world.name,
+      genre: world.genre,
+      mood: world.mood,
+      tagline: world.tagline,
+      ...(map ? { mapName: map.name, mapBiome: map.biome ?? "" } : {}),
+    };
+
+    const jobId = await ctx.db.insert("generationJobs", {
+      actorUserId: user._id,
+      worldId: session.worldId,
+      kind: "narration",
+      provider: args.provider,
+      inputJson: JSON.stringify(input),
+      status: "queued",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await ctx.db.patch(participant._id, {
+      lastNarrationAt: now,
+      lastActiveAt: now,
+    });
+    await ctx.db.patch(session._id, { updatedAt: now });
+
+    await ctx.scheduler.runAfter(0, internal.vttGeneration.runGenerationJob, { jobId });
+    return { jobId };
   },
 });
 

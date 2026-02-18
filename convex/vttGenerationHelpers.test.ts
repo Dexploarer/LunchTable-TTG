@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { defaultModelForProvider, extractJsonFromText, selectModel } from "./vttGeneration";
+import {
+  buildPrompt,
+  defaultModelForProvider,
+  extractJsonFromText,
+  selectModel,
+} from "./vttGeneration";
 
 describe("vttGeneration helpers", () => {
   it("selects default models when none provided", () => {
@@ -25,5 +30,28 @@ describe("vttGeneration helpers", () => {
     expect(extractJsonFromText("before {\"a\":1} after")).toEqual({ a: 1 });
     expect(extractJsonFromText("```json\n{\"a\":1}\n```")).toEqual({ a: 1 });
   });
-});
 
+  it("builds narration prompt with JSON-only requirements and context fields", () => {
+    const prompt = buildPrompt("narration", {
+      worldName: "Harborfall",
+      genre: "Dark fantasy",
+      mood: "Tense",
+      tagline: "Every debt is paid in salt.",
+      mapName: "Storm Docks",
+      mapBiome: "Coastal",
+      prompt: "Open on a stormy harbor.",
+    });
+
+    expect(prompt).toContain("Return JSON only");
+    expect(prompt).toContain("{ \"narration\": string }");
+    expect(prompt).toContain("2-4 sentences");
+    expect(prompt).toContain("Present tense");
+    expect(prompt).toContain("World name: Harborfall");
+    expect(prompt).toContain("Genre: Dark fantasy");
+    expect(prompt).toContain("Mood: Tense");
+    expect(prompt).toContain("Tagline: Every debt is paid in salt.");
+    expect(prompt).toContain("Map name: Storm Docks");
+    expect(prompt).toContain("Map biome: Coastal");
+    expect(prompt).toContain("GM prompt: Open on a stormy harbor.");
+  });
+});
