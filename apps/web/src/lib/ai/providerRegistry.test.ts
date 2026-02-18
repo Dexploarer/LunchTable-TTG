@@ -1,8 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-beforeEach(() => {
-  vi.resetModules();
-});
+import { describe, expect, it } from "vitest";
 
 describe("providerRegistry", () => {
   it("falls back to openai when provider id is missing", async () => {
