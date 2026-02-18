@@ -35,9 +35,11 @@ export function Worlds() {
   useUserSync();
   const createProjectFromWorld = useTTGStudioStore((state) => state.createProjectFromWorld);
   const createWorld = useConvexMutation(apiAny.vttWorlds.createWorld);
+  const forkWorld = useConvexMutation(apiAny.vttWorlds.forkWorld);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [seedingWorldId, setSeedingWorldId] = useState<string | null>(null);
+  const [forkingWorldId, setForkingWorldId] = useState<string | null>(null);
 
   const liveWorlds = useConvexQuery(
     apiAny.vttWorlds.listWorlds,
@@ -83,6 +85,64 @@ export function Worlds() {
           />
           {status ? <p className="text-xs uppercase mt-2">{status}</p> : null}
         </header>
+
+        {convexEnabled ? (
+          <section className="space-y-3">
+            <h2 className="text-2xl uppercase">Discovery Worlds</h2>
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {(publishedListings ?? []).map((listing) => (
+                <article key={listing._id} className="paper-panel p-4 space-y-2">
+                  <p className="text-[11px] uppercase text-[#121212]/60">Published</p>
+                  <h3 className="text-2xl">{listing.title}</h3>
+                  <p className="text-sm text-[#121212]/70">{listing.description}</p>
+                  <p className="text-xs uppercase">
+                    {listing.tags.length > 0 ? listing.tags.join(" • ") : "untagged"}
+                  </p>
+                  <p className="text-xs uppercase text-[#121212]/70">
+                    Rating: {listing.rating.toFixed(1)}
+                  </p>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <Link to={`/worlds/${listing.worldId}`} className="tcg-button">Details</Link>
+                    <Link to={`/table/new?worldId=${listing.worldId}`} className="tcg-button">Open Table</Link>
+                    <button
+                      className="tcg-button"
+                      disabled={forkingWorldId === listing.worldId || !authenticated}
+                      onClick={async () => {
+                        if (!authenticated) {
+                          setStatus("Sign in to fork this world.");
+                          return;
+                        }
+
+                        setForkingWorldId(listing.worldId);
+                        try {
+                          const result = await forkWorld({ worldId: listing.worldId });
+                          const nextWorldId = typeof result?.worldId === "string" ? result.worldId : "";
+                          if (!nextWorldId) {
+                            setStatus("Fork succeeded but no worldId returned.");
+                            return;
+                          }
+                          setStatus("World forked.");
+                          navigate(`/worlds/${nextWorldId}`);
+                        } catch (error) {
+                          setStatus(error instanceof Error ? error.message : "Failed to fork world.");
+                        } finally {
+                          setForkingWorldId(null);
+                        }
+                      }}
+                    >
+                      {forkingWorldId === listing.worldId ? "Forking..." : "Fork"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {(publishedListings ?? []).length === 0 ? (
+              <p className="paper-panel p-4 text-sm text-[#121212]/70">
+                No published listings yet. Publish a world from the Publish console to populate discovery.
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         {convexEnabled ? (
           <section className="space-y-3">
