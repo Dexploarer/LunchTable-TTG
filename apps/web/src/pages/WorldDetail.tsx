@@ -1,8 +1,14 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { playableWorlds } from "@/lib/ttrpgStudio";
 import { TrayNav } from "@/components/layout/TrayNav";
-import { apiAny, useConvexQuery } from "@/lib/convexHelpers";
+import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { looksLikeConvexId } from "@/lib/convexId";
+import { useUserSync } from "@/hooks/auth/useUserSync";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
+
+const GENERATION_PROVIDERS = ["openai", "anthropic", "eliza"] as const;
+type GenerationProvider = (typeof GENERATION_PROVIDERS)[number];
 
 interface LiveWorld {
   _id: string;
@@ -40,11 +46,21 @@ export function WorldDetail() {
   const { worldId = "" } = useParams();
   const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
   const isConvexWorld = convexEnabled && looksLikeConvexId(worldId);
+  const { authenticated } = useAppAuth();
+  useUserSync();
+
+  const [provider, setProvider] = useState<GenerationProvider>("openai");
+  const [generationStatus, setGenerationStatus] = useState("");
 
   const liveSnapshot = useConvexQuery(
     apiAny.vttWorlds.getWorld,
     isConvexWorld ? { worldId } : "skip",
   ) as WorldSnapshot | null | undefined;
+  const createGenerationJob = useConvexMutation(apiAny.vttGeneration.createGenerationJob);
+  const latestJob = useConvexQuery(
+    apiAny.vttGeneration.getLatestGenerationJobForWorld,
+    authenticated && isConvexWorld ? { worldId } : "skip",
+  ) as { status: string; kind: string; provider: string; output?: unknown; error?: string; updatedAt: number } | null | undefined;
   const seedWorld = playableWorlds.find((entry) => entry.id === worldId);
 
   if (isConvexWorld && liveSnapshot === undefined) {
@@ -121,6 +137,83 @@ export function WorldDetail() {
             ) : (
               <p className="text-sm text-[#121212]/70">No maps added to this world yet.</p>
             )}
+          </section>
+
+          <section className="paper-panel p-4 space-y-3">
+            <h2 className="text-xl uppercase">AI Generation</h2>
+            <p className="text-sm text-[#121212]/70">
+              Generate prompt packs, NPC scaffolds, and world canon using your BYOK provider keys.
+            </p>
+            <div className="flex flex-wrap gap-2 items-center">
+              <label className="text-xs uppercase font-bold">Provider</label>
+              <select
+                className="border-2 border-[#121212] px-2 py-1 bg-white"
+                value={provider}
+                onChange={(event) => setProvider(event.target.value as GenerationProvider)}
+              >
+                {GENERATION_PROVIDERS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="tcg-button"
+                disabled={!authenticated}
+                onClick={async () => {
+                  if (!authenticated) {
+                    setGenerationStatus("Sign in required to run generation jobs.");
+                    return;
+                  }
+                  try {
+                    const result = await createGenerationJob({
+                      worldId,
+                      kind: "world",
+                      provider,
+                      input: { worldName: world.name, tagline: world.tagline },
+                    });
+                    setGenerationStatus(
+                      `Generation job created: ${typeof result?.jobId === "string" ? result.jobId : "unknown"}.`,
+                    );
+                  } catch (error) {
+                    setGenerationStatus(error instanceof Error ? error.message : "Generation failed.");
+                  }
+                }}
+              >
+                Generate World Scaffold
+              </button>
+            </div>
+            {!authenticated ? (
+              <p className="text-xs uppercase text-[#121212]/70">
+                Sign in required. Configure BYOK keys in Settings → Providers.
+              </p>
+            ) : null}
+            {generationStatus ? <p className="text-xs uppercase">{generationStatus}</p> : null}
+
+            {authenticated ? (
+              <div className="paper-panel-flat p-3">
+                <p className="text-xs uppercase text-[#121212]/60">Latest Job</p>
+                {latestJob ? (
+                  <>
+                    <p className="text-xs uppercase">
+                      {latestJob.kind} • {latestJob.provider} • {latestJob.status}
+                    </p>
+                    {latestJob.error ? (
+                      <p className="text-xs uppercase text-[#b42318]">Error: {latestJob.error}</p>
+                    ) : null}
+                    {latestJob.output ? (
+                      <pre className="mt-2 text-xs whitespace-pre-wrap">
+                        {JSON.stringify(latestJob.output, null, 2)}
+                      </pre>
+                    ) : (
+                      <p className="text-sm text-[#121212]/70 mt-2">No output yet.</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-[#121212]/70">No generation jobs yet.</p>
+                )}
+              </div>
+            ) : null}
           </section>
 
           <div className="flex flex-wrap gap-2">
