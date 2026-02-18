@@ -1,9 +1,8 @@
-import { usePrivy } from "@privy-io/react-auth";
 import { useNavigate } from "react-router";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { PRIVY_ENABLED } from "@/lib/auth/privyEnv";
 import { useUserSync } from "@/hooks/auth/useUserSync";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -11,16 +10,25 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
+  const { enabled: authEnabled } = useAppAuth();
+
+  if (!authEnabled || !convexEnabled) return <AuthGuardDisabled />;
+  return <AuthGuardEnabled>{children}</AuthGuardEnabled>;
+}
+
+function AuthGuardDisabled() {
   const navigate = useNavigate();
 
-  if (!PRIVY_ENABLED || !convexEnabled) {
-    useEffect(() => {
-      navigate("/", { replace: true });
-    }, [navigate]);
-    return <AuthLoadingScreen message="Auth disabled in local mode..." />;
-  }
+  useEffect(() => {
+    navigate("/", { replace: true });
+  }, [navigate]);
 
-  const { ready, authenticated } = usePrivy();
+  return <AuthLoadingScreen message="Auth disabled in local mode..." />;
+}
+
+function AuthGuardEnabled({ children }: AuthGuardProps) {
+  const navigate = useNavigate();
+  const { ready, authenticated } = useAppAuth();
   const { isLoading } = useUserSync();
 
   useEffect(() => {

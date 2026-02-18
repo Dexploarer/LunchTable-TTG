@@ -1,6 +1,5 @@
-import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useRef } from "react";
-import { PRIVY_ENABLED } from "@/lib/auth/privyEnv";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 /**
  * Detect if running inside a Telegram mini app.
@@ -25,16 +24,13 @@ export function isTelegramMiniApp(): boolean {
  * initiated from within Telegram."
  */
 export function useTelegramAuth() {
-  if (!PRIVY_ENABLED) {
-    return { isTelegram: false };
-  }
-
-  const { authenticated, user, linkTelegram } = usePrivy();
+  const { enabled, authenticated, user, linkTelegram } = useAppAuth();
   const linked = useRef(false);
   const isTelegram = isTelegramMiniApp();
 
   useEffect(() => {
-    if (!isTelegram || !authenticated || linked.current) return;
+    if (!enabled || !isTelegram || !authenticated || !linkTelegram || linked.current) return;
+    const safeLinkTelegram = linkTelegram;
 
     // Check if Telegram is already linked
     const hasTelegram = user?.linkedAccounts?.some(
@@ -51,7 +47,7 @@ export function useTelegramAuth() {
       try {
         const { retrieveRawInitData } = await import("@telegram-apps/bridge");
         const initDataRaw = retrieveRawInitData() ?? "";
-        linkTelegram({ launchParams: { initDataRaw } });
+        safeLinkTelegram({ launchParams: { initDataRaw } });
         linked.current = true;
       } catch {
         // Linking may fail if already linked or params expired — safe to ignore
@@ -59,7 +55,7 @@ export function useTelegramAuth() {
     }
 
     link();
-  }, [isTelegram, authenticated, user, linkTelegram]);
+  }, [enabled, isTelegram, authenticated, user, linkTelegram]);
 
   return { isTelegram };
 }

@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { AuthWidget } from "@/components/auth/AuthWidget";
 
 const LINKS = [
   { label: "Home", to: "/" },
@@ -15,7 +16,7 @@ export function TrayNav({ invert = false }: { invert?: boolean }) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t-2 border-[#121212] bg-[#fdfdfb]">
       <div className="max-w-6xl mx-auto px-2 py-2 overflow-x-auto hide-scrollbar">
-        <div className="flex gap-2 min-w-max">
+        <div className="flex gap-2 min-w-max items-center">
           {LINKS.map((link) => (
             <Link
               key={link.to}
@@ -28,6 +29,7 @@ export function TrayNav({ invert = false }: { invert?: boolean }) {
               {link.label}
             </Link>
           ))}
+          <AuthWidget invert={invert} />
         </div>
       </div>
     </nav>

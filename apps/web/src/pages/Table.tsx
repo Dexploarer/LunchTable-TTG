@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { Stage } from "@/features/vttCanvas/Stage";
 import type { VttToken } from "@/features/vttCanvas/TokenLayer";
@@ -12,6 +11,7 @@ import { TrayNav } from "@/components/layout/TrayNav";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { looksLikeConvexId } from "@/lib/convexId";
 import { useUserSync } from "@/hooks/auth/useUserSync";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 interface TableToken extends VttToken {
   layer: "ground" | "mid" | "air";
@@ -97,7 +97,7 @@ export function Table() {
   const navigate = useNavigate();
   const { sessionId = "new" } = useParams();
   const [searchParams] = useSearchParams();
-  const { authenticated } = usePrivy();
+  const { authenticated } = useAppAuth();
   useUserSync();
 
   const currentUser = useConvexQuery(

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
 import { PublishTab } from "@/features/ttgStudio/tabs/PublishTab";
 import { TrayNav } from "@/components/layout/TrayNav";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { useUserSync } from "@/hooks/auth/useUserSync";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 interface WorldSummary {
   _id: string;
@@ -27,7 +27,7 @@ interface PublishListing {
 
 export function Publish() {
   const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
-  const { authenticated } = usePrivy();
+  const { authenticated } = useAppAuth();
   useUserSync();
 
   const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as WorldSummary[] | undefined;

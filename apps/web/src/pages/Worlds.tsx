@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
 import { Link, useNavigate } from "react-router";
 import { playableWorlds } from "@/lib/ttrpgStudio";
 import { useTTGStudioStore } from "@/features/ttgStudio";
 import { TrayNav } from "@/components/layout/TrayNav";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { useUserSync } from "@/hooks/auth/useUserSync";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 interface LiveWorld {
   _id: string;
@@ -30,7 +30,7 @@ interface DiscoveryListing {
 
 export function Worlds() {
   const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
-  const { authenticated } = usePrivy();
+  const { authenticated } = useAppAuth();
   const navigate = useNavigate();
   useUserSync();
   const createProjectFromWorld = useTTGStudioStore((state) => state.createProjectFromWorld);

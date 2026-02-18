@@ -1,7 +1,7 @@
-import { usePrivy } from "@privy-io/react-auth";
 import { useCallback, useMemo } from "react";
 import * as Sentry from "@sentry/react";
 import { useIframeMode } from "@/hooks/useIframeMode";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 /**
  * Bridges authentication to Convex.
@@ -17,7 +17,7 @@ import { useIframeMode } from "@/hooks/useIframeMode";
  */
 export function usePrivyAuthForConvex() {
   const { isEmbedded, authToken: iframeToken, isJwt, isApiKey } = useIframeMode();
-  const { ready, authenticated, getAccessToken } = usePrivy();
+  const { ready, authenticated, getAccessToken } = useAppAuth();
 
   // Iframe + JWT → full Convex real-time auth
   const hasIframeJwtAuth = isEmbedded && isJwt;
@@ -36,7 +36,7 @@ export function usePrivyAuthForConvex() {
       if (hasIframeJwtAuth) return iframeToken;
 
       // Browser mode: get token from Privy
-      if (!authenticated) return null;
+      if (!authenticated || !getAccessToken) return null;
       try {
         return await getAccessToken();
       } catch (err) {

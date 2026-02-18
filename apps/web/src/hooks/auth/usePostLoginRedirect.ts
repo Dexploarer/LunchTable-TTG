@@ -1,7 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { usePrivy } from "@privy-io/react-auth";
-import { PRIVY_ENABLED } from "@/lib/auth/privyEnv";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 const REDIRECT_KEY = "ltcg_redirect";
 
@@ -14,9 +13,7 @@ const REDIRECT_KEY = "ltcg_redirect";
  * by the final consumer (Onboarding or AuthGuard).
  */
 export function usePostLoginRedirect() {
-  const { authenticated } = PRIVY_ENABLED
-    ? usePrivy()
-    : { authenticated: false };
+  const { authenticated } = useAppAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const fired = useRef(false);

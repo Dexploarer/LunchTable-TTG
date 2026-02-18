@@ -1,11 +1,11 @@
-import { usePrivy } from "@privy-io/react-auth";
 import { useConvexAuth } from "convex/react";
 import * as Sentry from "@sentry/react";
 import { useEffect, useRef, useState } from "react";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
+import { useAppAuth } from "@/hooks/auth/useAppAuth";
 
 export function useUserSync() {
-  const { authenticated, user: privyUser } = usePrivy();
+  const { enabled: authEnabled, authenticated, user: privyUser } = useAppAuth();
   const { isAuthenticated: convexReady } = useConvexAuth();
 
   const syncUser = useConvexMutation(apiAny.auth.syncUser);
@@ -15,7 +15,7 @@ export function useUserSync() {
   const [syncInFlight, setSyncInFlight] = useState(false);
 
   useEffect(() => {
-    if (!authenticated || !convexReady || synced.current || syncInFlight) return;
+    if (!authEnabled || !authenticated || !convexReady || synced.current || syncInFlight) return;
     if (onboardingStatus === undefined) return;
 
     if (onboardingStatus?.exists) {
@@ -34,9 +34,9 @@ export function useUserSync() {
       .finally(() => {
         setSyncInFlight(false);
       });
-  }, [authenticated, convexReady, onboardingStatus, syncUser, privyUser, syncInFlight]);
+  }, [authEnabled, authenticated, convexReady, onboardingStatus, syncUser, privyUser, syncInFlight]);
 
-  const isLoading = authenticated && convexReady && (onboardingStatus === undefined || syncInFlight);
+  const isLoading = authEnabled && authenticated && convexReady && (onboardingStatus === undefined || syncInFlight);
 
   return {
     isLoading,
