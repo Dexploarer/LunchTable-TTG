@@ -10,6 +10,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
+import { buildPrompt } from "./vttGeneration";
 import { selectNarrationFromNarrationOutput } from "./vttNarrator";
 import type { DefaultFunctionArgs, FunctionReference } from "convex/server";
 import {
@@ -59,38 +60,6 @@ function clampInteger(value: number, min: number, max: number) {
 
 function playerName(index: number) {
   return `Player ${String.fromCharCode(65 + index)}`;
-}
-
-function buildNarrationPrompt(params: {
-  worldName: string;
-  genre: string;
-  mood: string;
-  tagline: string;
-  mapName: string;
-  mapBiome: string;
-  turn: number;
-  objectiveIndex: number;
-  objectiveText: string;
-}) {
-  return (
-    `Write brief narration for the next beat of a live tabletop session.\n\n` +
-    `Hard requirements:\n` +
-    `- Return JSON only (no markdown).\n` +
-    `- Output must match exactly: { "narration": string }\n` +
-    `- 2-4 sentences.\n` +
-    `- Present tense.\n` +
-    `- No markdown.\n\n` +
-    `Context:\n` +
-    `World name: ${params.worldName}\n` +
-    `Genre: ${params.genre}\n` +
-    `Mood: ${params.mood}\n` +
-    `Tagline: ${params.tagline}\n` +
-    `Map name: ${params.mapName}\n` +
-    `Map biome: ${params.mapBiome}\n` +
-    `Turn: ${params.turn}\n` +
-    `Objective index: ${params.objectiveIndex}\n` +
-    `Current objective: ${params.objectiveText}\n`
-  );
 }
 
 async function getParticipantByUserId(
@@ -316,16 +285,14 @@ export const internalTickRun = internalAction({
       narrationText = `Turn ${nextTurn}: ${world.name} tightens around the party in ${activeMap.name}. Objective in focus: ${objectiveText}.`;
     } else {
       // Keep prompt structure aligned with vttGeneration narration flow.
-      const prompt = buildNarrationPrompt({
+      const prompt = buildPrompt("narration", {
         worldName: world.name,
         genre: world.genre,
         mood: world.mood,
         tagline: world.tagline,
         mapName: activeMap.name,
         mapBiome,
-        turn: nextTurn,
-        objectiveIndex: run.objectiveIndex,
-        objectiveText,
+        prompt: `Turn: ${nextTurn}\nObjective index: ${run.objectiveIndex}\nCurrent objective: ${objectiveText}`,
       });
 
       // Reuse synthetic fallback if a provider errors.
