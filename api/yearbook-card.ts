@@ -9,7 +9,7 @@ const YEARBOOK_QUOTES: Record<string, string> = {
   SloppyJoe: "Messy plays, messier wins.",
   ViceGrip: "Never lets go of a grudge.",
   GlitchWitch: "Hacks the yearbook photo every year.",
-  HypeBeast_Bot: "Dripped out in rare cards only.",
+  HypeBeast_Bot: "Dripped out in rare minis only.",
 };
 
 const DEFAULT_QUOTE = "Most likely to flip the table.";
@@ -90,7 +90,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   <rect x="36" y="28" width="1128" height="574" rx="0" fill="url(#paper)" stroke="#121212" stroke-width="8" filter="url(#shadow)"/>
 
   <rect x="66" y="58" width="1068" height="54" fill="#121212"/>
-  <text x="88" y="94" fill="#ffffff" font-size="20" font-weight="900" font-family="Arial, Helvetica, sans-serif" letter-spacing="2">LUNCHTABLE TCG YEARBOOK</text>
+  <text x="88" y="94" fill="#ffffff" font-size="20" font-weight="900" font-family="Arial, Helvetica, sans-serif" letter-spacing="2">LUNCHTABLE TTG YEARBOOK</text>
   <text x="1034" y="94" text-anchor="end" fill="#ffffff" font-size="20" font-weight="900" font-family="Arial, Helvetica, sans-serif" letter-spacing="2">CLASS OF 2026</text>
 
   <rect x="96" y="152" width="280" height="280" fill="#ffffff" stroke="#121212" stroke-width="6"/>

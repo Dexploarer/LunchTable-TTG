@@ -1,6 +1,10 @@
 # Vice & Breakdown System
 
-The vice/breakdown mechanic is LunchTable TCG's signature alternate win condition. Every stereotype (monster) card carries a thematic vice -- a character flaw that can spiral into self-destruction.
+Deprecated: this document describes a legacy LTCG (trading card game) mechanic and is not part of the current LunchTable
+TTG VTT runtime. It is kept as historical/narrative reference only.
+
+The vice/breakdown mechanic is LunchTable TCG's signature alternate win condition. Every stereotype (monster) card
+carries a thematic vice -- a character flaw that can spiral into self-destruction.
 
 ---
 

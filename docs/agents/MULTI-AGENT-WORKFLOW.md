@@ -1,77 +1,77 @@
 # Multi-Agent Development Workflow
 
-This project is built by multiple Claude agents working in parallel on independent sections.
+This repo is built by multiple coding agents working in parallel on independent sections.
 
 ## Agent Ownership Model
 
-Each agent owns a domain and its associated files. Agents should NOT modify files outside their domain without coordination.
+Each agent owns a domain and its associated files. Avoid modifying files outside your domain without coordination,
+especially shared API contracts.
 
 ### Domain Map
 
 | Domain | Owner Agent | Files | Dependencies |
 |--------|-------------|-------|--------------|
-| Game Board UI | game-ui | `components/game/` | engine types, convex queries |
-| Card Collection | collection-ui | `components/collection/` | convex card queries |
-| Deck Builder | deckbuilder-ui | `pages/DeckBuilder.tsx` | convex deck mutations |
-| Story Mode | story-ui | `components/story/` | convex story queries |
-| Auth & Profile | auth-ui | `components/auth/` | Privy, convex auth |
-| Streaming | stream-ui | `components/streaming/` | retake.tv iframe |
-| Game Engine | engine-dev | `packages/engine/` | standalone |
-| ElizaOS Plugin | plugin-dev | `packages/plugin-ltcg/` | Convex API |
-| Convex Backend | backend-dev | `convex/` | all components |
+| Live Table UI | vtt-ui | `apps/web/src/pages/Table.tsx`, `apps/web/src/features/vtt*` | Convex sessions/maps/events |
+| Creator Studio UI | studio-ui | `apps/web/src/pages/Studio.tsx`, `apps/web/src/features/ttgStudio/*`, `apps/web/src/lib/ttrpgStudio/*` | local studio models + Convex generation |
+| Worlds/Publish/LFG UI | community-ui | `apps/web/src/pages/Worlds.tsx`, `apps/web/src/pages/WorldDetail.tsx`, `apps/web/src/pages/Publish.tsx`, `apps/web/src/pages/Lfg.tsx` | Convex publish/discovery |
+| Auth & Embedding | auth-embed | `apps/web/src/components/auth/*`, `apps/web/src/hooks/auth/*`, `apps/web/src/lib/iframe.ts` | Privy, milaidy postMessage |
+| Agent Plugin | plugin-dev | `packages/plugin-ttg/src/*` | `/api/vtt/*` HTTP API |
+| Convex Backend | backend-dev | `convex/*` | schema + vtt modules + http router |
 
 ## Coordination Rules
 
 ### Shared Files (coordinate changes)
-- `convex/game.ts` - main API surface
-- `lib/convexHelpers.ts` - shared type helpers
-- `lib/archetypeThemes.ts` - shared theme config
-- `globals.css` - shared styles
-- `App.tsx` - root layout with providers
-- `package.json` - dependencies
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/schema.ts` - tables + indexes
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/http.ts` - `/api/vtt/*` surface
+- `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/lib/iframe.ts` - milaidy embed protocol
+- `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/App.tsx` - routing contract
+- `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/globals.css` - shared styles
+- `/Users/home/untitled folder 2/LunchTable-TTG/packages/plugin-ttg/src/*` - agent action contract
+- `/Users/home/untitled folder 2/LunchTable-TTG/package.json` - dependencies and scripts
 
 ### Safe to Own (no coordination needed)
-- Component directories under your domain
-- Domain-specific hooks
-- Domain-specific stores
-- Route files for your domain
+- Domain-specific components under `apps/web/src/features/*`
+- Domain-specific hooks and stores
+- Domain-specific pages (when they don't alter global route contracts)
 
 ## How to Add a New Feature
 
 1. **Check domain ownership** - is this your domain?
-2. **Read the reference** - check `reference/frontend/` for existing patterns
-3. **Use skills** - invoke relevant `.claude/skills/` for patterns
+2. **Read the reference** - check existing `apps/web/src/features/*` patterns first
+3. **Use skills** - use repo skills for Convex + frontend patterns
 4. **Stay in your lane** - don't modify shared files without flagging
-5. **Use convexHelpers** - always import from `lib/convexHelpers.ts`
-6. **Follow the theming** - use `ltcg-theming` skill for visual patterns
+5. **Keep the contracts stable** - if you change a function signature, update call sites + tests
+6. **Keep diffs small** - no drive-by refactors
 
 ## Adding Convex Functions
 
 If you need a new Convex query/mutation:
 
-1. Check if it already exists in `convex/game.ts`
-2. If not, add it to `convex/game.ts` (the orchestration layer)
-3. The function should delegate to the appropriate component client
-4. Always include auth check via `getUser(ctx)`
-5. Flag the change for other agents that might need it
+1. Check if it already exists in the relevant module (`convex/vttSessions.ts`, `convex/vttMaps.ts`, etc).
+2. If not, add it to the appropriate `convex/vtt*.ts` module (avoid "god files").
+3. Validate args with `v.*` and enforce auth via `requireUser(ctx)` (or agent auth flows in `convex/vttAgents.ts`).
+4. If the change affects `/api/vtt/*`, update `convex/http.ts` and `packages/plugin-ttg`.
+5. Add/extend deterministic tests in `convex/*.test.ts`.
 
 ## Testing Boundaries
 
 | Layer | Test Location | Framework |
 |-------|---------------|-----------|
-| Engine | `packages/engine/src/__tests__/` | Vitest |
-| Convex | `convex/*.test.ts` | Vitest + convex-test |
-| Components | `components/**/*.test.tsx` | Vitest |
-| E2E | `e2e/` | Playwright |
+| Convex | `convex/*.test.ts` | Vitest |
+| Web (unit) | `apps/web/src/**/*.test.ts(x)` | Vitest |
+| E2E (optional) | `e2e/` | Playwright |
 
 ## Communication Protocol
 
 When an agent needs something from another domain:
 
-1. **Don't modify their files** - create a TODO or note
-2. **Use the Convex API** - `convex/game.ts` is the contract
-3. **Use engine types** - import from `@lunchtable-tcg/engine/types`
-4. **Use theme tokens** - import from `lib/archetypeThemes.ts`
+1. **Don't modify their files** - leave a note or open a ticket
+2. **Use stable contracts**:
+   - Convex function interfaces under `convex/vtt*.ts`
+   - HTTP interface under `/api/vtt/*`
+3. **Prefer event-driven surfaces**:
+   - session event log (`sessionEvents`) with `eventType` + JSON payload
+4. **Keep client/server semantics aligned** (event names, error strings, redirects)
 
 ## Quick Start for New Agent
 
@@ -79,15 +79,9 @@ When an agent needs something from another domain:
 # 1. Read the CLAUDE.md
 cat CLAUDE.md
 
-# 2. Check your domain in reference implementation
-ls reference/frontend/components/YOUR_DOMAIN/
-ls reference/frontend/hooks/hooks/YOUR_DOMAIN/
-
 # 3. Load relevant skills
-# /ltcg-theming    - for visual patterns
-# /game-engine     - for game logic
-# /convex-components - for backend API
-# /frontend-patterns - for React patterns
+# /convex-best-practices - Convex patterns
+# /frontend-patterns     - React patterns
 
-# 4. Build in apps/web/ following reference patterns
+# 4. Build in apps/web/ following existing conventions
 ```

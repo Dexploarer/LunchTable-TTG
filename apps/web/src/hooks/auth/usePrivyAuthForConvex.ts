@@ -9,10 +9,10 @@ import { useAppAuth } from "@/hooks/auth/useAppAuth";
  *
  * Three auth paths:
  * 1. Iframe + JWT — host sends Privy JWT via postMessage → full Convex auth
- * 2. Iframe + API key — host sends ltcg_ key → spectator mode (no Convex auth)
+ * 2. Iframe + API key — host sends ttg_ key → spectator mode (no Convex auth)
  * 3. Browser — user logs in via Privy, SDK provides JWT
  *
- * When an ltcg_ API key is received, we skip Convex auth entirely.
+ * When a ttg_ API key is received, we skip Convex auth entirely.
  * The spectator components use the HTTP API directly instead.
  */
 export function usePrivyAuthForConvex() {

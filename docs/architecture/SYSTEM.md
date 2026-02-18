@@ -1,153 +1,134 @@
-# LTCG-v2 System Architecture
+# LunchTable TTG VTT System Architecture
 
 ## Overview
 
-LunchTable: School of Hard Knocks is a white-label trading card game designed for:
-- **Human players** via web client or milaidy Electron app (iframe)
-- **ElizaOS agents** that play autonomously and stream via retake.tv
+LunchTable TTG is a VTT-first, AI-native tabletop platform designed for:
+- Humans playing live sessions in the web client (desktop-first).
+- Agents interacting via the `/api/vtt/*` HTTP API (plugin + direct clients).
+- Creator workflows for building worlds, rulesets, maps, and prompt packs.
 
 ## System Diagram
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   milaidy (Electron)                │
-│  ┌───────────────────────────────────────────────┐  │
-│  │            <iframe> Game Client               │  │
- │  │         (React Router 7 + React 19)          │  │
-│  │                                               │  │
-│  │  ┌─────────┐  ┌──────────┐  ┌─────────────┐  │  │
-│  │  │Game Board│  │Deck Build│  │Story Mode   │  │  │
-│  │  │         │  │          │  │             │  │  │
-│  │  └────┬────┘  └────┬─────┘  └──────┬──────┘  │  │
-│  │       │             │               │         │  │
-│  └───────┼─────────────┼───────────────┼─────────┘  │
-│          │             │               │            │
-└──────────┼─────────────┼───────────────┼────────────┘
-           │     Convex Real-time        │
-           ▼             ▼               ▼
-┌──────────────────────────────────────────────────────┐
-│                  Convex Backend                      │
-│  ┌──────────┐                                        │
-│  │ game.ts  │  Host orchestration layer              │
-│  │ auth.ts  │  Privy auth sync                       │
-│  │ seed.ts  │  132 cards, 6 decks, story content     │
-│  └────┬─────┘                                        │
-│       │ delegates to                                 │
-│  ┌────┴──────────────────────────────────────────┐   │
-│  │          White-Label Components               │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐      │   │
-│  │  │  Cards   │ │  Match   │ │  Story   │      │   │
-│  │  │ 6 tables │ │ 4 tables │ │ 5 tables │      │   │
-│  │  └──────────┘ └──────────┘ └──────────┘      │   │
-│  └───────────────────────────────────────────────┘   │
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                     milaidy (Electron)                   │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │                 <iframe> Web Client                │  │
+│  │            (Vite + React 19 + Router 7)            │  │
+│  │                                                    │  │
+│  │  ┌──────────────┐  ┌────────────┐  ┌────────────┐ │  │
+│  │  │ Studio       │  │ Worlds/LFG  │  │ Live Table │ │  │
+│  │  │ (creator)    │  │ (community) │  │ (VTT)      │ │  │
+│  │  └──────┬───────┘  └──────┬─────┘  └──────┬─────┘ │  │
+│  └─────────┼──────────────────┼───────────────┼──────┘  │
+└────────────┼──────────────────┼───────────────┼─────────┘
+             │          Convex realtime + auth   │
+             ▼                                   ▼
+┌──────────────────────────────────────────────────────────┐
+│                       Convex Backend                     │
+│                                                          │
+│  Tables: users, worlds, maps, tokens, sessions, events,  │
+│          dice rolls, fog states, generation jobs, BYOK   │
+│                                                          │
+│  Modules:                                                 │
+│    - vttWorlds / vttMaps / vttSessions                    │
+│    - vttGeneration (BYOK + synthetic)                     │
+│    - vttPublish / vttDiscovery / vttModeration            │
+│    - vttByok (encrypted provider key vault)               │
+│    - http.ts exposes /api/vtt/* for agents                │
+└──────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────┐
-│    ElizaOS Agent         │
+│        Agent Runtime      │
 │  ┌────────────────────┐  │
-│  │  plugin-ltcg       │  │
-│  │  26 game actions   │  │──── Convex API ────► Convex Backend
-│  │  Decision engine   │  │
-│  └────────────────────┘  │
-│  ┌────────────────────┐  │
-│  │  retake.tv stream  │──┼──── RTMP ────► retake.tv
+│  │ packages/plugin-ttg│  │
+│  │  - join session    │  │──── HTTP ────► /api/vtt/*
+│  │  - post commands   │  │
+│  │  - generation jobs │  │
 │  └────────────────────┘  │
 └──────────────────────────┘
 ```
 
-## Data Flow: Match Lifecycle
+## Data Flow: Live Session Lifecycle
 
 ```
-1. Player/Agent starts match
-   └─► api.game.startStoryBattle(stageId)
-       └─► ltcgMatch.createMatch() + ltcgMatch.startMatch()
-           └─► engine.createInitialState() → stored as snapshot
+1. Create world
+   └─► vttWorlds.createWorld()
 
-2. Player submits action
-   └─► api.game.submitAction(matchId, command, seat)
-       └─► Load latest snapshot
-       └─► engine.decide(state, command, seat) → events
-       └─► engine.evolve(state, events) → newState
-       └─► Store new snapshot + append events
-       └─► If AI opponent: schedule executeAITurn (500ms)
+2. Create session
+   └─► vttSessions.createSession(worldId)
+       └─► inserts sessions + sessionParticipants (host role=gm)
 
-3. AI turn (server-side)
-   └─► internal.game.executeAITurn(matchId)
-       └─► engine.legalMoves(state, "away") → valid moves
-       └─► Pick best move
-       └─► Repeat step 2 flow
+3. Join session
+   └─► vttSessions.joinSession(sessionId, role)
 
-4. Client renders
-   └─► api.game.getPlayerView(matchId, seat)
-       └─► engine.mask(state, seat) → PlayerView
-       └─► Real-time subscription updates UI
+4. Live play: command/event stream
+   └─► vttSessions.postCommand(sessionId, command, payload)
+       └─► inserts sessionEvents rows (append-only)
+
+5. Map state
+   ├─► vttMaps.upsertToken(mapId, token transforms)
+   └─► vttMaps.updateFog(mapId, fog settings)
+
+6. Dice
+   └─► vttSessions.rollDice(sessionId, expression, total, result)
+
+7. Narrator / generation
+   ├─► vttSessions.invokeNarrator(...) queues generationJobs(kind="narration")
+   └─► vttGeneration.runGenerationJob() completes and auto-posts CHAT_MESSAGE
+
+8. End session
+   └─► vttSessions.closeSession(sessionId)
 ```
 
-## Component Boundaries
+## Backend Modules (Source of Truth)
 
-### Engine (Pure TypeScript)
-- Zero external dependencies
-- Runs in browser, server, or standalone
-- Exports: `createEngine`, `decide`, `evolve`, `mask`, `legalMoves`
-- Owns: game rules, phases, combat, summoning, spells/traps, vice mechanic
-
-### Cards Component (Convex)
-- Owns: card definitions, player inventory, decks, starter decks
-- Tables: 6 (cardDefinitions, playerCards, userDecks, deckCards, starterDeckDefinitions, numberedCardRegistry)
-- Client: `LTCGCards` class
-
-### Match Component (Convex)
-- Owns: match lifecycle, state snapshots, event log, pending prompts
-- Tables: 4 (matches, matchSnapshots, matchEvents, matchPrompts)
-- Pattern: Event-sourced (snapshots + append-only events)
-- Client: `LTCGMatch` class
-- Depends on: `@lunchtable-tcg/engine`
-
-### Story Component (Convex)
-- Owns: chapters, stages, player progress, battle attempts
-- Tables: 5 (storyProgress, storyBattleAttempts, storyChapters, storyStages, storyStageProgress)
-- Client: `LTCGStory` class
-
-### Host Layer (Convex)
-- `convex/game.ts` - orchestrates all components
-- `convex/auth.ts` - Privy user sync
-- `convex/schema.ts` - only `users` table
-- `convex/seed.ts` - seeds 132 cards + story content
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/schema.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttWorlds.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttSessions.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttMaps.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttAgents.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttGeneration.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttByok.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttPublish.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttDiscovery.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/vttModeration.ts`
+- `/Users/home/untitled folder 2/LunchTable-TTG/convex/http.ts`
 
 ## Frontend Architecture
 
 ```
-apps/web/
-├── src/
-│   ├── App.tsx              # React Router 7 routes
-│   ├── main.tsx             # ConvexProvider setup
-│   ├── pages/               # Route page components (Home, Play, Story, etc.)
-│   ├── components/
-│   │   ├── ui/             # Radix primitives (shadcn pattern)
-│   │   ├── game/           # Game board, cards, controls
-│   │   ├── story/          # Story mode UI
-│   │   ├── collection/     # Card binder, deck builder
-│   │   ├── auth/           # Privy auth
-│   │   └── streaming/      # retake.tv iframe, spectator
-│   ├── hooks/              # Domain-organized hooks
-│   ├── lib/               # Utilities, helpers
-│   │   ├── convexHelpers.ts
-│   │   ├── archetypeThemes.ts
-│   │   └── iframe.ts
-│   └── stores/            # Zustand state stores
-├── index.html              # Entry HTML
-└── vite.config.ts          # Vite + React + Tailwind plugins
+apps/web/src/
+├── App.tsx                # routes + legacy redirects
+├── pages/
+│   ├── Studio.tsx         # creator workbench
+│   ├── Worlds.tsx         # library + discovery
+│   ├── WorldDetail.tsx    # world detail + session start
+│   ├── Table.tsx          # live session client (Pixi stage + panels)
+│   ├── Lfg.tsx            # looking-for-group
+│   ├── Publish.tsx        # publish listing
+│   └── ProviderSettings.tsx # BYOK keys
+├── features/
+│   ├── vttCanvas/*        # PixiJS stage + layers
+│   ├── vttSession/*       # chat/dice/journal/initiative panels
+│   └── ttgStudio/*        # studio tabs + local editing
+└── lib/
+    ├── ai/*               # provider adapters + registry
+    ├── iframe.ts          # milaidy message protocol
+    └── convexHelpers.ts   # typed Convex helpers
 ```
 
-## Embedding Strategy
+## Embedding Strategy (milaidy)
 
-### milaidy Electron App
-- Game loaded as `<iframe>` within milaidy
-- PostMessage API for cross-frame communication
-- Separate embed routes: `/embed/play`, `/embed/stream/:id`
-- Detect iframe: `window.self !== window.top`
+- The web client can run in-browser or as an iframe inside milaidy.
+- The embed protocol lives in `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/lib/iframe.ts`.
+- `TTG_AUTH` messages may include:
+  - Privy JWT (full Convex auth)
+  - `ttg_...` agent API key (spectator mode / HTTP-only surfaces)
 
-### retake.tv Streams
-- Agents stream gameplay to retake.tv
-- Viewers watch via embedded `<iframe>` in game client
-- Stream + game state shown side-by-side in spectator mode
+## Agent Integration
+
+- Agents authenticate via an API key issued by `/api/vtt/agents/register`.
+- Agents can create sessions, join sessions, post commands, and run generation jobs via `/api/vtt/*`.
+- The agent-friendly client wrapper is in `/Users/home/untitled folder 2/LunchTable-TTG/packages/plugin-ttg`.
+

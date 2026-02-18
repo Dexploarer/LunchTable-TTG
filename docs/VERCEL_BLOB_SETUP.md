@@ -1,8 +1,9 @@
-# Vercel Blob Setup for LTCG-v2
+# Vercel Blob Setup for LunchTable TTG
 
 ## Overview
 
-This project uses **Vercel Blob** for image storage and serving. All images are uploaded to Vercel Blob and served via CDN.
+This project uses **Vercel Blob** for image storage and serving. Static images are served from a public Blob base URL
+defined in `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/lib/blobUrls.ts`.
 
 ## Setup Instructions
 
@@ -32,7 +33,7 @@ vercel env pull
 
 ### 3. Verify Installation
 
-The `@vercel/blob` package is already installed via bun:
+The `@vercel/blob` package is already installed:
 
 ```bash
 bun add @vercel/blob
@@ -40,95 +41,31 @@ bun add @vercel/blob
 
 ## API Route
 
-**File:** `apps/web/api/blob-upload.ts`
+**File:** `/Users/home/untitled folder 2/LunchTable-TTG/api/blob-upload.ts`
 
-This Vercel Function handles image uploads:
+This Vercel Function handles server-side image uploads:
 - Validates file types (jpg, png, webp, gif, svg)
 - Uploads to Vercel Blob
 - Returns public URL
 
-## Upload Component
-
-**File:** `apps/web/src/components/ImageUpload.tsx`
-
-Usage:
-
-```tsx
-import { ImageUpload } from '@/components/ImageUpload';
-
-// In your component:
-<ImageUpload
-  onUploadComplete={(result) => {
-    console.log('Image URL:', result.url);
-    // Save to Convex or use directly
-  }}
-  folder="avatars" // Optional: organize uploads
-/>
-```
-
-Or use the hook:
-
-```tsx
-import { useImageUpload } from '@/components/ImageUpload';
-
-const { uploadImage, isUploading } = useImageUpload();
-
-const handleFile = async (file: File) => {
-  const result = await uploadImage(file, 'cards');
-  if (result) {
-    // result.url contains the Vercel Blob URL
-  }
-};
-```
-
-## Migrating Existing Images
-
-To upload all existing images from `public/lunchtable/` to Vercel Blob:
-
-```bash
-# Make sure BLOB_READ_WRITE_TOKEN is set
-export BLOB_READ_WRITE_TOKEN=your_token_here
-
-# Run migration
-bun scripts/migrate-images-to-blob.ts
-```
-
-This will:
-1. Scan all images in `public/lunchtable/`
-2. Upload them to Vercel Blob
-3. Generate a JSON report with URL mappings
-4. Print find/replace commands for updating your codebase
+Note: the repo does not ship a full end-user asset uploader UI yet. For now, upload assets via the Vercel dashboard
+or call the route from admin tooling.
 
 ## Image URLs
 
-Once migrated, update your image references:
+Static image URLs are resolved via:
 
-**Before:**
-```tsx
-<img src="/lunchtable/logo.png" />
-```
-
-**After:**
-```tsx
-<img src="https://xxxx.public.blob.vercel-storage.com/lunchtable/logo.png" />
-```
-
-Or use the component with automatic URL handling.
+- `blob("path.png")` helper
+- exported constants in `/Users/home/untitled folder 2/LunchTable-TTG/apps/web/src/lib/blobUrls.ts`
 
 ## File Structure
 
 ```
-apps/web/
-├── api/
-│   └── blob-upload.ts          # Vercel Function for uploads
-├── src/
-│   ├── components/
-│   │   └── ImageUpload.tsx     # React upload component
-│   └── ...
-├── scripts/
-│   └── migrate-images-to-blob.ts  # Migration script
-└── public/
-    └── lunchtable/             # Current image location
+api/
+└── blob-upload.ts              # Vercel Function for uploads
+
+apps/web/src/lib/
+└── blobUrls.ts                 # Centralized image URL helpers/constants
 ```
 
 ## Environment Variables

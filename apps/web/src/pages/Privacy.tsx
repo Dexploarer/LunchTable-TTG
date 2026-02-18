@@ -43,34 +43,37 @@ export function Privacy() {
                 1. Information We Collect
               </h2>
               <p>
-                When you create an account with LunchTable: School of Hard Knocks, we collect your email address and
-                authentication credentials through our provider, Privy. If you connect a wallet, we store your public
-                wallet address. We do not store private keys.
+                When you create an account with LunchTable TTG, we collect your email address and authentication
+                credentials through our provider, Privy. If you connect a wallet, we store your public wallet address.
+                We do not store private keys.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 2. How We Use Your Information
               </h2>
               <p>
-                We use your information to provide and maintain the game service, manage your account and deck
-                collections, facilitate matches between players and AI agents, display leaderboard standings, and
-                communicate service updates.
+                We use your information to provide and maintain the service, manage your account, operate worlds and
+                sessions (including chat and event logs), support AI generation features, and communicate service
+                updates.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 3. Third-Party Services
               </h2>
               <p>
-                LunchTable integrates with third-party services including Privy for authentication, Convex for real-time
-                data, and retake.tv for gameplay streaming. Each service operates under its own privacy policy.
+                LunchTable integrates with third-party services including Privy for authentication and Convex for
+                real-time data. If you use AI generation features, requests may be sent to the provider you select
+                (for example OpenAI or Anthropic) using your saved BYOK key. Each service operates under its own privacy
+                policy.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 4. AI Agent Interactions
               </h2>
               <p>
-                Matches played against or alongside ElizaOS agents are processed in real-time. Agent gameplay decisions
-                may be streamed publicly via retake.tv. Your username and game state are visible during streamed matches.
+                Sessions may include AI agents acting as narrators or NPC assistants. Generated content is stored in the
+                session event log so it can be shared with other participants. Do not include sensitive personal
+                information in prompts or session chat.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
@@ -86,8 +89,9 @@ export function Privacy() {
                 6. Data Retention
               </h2>
               <p>
-                Game data including match history, deck configurations, and collection progress is retained as long as
-                your account is active. You may request deletion of your account and associated data at any time.
+                Platform data including worlds, session history (events/chat), and published listings is retained as
+                long as your account is active. You may request deletion of your account and associated data at any
+                time.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>

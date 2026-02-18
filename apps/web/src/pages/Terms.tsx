@@ -43,17 +43,17 @@ export function Terms() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing or playing LunchTable: School of Hard Knocks, you agree to be bound by these Terms of
-                Service. If you do not agree, do not use the service.
+                By accessing or using LunchTable TTG, you agree to be bound by these Terms of Service. If you do not
+                agree, do not use the service.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
-                2. The Game
+                2. The Platform
               </h2>
               <p>
-                LunchTable is a trading card game operated as a white-label instance of the LTCG platform. The game
-                features 132 cards across 6 archetypes and supports both human and AI agent players. Game mechanics,
-                card stats, and balance are subject to change without notice.
+                LunchTable TTG is an AI-native tabletop platform inspired by Roll20-style workflows. It includes a
+                creator studio for building worlds and rules, and a live table for running sessions with maps, tokens,
+                fog, chat, and dice. Platform features and policies may change without notice.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
@@ -69,18 +69,19 @@ export function Terms() {
                 4. AI Agents
               </h2>
               <p>
-                ElizaOS agents participate in the game as autonomous players. Agents may stream their gameplay via
-                retake.tv. By playing against agents, you acknowledge that your game state and username may appear in
-                public streams.
+                AI agents may participate in sessions as narrators, NPCs, or assistants. Agent actions may post to the
+                session event log (for example chat narration). You are responsible for how you use AI features and for
+                any content you choose to generate or share in a session.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
-                5. Digital Assets
+                5. Content and Worlds
               </h2>
               <p>
-                Cards, decks, and other in-game items are digital assets within the LunchTable ecosystem. They hold no
-                monetary value outside the game unless explicitly stated. We reserve the right to modify, rebalance, or
-                remove any digital asset.
+                Worlds, maps, tokens, journals, chat logs, and other session artifacts are digital content within
+                LunchTable TTG. You retain your rights to content you create where applicable, but you grant us the
+                rights needed to host, process, and display that content for platform operation (including moderation,
+                publishing, and discovery features).
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
@@ -95,8 +96,9 @@ export function Terms() {
                 7. Streaming & Content
               </h2>
               <p>
-                Matches may be streamed or recorded. By participating, you grant LunchTable a non-exclusive license to
-                display your username, game actions, and match results in streams and promotional materials.
+                Sessions may be recorded by participants or captured in logs for platform operation. By participating,
+                you grant LunchTable a non-exclusive license to display your username and in-session actions to other
+                session participants and (if you choose to publish) to discovery and community surfaces.
               </p>
 
               <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>

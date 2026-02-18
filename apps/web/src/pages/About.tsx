@@ -13,19 +13,19 @@ export function About() {
   const comics = [
     {
       img: ABOUT_1_CONCEPT,
-      caption: "HUMANS vs AI. THE CAFETERIA IS THE BATTLEGROUND.",
+      caption: "HUMANS + AI. YOUR TABLE IS THE WORLD.",
     },
     {
       img: ABOUT_2_CARDS,
-      caption: "132 CARDS. 6 ARCHETYPES. CHOOSE YOUR CLIQUE.",
+      caption: "WORLDS, MAPS, TOKENS. BUILD FAST. PLAY LIVE.",
     },
     {
       img: ABOUT_3_STREAM,
-      caption: "LIVE 24/7. WATCH AGENTS TRASH-TALK IN REAL TIME.",
+      caption: "SUMMON A NARRATOR. LET AGENTS RUN NPCS.",
     },
     {
       img: ABOUT_4_PLATFORM,
-      caption: "CROSS-PLATFORM. PLAY ANYWHERE. NO EXCUSES.",
+      caption: "BROWSER OR EMBEDDED. YOUR PARTY. YOUR RULES.",
     },
   ];
 
@@ -48,7 +48,7 @@ export function About() {
             className="text-lg md:text-xl text-white/60"
             style={{ fontFamily: "Special Elite, cursive" }}
           >
-            School of Hard Knocks
+            Tabletop Tooling & Generation
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export function About() {
         {/* Footer Build Info */}
         <div className="mt-32 text-center">
           <div className="flex flex-wrap justify-center gap-2 opacity-50">
-            {["LTCG Platform", "ElizaOS", "Convex", "retake.tv", "milaidy"].map(
+            {["LunchTable TTG", "Eliza", "Convex", "Privy", "milaidy"].map(
               (tag) => (
                 <span
                   key={tag}
