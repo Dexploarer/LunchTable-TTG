@@ -14,6 +14,7 @@
     "dev:convex": "convex dev",
     "dev:web": "cd apps/web && bun run dev",
     "lint": "bunx tsc --project convex/tsconfig.json && cd apps/web && bun run type-check",
+    "bench:studio-api": "bun scripts/bench-studio-api.ts",
     "test": "(cd apps/web && bunx vitest --config vitest.config.ts) && (cd convex && bunx vitest --config vitest.config.ts)",
     "test:once": "(cd apps/web && bunx vitest run --config vitest.config.ts) && (cd convex && bunx vitest run --config vitest.config.ts)",
     "type-check": "cd apps/web && bun run type-check"
