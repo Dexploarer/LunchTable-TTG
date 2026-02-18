@@ -51,6 +51,8 @@ export function ProviderSettings() {
 
           <label className="block text-xs uppercase font-bold">API Key</label>
           <input
+            type="password"
+            autoComplete="new-password"
             className="w-full border-2 border-[#121212] px-3 py-2 bg-white"
             value={apiKey}
             onChange={(event) => setApiKey(event.target.value)}
@@ -62,9 +64,13 @@ export function ProviderSettings() {
             onClick={async () => {
               const trimmed = apiKey.trim();
               if (!trimmed) return;
-              await upsertProviderKey({ provider, apiKey: trimmed });
-              setStatus(`Saved ${provider} key`);
-              setApiKey("");
+              try {
+                await upsertProviderKey({ provider, apiKey: trimmed });
+                setStatus(`Saved ${provider} key`);
+                setApiKey("");
+              } catch (error) {
+                setStatus(error instanceof Error ? error.message : "Failed to save key");
+              }
             }}
           >
             Save Key
@@ -84,8 +90,12 @@ export function ProviderSettings() {
                 <button
                   className="tcg-button"
                   onClick={async () => {
-                    await disableProviderKey({ providerKeyId: key._id });
-                    setStatus(`Disabled ${key.provider} key`);
+                    try {
+                      await disableProviderKey({ providerKeyId: key._id });
+                      setStatus(`Disabled ${key.provider} key`);
+                    } catch (error) {
+                      setStatus(error instanceof Error ? error.message : "Failed to disable key");
+                    }
                   }}
                 >
                   Disable
