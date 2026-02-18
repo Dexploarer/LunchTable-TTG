@@ -17,6 +17,7 @@
     "format:check": "bunx @biomejs/biome format .",
     "lint": "bunx @biomejs/biome lint .",
     "lint:fix": "bunx @biomejs/biome lint --write .",
+    "bench:studio-api": "bun scripts/bench-studio-api.ts",
     "test": "(cd apps/web && bunx vitest --config vitest.config.ts) && (cd convex && bunx vitest --config vitest.config.ts)",
     "test:once": "(cd apps/web && bunx vitest run --config vitest.config.ts) && (cd convex && bunx vitest run --config vitest.config.ts)",
     "type-check": "bunx tsc --project convex/tsconfig.json && bunx tsc --project apps/web/tsconfig.json && bunx tsc --project packages/plugin-ttg/tsconfig.json",
