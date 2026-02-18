@@ -4,6 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { getOptionalUser, requireUser } from "./auth";
 import { canActorUseWorld } from "./permissions";
+import { DEFAULT_NARRATION, selectNarrationFromNpcOutput } from "./vttNarrator";
 import { makeSyntheticOutput } from "./vttGeneration";
 
 async function ensureParticipant(
@@ -227,14 +228,7 @@ export const invokeNarrator = mutation({
       worldId: session.worldId,
     });
 
-    const npcProfile =
-      output && typeof output === "object"
-        ? (output as { npcProfile?: { scenePrompts?: unknown } }).npcProfile
-        : undefined;
-    const promptList = Array.isArray(npcProfile?.scenePrompts)
-      ? npcProfile?.scenePrompts.filter((value): value is string => typeof value === "string")
-      : [];
-    const narration = promptList[0] ?? "The narrator takes the stage.";
+    const narration = selectNarrationFromNpcOutput(output) || DEFAULT_NARRATION;
 
     const eventId = await ctx.db.insert("sessionEvents", {
       sessionId: session._id,
