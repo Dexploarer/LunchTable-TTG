@@ -2,7 +2,6 @@
 
 import { StoryChapterCard } from "@/components/story/StoryChapterCard";
 import { useStoryMode } from "@/hooks/story/useStoryMode";
-import { cn } from "@/lib/utils";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BookOpen, Loader2, Star, Trophy } from "lucide-react";

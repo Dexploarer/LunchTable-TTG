@@ -13,10 +13,15 @@
     "dev": "concurrently -n convex,web -c blue,magenta \"bun run dev:convex\" \"bun run dev:web\"",
     "dev:convex": "convex dev",
     "dev:web": "cd apps/web && bun run dev",
-    "lint": "bunx tsc --project convex/tsconfig.json && cd apps/web && bun run type-check",
+    "format": "bunx @biomejs/biome format --write .",
+    "format:check": "bunx @biomejs/biome format .",
+    "lint": "bunx @biomejs/biome lint .",
+    "lint:fix": "bunx @biomejs/biome lint --write .",
     "test": "(cd apps/web && bunx vitest --config vitest.config.ts) && (cd convex && bunx vitest --config vitest.config.ts)",
     "test:once": "(cd apps/web && bunx vitest run --config vitest.config.ts) && (cd convex && bunx vitest run --config vitest.config.ts)",
-    "type-check": "cd apps/web && bun run type-check"
+    "type-check": "bunx tsc --project convex/tsconfig.json && bunx tsc --project apps/web/tsconfig.json && bunx tsc --project packages/plugin-ttg/tsconfig.json",
+    "hygiene": "bun run format && bun run lint:fix && bun run type-check",
+    "hygiene:check": "bun run format:check && bun run lint && bun run type-check"
   },
   "dependencies": {
     "@sentry/node": "^10.38.0",
@@ -24,6 +29,7 @@
     "posthog-node": "^5.24.15"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
     "typescript": "^5.8.0",
