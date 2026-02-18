@@ -150,12 +150,13 @@ async function openaiChatCompletion({
 
   const payload = (await response.json().catch(() => null)) as unknown;
   if (!response.ok) {
-    const message = asRecord(payload)?.error;
+    const rawError = asRecord(payload)?.error;
+    const errorObject = asRecord(rawError);
     const errorMessage =
-      typeof message === "string"
-        ? message
-        : typeof asRecord(message)?.message === "string"
-          ? (asRecord(message)?.message as string)
+      typeof rawError === "string"
+        ? rawError
+        : typeof errorObject?.message === "string"
+          ? errorObject.message
           : `OpenAI request failed (${response.status})`;
     throw new Error(errorMessage);
   }
@@ -224,15 +225,12 @@ export const internalPatchGenerationJob = internalMutation({
     error: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const patch: Record<string, unknown> = {
+    await ctx.db.patch(args.jobId, {
       status: args.status,
       updatedAt: Date.now(),
-    };
-
-    if (args.outputJson !== undefined) patch.outputJson = args.outputJson;
-    if (args.error !== undefined) patch.error = args.error;
-
-    await ctx.db.patch(args.jobId, patch as { updatedAt: number });
+      ...(args.outputJson !== undefined ? { outputJson: args.outputJson } : {}),
+      ...(args.error !== undefined ? { error: args.error } : {}),
+    });
     return { ok: true };
   },
 });
@@ -255,7 +253,7 @@ export const runGenerationJob = internalAction({
 
     let input: Record<string, unknown> = {};
     try {
-      input = JSON.parse(job.inputJson) as Record<string, unknown>;
+      input = asRecord(JSON.parse(job.inputJson)) ?? {};
     } catch {
       input = {};
     }
@@ -302,7 +300,6 @@ export const runGenerationJob = internalAction({
         jobId: job._id,
         status: "completed",
         outputJson: JSON.stringify(output),
-        error: undefined,
       });
 
       return { ok: true };
@@ -327,7 +324,7 @@ export const createGenerationJob = mutation({
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
     const now = Date.now();
-    const input = (args.input ?? {}) as Record<string, unknown>;
+    const input = asRecord(args.input) ?? {};
 
     if (args.worldId) {
       const world = await ctx.db.get(args.worldId);
