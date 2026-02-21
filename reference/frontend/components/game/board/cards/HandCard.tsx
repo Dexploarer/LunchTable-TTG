@@ -95,7 +95,7 @@ export function HandCard({
           !isSelected &&
           "ring-4 ring-green-400/80 shadow-xl shadow-green-500/60 animate-pulse scale-105",
         !isPlayable && "opacity-60 grayscale-20",
-        onClick ? "cursor-pointer" : "cursor-default"
+        onClick ? "cursor-pointer" : "cursor-default",
       )}
       style={{
         transformOrigin: "bottom center",
@@ -137,7 +137,7 @@ export function HandCard({
           card.cardType === "stereotype" && "bg-orange-600 text-white",
           card.cardType === "spell" && "bg-green-600 text-white",
           card.cardType === "trap" && "bg-purple-600 text-white",
-          card.cardType === "field" && "bg-teal-600 text-white"
+          card.cardType === "field" && "bg-teal-600 text-white",
         )}
       >
         {card.cardType}
@@ -184,7 +184,7 @@ export function HandCard({
           card.rarity === "epic" && "bg-purple-500",
           card.rarity === "rare" && "bg-blue-500",
           card.rarity === "uncommon" && "bg-green-500",
-          card.rarity === "common" && "bg-gray-400"
+          card.rarity === "common" && "bg-gray-400",
         )}
       />
     </motion.button>

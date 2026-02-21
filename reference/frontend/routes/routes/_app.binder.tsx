@@ -93,7 +93,7 @@ function BinderContent() {
             onClick={() => setShowFilters(!showFilters)}
             className={cn(
               "border-2 border-primary shadow-zine-sm rounded-none h-10 hover:shadow-zine transition-all",
-              showFilters && "bg-primary text-white shadow-zine-sm"
+              showFilters && "bg-primary text-white shadow-zine-sm",
             )}
           >
             <Filter className="w-4 h-4" />

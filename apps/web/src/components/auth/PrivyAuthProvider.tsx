@@ -31,7 +31,9 @@ function PrivyAuthBridge({ children }: { children: ReactNode }) {
 
 export function PrivyAuthProvider({ children }: { children: ReactNode }) {
   if (!PRIVY_ENABLED) {
-    return <AppAuthContext.Provider value={APP_AUTH_DEFAULT_STATE}>{children}</AppAuthContext.Provider>;
+    return (
+      <AppAuthContext.Provider value={APP_AUTH_DEFAULT_STATE}>{children}</AppAuthContext.Provider>
+    );
   }
 
   return (

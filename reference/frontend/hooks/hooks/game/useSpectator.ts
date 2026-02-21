@@ -64,7 +64,7 @@ export function useSpectator(lobbyId?: Id<"gameLobbies">): UseSpectatorReturn {
 
   const spectatorView = useQuery(
     api.gameplay.games.queries.getGameSpectatorView,
-    lobbyId ? { lobbyId } : "skip"
+    lobbyId ? { lobbyId } : "skip",
   );
 
   // Join/leave as spectator

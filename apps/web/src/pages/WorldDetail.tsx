@@ -50,7 +50,9 @@ interface WorldSnapshot {
 
 export function WorldDetail() {
   const { worldId = "" } = useParams();
-  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
+  const convexEnabled = Boolean(
+    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
+  );
   const isConvexWorld = convexEnabled && looksLikeConvexId(worldId);
   const { authenticated } = useAppAuth();
   useUserSync();
@@ -66,7 +68,17 @@ export function WorldDetail() {
   const latestJob = useConvexQuery(
     apiAny.vttGeneration.getLatestGenerationJobForWorld,
     authenticated && isConvexWorld ? { worldId } : "skip",
-  ) as { status: string; kind: string; provider: string; output?: unknown; error?: string; updatedAt: number } | null | undefined;
+  ) as
+    | {
+        status: string;
+        kind: string;
+        provider: string;
+        output?: unknown;
+        error?: string;
+        updatedAt: number;
+      }
+    | null
+    | undefined;
   const seedWorld = playableWorlds.find((entry) => entry.id === worldId);
 
   if (isConvexWorld && liveSnapshot === undefined) {
@@ -74,7 +86,9 @@ export function WorldDetail() {
       <div className="min-h-screen bg-[#fdfdfb] p-6 pb-24">
         <div className="paper-panel p-6 max-w-3xl mx-auto">
           <h1 className="text-3xl uppercase">Loading World</h1>
-          <p className="text-sm text-[#121212]/70 mt-2">Fetching live world snapshot from Convex.</p>
+          <p className="text-sm text-[#121212]/70 mt-2">
+            Fetching live world snapshot from Convex.
+          </p>
         </div>
         <TrayNav invert={false} />
       </div>
@@ -182,7 +196,9 @@ export function WorldDetail() {
                       `Generation job created: ${typeof result?.jobId === "string" ? result.jobId : "unknown"}.`,
                     );
                   } catch (error) {
-                    setGenerationStatus(error instanceof Error ? error.message : "Generation failed.");
+                    setGenerationStatus(
+                      error instanceof Error ? error.message : "Generation failed.",
+                    );
                   }
                 }}
               >
@@ -223,8 +239,12 @@ export function WorldDetail() {
           </section>
 
           <div className="flex flex-wrap gap-2">
-            <Link className="tcg-button" to="/worlds">Back To Worlds</Link>
-            <Link className="tcg-button" to={`/table/new?worldId=${world._id}`}>Start Live Session</Link>
+            <Link className="tcg-button" to="/worlds">
+              Back To Worlds
+            </Link>
+            <Link className="tcg-button" to={`/table/new?worldId=${world._id}`}>
+              Start Live Session
+            </Link>
           </div>
         </main>
         <TrayNav invert={false} />
@@ -237,8 +257,12 @@ export function WorldDetail() {
       <div className="min-h-screen bg-[#fdfdfb] p-6 pb-24">
         <div className="paper-panel p-6 max-w-3xl mx-auto">
           <h1 className="text-3xl uppercase">World Not Found</h1>
-          <p className="text-sm text-[#121212]/70 mt-2">This world id is not available in the current seed library.</p>
-          <Link className="tcg-button mt-4 inline-block" to="/worlds">Back To Worlds</Link>
+          <p className="text-sm text-[#121212]/70 mt-2">
+            This world id is not available in the current seed library.
+          </p>
+          <Link className="tcg-button mt-4 inline-block" to="/worlds">
+            Back To Worlds
+          </Link>
         </div>
         <TrayNav invert={false} />
       </div>
@@ -292,8 +316,12 @@ export function WorldDetail() {
         </section>
 
         <div className="flex flex-wrap gap-2">
-          <Link className="tcg-button" to="/worlds">Back To Worlds</Link>
-          <Link className="tcg-button" to={`/table/new`}>Launch Sandbox Table</Link>
+          <Link className="tcg-button" to="/worlds">
+            Back To Worlds
+          </Link>
+          <Link className="tcg-button" to={`/table/new`}>
+            Launch Sandbox Table
+          </Link>
         </div>
       </main>
       <TrayNav invert={false} />

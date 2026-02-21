@@ -26,7 +26,7 @@ export function useGuildInvites(guildId?: Id<"guilds">) {
   const myInvites = useConvexQuery(getMyInvitesQuery, isAuthenticated ? {} : "skip");
   const guildPendingInvites = useConvexQuery(
     getGuildPendingInvitesQuery,
-    guildId ? { guildId } : "skip"
+    guildId ? { guildId } : "skip",
   );
 
   // Mutations with toast handling

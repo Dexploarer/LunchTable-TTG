@@ -35,8 +35,7 @@ export const internalRecordUsageEvent = internalMutation({
       worldId: args.worldId,
       runId: args.runId,
       jobId: args.jobId,
-      metadataJson:
-        args.metadata !== undefined ? JSON.stringify(args.metadata) : undefined,
+      metadataJson: args.metadata !== undefined ? JSON.stringify(args.metadata) : undefined,
       createdAt: Date.now(),
     });
 

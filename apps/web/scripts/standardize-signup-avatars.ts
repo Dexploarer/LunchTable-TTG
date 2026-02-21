@@ -4,9 +4,9 @@
  * public/lunchtable/avatars/signup/avatar-001.png ... avatar-029.png
  */
 
-import {createHash} from "node:crypto";
-import {access, copyFile, mkdir, readdir, readFile, rm, writeFile} from "node:fs/promises";
-import {join} from "node:path";
+import { createHash } from "node:crypto";
+import { access, copyFile, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const SOURCE_DIR = "/Users/home/Downloads";
 const DEST_DIR = "./public/lunchtable/avatars/signup";
@@ -50,39 +50,38 @@ const SOURCE_BASENAMES = [
 ] as const;
 
 const CANONICAL_MAPPING = [
-  {target: "avatar-001.png", source: "Blue_Slime_Jello.png"},
-  {target: "avatar-002.png", source: "Brain_Food_Deluxe.png"},
-  {target: "avatar-003.png", source: "Brain_Meatloaf_Classic.png"},
-  {target: "avatar-004.png", source: "Cyber_Sushi.png"},
-  {target: "avatar-005.png", source: "Golden_Carrot.png"},
-  {target: "avatar-006.png", source: "Green_Bean_Day.png"},
-  {target: "avatar-007.png", source: "Holiday_Turkey.png"},
-  {target: "avatar-008.png", source: "Mashed_Potato_Variant.png"},
-  {target: "avatar-009.png", source: "Mystery_Meatloaf.png"},
-  {target: "avatar-010.png", source: "Stardust_Soup.png"},
-  {target: "avatar-011.png", source: "nft-0mfi8voqd.png"},
-  {target: "avatar-012.png", source: "nft-9cb7xh9nq.png"},
-  {target: "avatar-013.png", source: "nft-a6261fbh6.png"},
-  {target: "avatar-014.png", source: "nft-avwduoupe.png"},
-  {target: "avatar-015.png", source: "nft-d94d3pfu9.png"},
-  {target: "avatar-016.png", source: "nft-dgbq0i9ts.png"},
-  {target: "avatar-017.png", source: "nft-eq4wx5wpy.png"},
-  {target: "avatar-018.png", source: "nft-h85fokt5l.png"},
-  {target: "avatar-019.png", source: "nft-jhhjtso0s.png"},
-  {target: "avatar-020.png", source: "nft-jxhbi49p3.png"},
-  {target: "avatar-021.png", source: "nft-keb8n46jr.png"},
-  {target: "avatar-022.png", source: "nft-mrh14f547.png"},
-  {target: "avatar-023.png", source: "nft-ndfcpf500.png"},
-  {target: "avatar-024.png", source: "nft-ol9waom6y.png"},
-  {target: "avatar-025.png", source: "nft-qp5p677xr.png"},
-  {target: "avatar-026.png", source: "nft-tl60ox7zy.png"},
-  {target: "avatar-027.png", source: "nft-un4rv6jvf.png"},
-  {target: "avatar-028.png", source: "nft-xdhj1sux2.png"},
-  {target: "avatar-029.png", source: "nft-ztpct9taj.png"},
+  { target: "avatar-001.png", source: "Blue_Slime_Jello.png" },
+  { target: "avatar-002.png", source: "Brain_Food_Deluxe.png" },
+  { target: "avatar-003.png", source: "Brain_Meatloaf_Classic.png" },
+  { target: "avatar-004.png", source: "Cyber_Sushi.png" },
+  { target: "avatar-005.png", source: "Golden_Carrot.png" },
+  { target: "avatar-006.png", source: "Green_Bean_Day.png" },
+  { target: "avatar-007.png", source: "Holiday_Turkey.png" },
+  { target: "avatar-008.png", source: "Mashed_Potato_Variant.png" },
+  { target: "avatar-009.png", source: "Mystery_Meatloaf.png" },
+  { target: "avatar-010.png", source: "Stardust_Soup.png" },
+  { target: "avatar-011.png", source: "nft-0mfi8voqd.png" },
+  { target: "avatar-012.png", source: "nft-9cb7xh9nq.png" },
+  { target: "avatar-013.png", source: "nft-a6261fbh6.png" },
+  { target: "avatar-014.png", source: "nft-avwduoupe.png" },
+  { target: "avatar-015.png", source: "nft-d94d3pfu9.png" },
+  { target: "avatar-016.png", source: "nft-dgbq0i9ts.png" },
+  { target: "avatar-017.png", source: "nft-eq4wx5wpy.png" },
+  { target: "avatar-018.png", source: "nft-h85fokt5l.png" },
+  { target: "avatar-019.png", source: "nft-jhhjtso0s.png" },
+  { target: "avatar-020.png", source: "nft-jxhbi49p3.png" },
+  { target: "avatar-021.png", source: "nft-keb8n46jr.png" },
+  { target: "avatar-022.png", source: "nft-mrh14f547.png" },
+  { target: "avatar-023.png", source: "nft-ndfcpf500.png" },
+  { target: "avatar-024.png", source: "nft-ol9waom6y.png" },
+  { target: "avatar-025.png", source: "nft-qp5p677xr.png" },
+  { target: "avatar-026.png", source: "nft-tl60ox7zy.png" },
+  { target: "avatar-027.png", source: "nft-un4rv6jvf.png" },
+  { target: "avatar-028.png", source: "nft-xdhj1sux2.png" },
+  { target: "avatar-029.png", source: "nft-ztpct9taj.png" },
 ] as const;
 
-const hashBuffer = (buffer: Buffer) =>
-  createHash("sha256").update(buffer).digest("hex");
+const hashBuffer = (buffer: Buffer) => createHash("sha256").update(buffer).digest("hex");
 
 async function ensureFilesExist() {
   const missing: string[] = [];
@@ -112,7 +111,7 @@ async function scanHashes() {
 
   const duplicateGroups = [...hashGroups.entries()]
     .filter(([, basenames]) => basenames.length > 1)
-    .map(([hash, basenames]) => ({hash, basenames}))
+    .map(([hash, basenames]) => ({ hash, basenames }))
     .sort((a, b) => b.basenames.length - a.basenames.length);
 
   return {
@@ -123,17 +122,17 @@ async function scanHashes() {
 }
 
 async function clearPreviousTargets() {
-  await mkdir(DEST_DIR, {recursive: true});
+  await mkdir(DEST_DIR, { recursive: true });
   const existing = await readdir(DEST_DIR);
   const previousTargets = existing.filter((name) => /^avatar-\d{3}\.png$/.test(name));
   for (const target of previousTargets) {
-    await rm(join(DEST_DIR, target), {force: true});
+    await rm(join(DEST_DIR, target), { force: true });
   }
 }
 
 async function standardize() {
   await ensureFilesExist();
-  const {fileHashes, uniqueHashCount, duplicateGroups} = await scanHashes();
+  const { fileHashes, uniqueHashCount, duplicateGroups } = await scanHashes();
   await clearPreviousTargets();
 
   const copied: Array<{
@@ -143,7 +142,7 @@ async function standardize() {
     relativePath: string;
   }> = [];
 
-  for (const {target, source} of CANONICAL_MAPPING) {
+  for (const { target, source } of CANONICAL_MAPPING) {
     const sourcePath = join(SOURCE_DIR, source);
     const targetPath = join(DEST_DIR, target);
     await copyFile(sourcePath, targetPath);

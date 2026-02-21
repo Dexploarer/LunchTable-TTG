@@ -31,7 +31,7 @@ export const USDC_MINT =
 
 export const CRYPTO_WAGER_FEE_BPS = Number(process.env.NEXT_PUBLIC_CRYPTO_WAGER_FEE_BPS || 1000);
 export const CRYPTO_WAGER_WINNER_PERCENTAGE = Number(
-  process.env.NEXT_PUBLIC_CRYPTO_WAGER_WINNER_PCT || 0.9
+  process.env.NEXT_PUBLIC_CRYPTO_WAGER_WINNER_PCT || 0.9,
 );
 
 // ============================================================================

@@ -4,7 +4,8 @@ import { onHostMessage, signalReady, type HostToAppMessage } from "@/lib/iframe"
 export function useIframeMode() {
   const isInIframe = typeof window !== "undefined" && window.self !== window.top;
   const hasEmbedParam =
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).get("embedded") === "true";
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("embedded") === "true";
   const isEmbedded = isInIframe || hasEmbedParam;
 
   const [authToken, setAuthToken] = useState<string | null>(null);

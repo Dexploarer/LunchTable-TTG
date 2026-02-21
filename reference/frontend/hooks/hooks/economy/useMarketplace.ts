@@ -97,7 +97,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 
   const myListings = useQuery(
     api.economy.marketplace.getUserListings,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Mutations

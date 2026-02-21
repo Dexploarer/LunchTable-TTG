@@ -62,15 +62,15 @@ export function useTournamentInteraction(): UseTournamentInteractionReturn {
 
   // For registration modal - get the selected tournament details
   const { tournament: selectedTournament, register } = useTournament(
-    registeringForTournament ?? undefined
+    registeringForTournament ?? undefined,
   );
 
   const activeTournaments = useMemo(
     () =>
       tournaments.filter(
-        (t) => t.status === "registration" || t.status === "checkin" || t.status === "active"
+        (t) => t.status === "registration" || t.status === "checkin" || t.status === "active",
       ) as TournamentSummary[],
-    [tournaments]
+    [tournaments],
   );
 
   const canCreateTournament = !myHostedTournament;

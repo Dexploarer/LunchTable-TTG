@@ -353,18 +353,18 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
 
   const gameState = useConvexQuery(
     typedApi.gameplay.games.queries.getGameStateForPlayer,
-    shouldQueryGameState ? { lobbyId } : "skip"
+    shouldQueryGameState ? { lobbyId } : "skip",
   ) as GameState | undefined | null;
 
   const availableActions = useConvexQuery(
     typedApi.gameplay.games.queries.getAvailableActions,
-    lobbyDetails?.status === "active" ? { lobbyId } : "skip"
+    lobbyDetails?.status === "active" ? { lobbyId } : "skip",
   ) as AvailableActions | undefined;
 
   // Chain system query
   const chainState = useConvexQuery(
     typedApi.gameplay.chainResolver.getCurrentChain,
-    lobbyDetails?.status === "active" ? { lobbyId } : "skip"
+    lobbyDetails?.status === "active" ? { lobbyId } : "skip",
   ) as ChainState | undefined | null;
 
   // Current user query for player name
@@ -381,16 +381,16 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
   const normalSummonMutation = useConvexMutation(typedApi.gameplay.gameEngine.summons.normalSummon);
   const setMonsterMutation = useConvexMutation(typedApi.gameplay.gameEngine.summons.setMonster);
   const setSpellTrapMutation = useConvexMutation(
-    typedApi.gameplay.gameEngine.spellsTraps.setSpellTrap
+    typedApi.gameplay.gameEngine.spellsTraps.setSpellTrap,
   );
   const activateSpellMutation = useConvexMutation(
-    typedApi.gameplay.gameEngine.spellsTraps.activateSpell
+    typedApi.gameplay.gameEngine.spellsTraps.activateSpell,
   );
   const activateTrapMutation = useConvexMutation(
-    typedApi.gameplay.gameEngine.spellsTraps.activateTrap
+    typedApi.gameplay.gameEngine.spellsTraps.activateTrap,
   );
   const activateMonsterEffectMutation = useConvexMutation(
-    typedApi.gameplay.gameEngine.monsterEffects.activateMonsterEffect
+    typedApi.gameplay.gameEngine.monsterEffects.activateMonsterEffect,
   );
 
   // Chain system mutations
@@ -399,10 +399,10 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
   const endTurnMutation = useConvexMutation(typedApi.gameplay.gameEngine.turns.endTurn);
   const surrenderGameMutation = useConvexMutation(typedApi.gameplay.games.lifecycle.surrenderGame);
   const declareAttackMutation = useConvexMutation(
-    typedApi.gameplay.combatSystem.declareAttackWithResponse
+    typedApi.gameplay.combatSystem.declareAttackWithResponse,
   );
   const passResponseWindowMutation = useConvexMutation(
-    typedApi.gameplay.combatSystem.passResponseWindowPriority
+    typedApi.gameplay.combatSystem.passResponseWindowPriority,
   );
 
   // ==========================================================================
@@ -413,7 +413,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
     async (
       cardId: Id<"cardDefinitions">,
       position: "attack" | "defense",
-      tributeIds?: Id<"cardDefinitions">[]
+      tributeIds?: Id<"cardDefinitions">[],
     ) => {
       try {
         await normalSummonMutation({
@@ -428,7 +428,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [normalSummonMutation, lobbyId]
+    [normalSummonMutation, lobbyId],
   );
 
   const setMonster = useCallback(
@@ -444,7 +444,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [setMonsterMutation, lobbyId]
+    [setMonsterMutation, lobbyId],
   );
 
   const setSpellTrap = useCallback(
@@ -460,7 +460,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [setSpellTrapMutation, lobbyId]
+    [setSpellTrapMutation, lobbyId],
   );
 
   const advancePhase = useCallback(async () => {
@@ -516,7 +516,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [declareAttackMutation, lobbyId]
+    [declareAttackMutation, lobbyId],
   );
 
   const forfeitGame = useCallback(async () => {
@@ -542,7 +542,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [activateSpellMutation, lobbyId]
+    [activateSpellMutation, lobbyId],
   );
 
   const activateFieldSpell = useCallback(
@@ -559,7 +559,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [activateSpellMutation, lobbyId]
+    [activateSpellMutation, lobbyId],
   );
 
   const activateTrap = useCallback(
@@ -575,14 +575,14 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [activateTrapMutation, lobbyId]
+    [activateTrapMutation, lobbyId],
   );
 
   const activateMonsterEffect = useCallback(
     async (
       cardId: Id<"cardDefinitions">,
       effectIndex?: number,
-      targets?: Id<"cardDefinitions">[]
+      targets?: Id<"cardDefinitions">[],
     ) => {
       try {
         await activateMonsterEffectMutation({
@@ -597,7 +597,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, error: String(error) };
       }
     },
-    [activateMonsterEffectMutation, lobbyId]
+    [activateMonsterEffectMutation, lobbyId],
   );
 
   const passResponseWindow = useCallback(async () => {
@@ -638,7 +638,7 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
         return { success: false, chainResolving: false, error: String(error) };
       }
     },
-    [passPriorityMutation, activateTrapMutation, activateSpellMutation, lobbyId]
+    [passPriorityMutation, activateTrapMutation, activateSpellMutation, lobbyId],
   );
 
   // ==========================================================================
@@ -790,7 +790,9 @@ export function useGameBoard(lobbyId: Id<"gameLobbies">, currentPlayerId: Id<"us
 
     return {
       playerId: gameState.opponentId,
-      playerName: gameState.isAIOpponent ? (gameState.opponentUsername || "CPU") : gameState.opponentUsername,
+      playerName: gameState.isAIOpponent
+        ? gameState.opponentUsername || "CPU"
+        : gameState.opponentUsername,
       playerType: gameState.isAIOpponent ? "ai" : "human",
       isActivePlayer: !gameState.isYourTurn,
       lifePoints: gameState.opponentLifePoints,

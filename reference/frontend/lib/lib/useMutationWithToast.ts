@@ -24,7 +24,7 @@ type MutationMessages = {
  */
 export function useMutationWithToast<Args extends Record<string, unknown>, Result = unknown>(
   mutationRef: Parameters<typeof useMutation>[0],
-  messages: MutationMessages
+  messages: MutationMessages,
 ) {
   const mutation = useMutation(mutationRef);
 
@@ -49,7 +49,7 @@ export function useMutationWithToast<Args extends Record<string, unknown>, Resul
  */
 export function useMutationWithToastSafe<Args extends Record<string, unknown>, Result = unknown>(
   mutationRef: Parameters<typeof useMutation>[0],
-  messages: MutationMessages
+  messages: MutationMessages,
 ) {
   const mutation = useMutation(mutationRef);
 

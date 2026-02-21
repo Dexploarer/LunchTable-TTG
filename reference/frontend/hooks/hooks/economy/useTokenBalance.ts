@@ -80,7 +80,7 @@ export function useTokenBalance(): UseTokenBalanceReturn {
   // Returns: { balance, lastVerifiedAt, isStale } | null
   const cachedBalance = useConvexQuery(
     typedApi.economy.tokenBalance.getTokenBalance,
-    isAuthenticated === true && !authLoading ? {} : "skip"
+    isAuthenticated === true && !authLoading ? {} : "skip",
   );
 
   // Mutation to request balance refresh
@@ -137,7 +137,7 @@ export function useTokenBalance(): UseTokenBalanceReturn {
       if (balance == null) return "0.00";
       return balance.toFixed(decimals);
     },
-    [balance]
+    [balance],
   );
 
   return {

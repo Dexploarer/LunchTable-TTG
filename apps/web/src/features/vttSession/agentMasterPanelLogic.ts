@@ -1,9 +1,4 @@
-export type AgentRunProvider =
-  | "openai"
-  | "anthropic"
-  | "openrouter"
-  | "vercel_gateway"
-  | "eliza";
+export type AgentRunProvider = "openai" | "anthropic" | "openrouter" | "vercel_gateway" | "eliza";
 
 export interface AgentRunFormState {
   provider: AgentRunProvider;

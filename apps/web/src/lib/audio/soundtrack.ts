@@ -38,14 +38,8 @@ const FALLBACK_PLAYLISTS: Record<string, string[]> = {
     "/lunchtable/soundtrack/NERDS.mp3",
     "/lunchtable/soundtrack/PREP.mp3",
   ],
-  story: [
-    "/lunchtable/soundtrack/THEME2.mp3",
-    "/lunchtable/soundtrack/MISC3.mp3",
-  ],
-  watch: [
-    "/lunchtable/soundtrack/THEME.mp3",
-    "/lunchtable/soundtrack/THEMEREMIX.mp3",
-  ],
+  story: ["/lunchtable/soundtrack/THEME2.mp3", "/lunchtable/soundtrack/MISC3.mp3"],
+  watch: ["/lunchtable/soundtrack/THEME.mp3", "/lunchtable/soundtrack/THEMEREMIX.mp3"],
   default: [
     "/lunchtable/soundtrack/THEME.mp3",
     "/lunchtable/soundtrack/FREAK.mp3",
@@ -130,10 +124,7 @@ function normalizeTrackPath(reference: string): string {
 
 function buildFallbackSoundtrackManifest(source: string): SoundtrackManifest {
   const fallbackSfx = Object.fromEntries(
-    Object.entries(FALLBACK_SFX_KEYS).map(([key]) => [
-      key,
-      `/api/soundtrack-sfx?name=${key}`,
-    ]),
+    Object.entries(FALLBACK_SFX_KEYS).map(([key]) => [key, `/api/soundtrack-sfx?name=${key}`]),
   );
 
   return {
@@ -286,7 +277,7 @@ function isLikelyJavaScriptModulePayload(payload: string): boolean {
 
   return (
     probe.startsWith("import ") ||
-    probe.includes("from \"/@id/__vite-browser-external") ||
+    probe.includes('from "/@id/__vite-browser-external') ||
     probe.includes("sourcemappingurl=data:application/json;base64")
   );
 }
@@ -298,13 +289,13 @@ function parseTrackPayload(raw: string): SoundtrackManifest {
     const json = JSON.parse(trimmed) as
       | SoundtrackManifest
       | {
-      playlists?: unknown;
-      tracksByCategory?: unknown;
-      tracks?: unknown;
-      resolved?: unknown;
-      sfx?: unknown;
-      source?: string;
-    };
+          playlists?: unknown;
+          tracksByCategory?: unknown;
+          tracks?: unknown;
+          resolved?: unknown;
+          sfx?: unknown;
+          source?: string;
+        };
 
     if (json && typeof json === "object") {
       if (isSoundtrackManifest(json)) {
@@ -324,9 +315,7 @@ function parseTrackPayload(raw: string): SoundtrackManifest {
 
       if (isObject(json.resolved)) {
         const resolvedKey =
-          typeof json.resolved.key === "string"
-            ? normalizeSectionName(json.resolved.key)
-            : null;
+          typeof json.resolved.key === "string" ? normalizeSectionName(json.resolved.key) : null;
         const resolvedTracks = normalizeTrackList(json.resolved.tracks);
         if (resolvedTracks.length > 0) {
           const key = resolvedKey || "default";
@@ -355,10 +344,7 @@ function parseTrackPayload(raw: string): SoundtrackManifest {
   return parseSoundtrackIn(trimmed, "/soundtrack.in");
 }
 
-export function parseSoundtrackIn(
-  raw: string,
-  source = "/soundtrack.in",
-): SoundtrackManifest {
+export function parseSoundtrackIn(raw: string, source = "/soundtrack.in"): SoundtrackManifest {
   const playlists: Record<string, string[]> = {};
   const sfx: Record<string, string> = {};
 
@@ -448,16 +434,11 @@ function normalizeManifestForPlayback(manifest: SoundtrackManifest): SoundtrackM
     playlists: Object.fromEntries(
       Object.entries(manifest.playlists).map(([section, tracks]) => [
         section,
-        tracks
-          .map((track) => resolveTrackUrl(track))
-          .filter((track) => track.length > 0),
+        tracks.map((track) => resolveTrackUrl(track)).filter((track) => track.length > 0),
       ]),
     ),
     sfx: Object.fromEntries(
-      Object.entries(manifest.sfx).map(([key, track]) => [
-        key,
-        resolveTrackUrl(track),
-      ]),
+      Object.entries(manifest.sfx).map(([key, track]) => [key, resolveTrackUrl(track)]),
     ),
   };
 }
@@ -532,13 +513,7 @@ export function resolvePlaylist(
   contextKey: string,
 ): ResolvedPlaylist {
   const context = normalizeSectionName(contextKey || "default");
-  const keysTried = uniqueOrdered([
-    `page:${context}`,
-    context,
-    "default",
-    "app",
-    "global",
-  ]);
+  const keysTried = uniqueOrdered([`page:${context}`, context, "default", "app", "global"]);
 
   let matchedKey: string | null = null;
   let tracks: string[] = [];

@@ -44,7 +44,7 @@ export function filterCards(cards: CardData[], filters: CardFilters): CardData[]
       (card) =>
         card.name.toLowerCase().includes(query) ||
         getAbilityDisplayText(card.ability)?.toLowerCase().includes(query) ||
-        card.flavorText?.toLowerCase().includes(query)
+        card.flavorText?.toLowerCase().includes(query),
     );
   }
 

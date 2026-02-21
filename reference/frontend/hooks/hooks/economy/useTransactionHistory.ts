@@ -97,7 +97,7 @@ export function useTransactionHistory(): UseTransactionHistoryReturn {
   } = usePaginatedQuery(
     typedApi.economy.getTransactionHistoryPaginated,
     isAuthenticated ? {} : "skip",
-    { initialNumItems: 20 }
+    { initialNumItems: 20 },
   );
 
   // Token transactions - using Convex pagination
@@ -108,7 +108,7 @@ export function useTransactionHistory(): UseTransactionHistoryReturn {
   } = usePaginatedQuery(
     typedApi.economy.tokenMarketplace.getTokenTransactionHistory,
     isAuthenticated ? {} : "skip",
-    { initialNumItems: 20 }
+    { initialNumItems: 20 },
   );
 
   // Filter transactions based on selected filter
@@ -121,7 +121,7 @@ export function useTransactionHistory(): UseTransactionHistoryReturn {
 
   // Combine and sort all transactions by date
   const allTransactions = [...filteredTransactions, ...filteredTokenTx].sort(
-    (a, b) => b.createdAt - a.createdAt
+    (a, b) => b.createdAt - a.createdAt,
   );
 
   return {

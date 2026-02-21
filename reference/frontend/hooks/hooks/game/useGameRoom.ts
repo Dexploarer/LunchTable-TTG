@@ -12,7 +12,7 @@ export function useGameRoom(lobbyId: Id<"gameLobbies">) {
 
   const currentUser = useConvexQuery(
     typedApi.core.users.currentUser,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Get lobby details to check if user is a player
@@ -23,7 +23,7 @@ export function useGameRoom(lobbyId: Id<"gameLobbies">) {
   // Get game state to check if game exists
   const gameState = useConvexQuery(
     typedApi.gameplay.games.queries.getGameStateForPlayer,
-    lobby ? { lobbyId } : "skip"
+    lobby ? { lobbyId } : "skip",
   );
 
   // Redirect to lunchtable if game doesn't exist or is closed

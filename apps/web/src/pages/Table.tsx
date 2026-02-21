@@ -95,21 +95,22 @@ const START_WALLS: VttWall[] = [
 ];
 
 export function Table() {
-  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
+  const convexEnabled = Boolean(
+    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
+  );
   const navigate = useNavigate();
   const { sessionId = "new" } = useParams();
   const [searchParams] = useSearchParams();
   const { authenticated } = useAppAuth();
   useUserSync();
 
-  const currentUser = useConvexQuery(
-    apiAny.auth.currentUser,
-    convexEnabled ? {} : "skip",
-  ) as CurrentUser | null | undefined;
-  const worlds = useConvexQuery(
-    apiAny.vttWorlds.listWorlds,
-    convexEnabled ? {} : "skip",
-  ) as WorldRecord[] | undefined;
+  const currentUser = useConvexQuery(apiAny.auth.currentUser, convexEnabled ? {} : "skip") as
+    | CurrentUser
+    | null
+    | undefined;
+  const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as
+    | WorldRecord[]
+    | undefined;
 
   const requestedWorldId = searchParams.get("worldId");
   const [selectedWorldId, setSelectedWorldId] = useState(
@@ -121,9 +122,7 @@ export function Table() {
 
   const [narratorProvider, setNarratorProvider] = useState<
     "openai" | "anthropic" | "openrouter" | "vercel_gateway" | "eliza"
-  >(
-    "eliza",
-  );
+  >("eliza");
   const [narratorPrompt, setNarratorPrompt] = useState("");
   const [narratorJobId, setNarratorJobId] = useState("");
   const [narratorJobStatus, setNarratorJobStatus] = useState("");
@@ -252,14 +251,14 @@ export function Table() {
     return sessionView.events
       .filter((event) => event.eventType === "CHAT_MESSAGE")
       .map((event) => {
-        const payload = event.payload && typeof event.payload === "object"
-          ? (event.payload as Record<string, unknown>)
-          : {};
+        const payload =
+          event.payload && typeof event.payload === "object"
+            ? (event.payload as Record<string, unknown>)
+            : {};
         const senderFromPayload = typeof payload.sender === "string" ? payload.sender : null;
-        const senderFromParticipant = participantsByUserId.get(event.actorUserId)?.role?.toUpperCase() ?? "TABLE";
-        const text = typeof payload.text === "string"
-          ? payload.text
-          : JSON.stringify(payload);
+        const senderFromParticipant =
+          participantsByUserId.get(event.actorUserId)?.role?.toUpperCase() ?? "TABLE";
+        const text = typeof payload.text === "string" ? payload.text : JSON.stringify(payload);
 
         return {
           id: event._id,
@@ -279,14 +278,18 @@ export function Table() {
   }, [localDiceHistory, sessionView?.diceRolls]);
 
   const isParticipant = Boolean(
-    currentUser && sessionView?.participants?.some((participant) => participant.userId === currentUser._id),
+    currentUser &&
+      sessionView?.participants?.some((participant) => participant.userId === currentUser._id),
   );
   const currentParticipantRole =
     currentUser && sessionView?.participants
-      ? sessionView.participants.find((participant) => participant.userId === currentUser._id)?.role ?? null
+      ? (sessionView.participants.find((participant) => participant.userId === currentUser._id)
+          ?.role ?? null)
       : null;
   const isSessionHost = Boolean(
-    currentUser && sessionView?.session?.hostUserId && currentUser._id === sessionView.session.hostUserId,
+    currentUser &&
+      sessionView?.session?.hostUserId &&
+      currentUser._id === sessionView.session.hostUserId,
   );
 
   const initiative = useMemo(
@@ -307,7 +310,8 @@ export function Table() {
             <p className="text-xs uppercase text-[#121212]/60">Live Session</p>
             <h1 className="text-4xl uppercase">Create Session</h1>
             <p className="text-sm text-[#121212]/70">
-              Create a live table from a Convex world or run a local sandbox if Convex is not configured.
+              Create a live table from a Convex world or run a local sandbox if Convex is not
+              configured.
             </p>
           </header>
 
@@ -344,14 +348,17 @@ export function Table() {
                         worldId: selectedWorldId,
                         title: selectedWorldTitle ? `${selectedWorldTitle} Session` : undefined,
                       });
-                      const nextSessionId = typeof result?.sessionId === "string" ? result.sessionId : "";
+                      const nextSessionId =
+                        typeof result?.sessionId === "string" ? result.sessionId : "";
                       if (!nextSessionId) {
                         setStatus("Session created but no id returned.");
                         return;
                       }
                       navigate(`/table/${nextSessionId}`);
                     } catch (error) {
-                      setStatus(error instanceof Error ? error.message : "Failed to create session.");
+                      setStatus(
+                        error instanceof Error ? error.message : "Failed to create session.",
+                      );
                     } finally {
                       setIsSubmitting(false);
                     }
@@ -397,14 +404,17 @@ export function Table() {
             <h1 className="text-3xl uppercase">Table {sessionId}</h1>
             {sessionView?.session ? (
               <p className="text-xs uppercase text-[#121212]/70">
-                Status: {sessionView.session.status} • Participants: {sessionView.participants.length}
+                Status: {sessionView.session.status} • Participants:{" "}
+                {sessionView.participants.length}
               </p>
             ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               className="tcg-button"
-              disabled={Boolean(convexSessionId) && (!isParticipant || currentParticipantRole !== "gm")}
+              disabled={
+                Boolean(convexSessionId) && (!isParticipant || currentParticipantRole !== "gm")
+              }
               onClick={async () => {
                 if (convexSessionId && (!isParticipant || currentParticipantRole !== "gm")) {
                   setStatus("Only the GM can toggle fog in a Convex session.");
@@ -503,7 +513,9 @@ export function Table() {
                 >
                   Summon Narrator
                 </button>
-                {narratorJobStatus ? <p className="text-xs uppercase">{narratorJobStatus}</p> : null}
+                {narratorJobStatus ? (
+                  <p className="text-xs uppercase">{narratorJobStatus}</p>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -561,7 +573,11 @@ export function Table() {
 
               if (options?.commit === false) return;
               if (!token) return;
-              if (!convexSessionId || !looksLikeConvexId(activeMapId) || !looksLikeConvexId(sessionWorldId)) {
+              if (
+                !convexSessionId ||
+                !looksLikeConvexId(activeMapId) ||
+                !looksLikeConvexId(sessionWorldId)
+              ) {
                 return;
               }
               if (!isParticipant) return;
@@ -588,7 +604,9 @@ export function Table() {
                   );
                 }
               } catch (error) {
-                setStatus(error instanceof Error ? error.message : "Failed to sync token movement.");
+                setStatus(
+                  error instanceof Error ? error.message : "Failed to sync token movement.",
+                );
               }
             }}
           />
@@ -627,7 +645,9 @@ export function Table() {
                     },
                   });
                 } catch (error) {
-                  setStatus(error instanceof Error ? error.message : "Failed to send chat message.");
+                  setStatus(
+                    error instanceof Error ? error.message : "Failed to send chat message.",
+                  );
                 }
               }}
             />
@@ -635,7 +655,9 @@ export function Table() {
               history={diceHistory}
               onRoll={async (expression, total) => {
                 if (!convexSessionId || !isParticipant) {
-                  setLocalDiceHistory((current) => [{ expression, total }, ...current].slice(0, 20));
+                  setLocalDiceHistory((current) =>
+                    [{ expression, total }, ...current].slice(0, 20),
+                  );
                   return;
                 }
                 try {
@@ -646,7 +668,9 @@ export function Table() {
                     result: { total },
                   });
                 } catch (error) {
-                  setStatus(error instanceof Error ? error.message : "Failed to persist dice roll.");
+                  setStatus(
+                    error instanceof Error ? error.message : "Failed to persist dice roll.",
+                  );
                 }
               }}
             />

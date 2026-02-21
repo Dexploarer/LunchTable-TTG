@@ -19,7 +19,9 @@ export function ChatPanel({ messages, onSend }: ChatPanelProps) {
     <section className="paper-panel p-3 space-y-3">
       <h3 className="text-lg uppercase">Chat</h3>
       <div className="paper-panel-flat p-2 max-h-52 overflow-auto space-y-2">
-        {messages.length === 0 ? <p className="text-xs text-[#121212]/60">No messages yet.</p> : null}
+        {messages.length === 0 ? (
+          <p className="text-xs text-[#121212]/60">No messages yet.</p>
+        ) : null}
         {messages.map((message) => (
           <div key={message.id}>
             <p className="text-[10px] uppercase text-[#121212]/60">{message.sender}</p>

@@ -76,7 +76,8 @@ export function CreatorWorkbenchTab() {
   );
 
   const prompt = useMemo(
-    () => draft?.world.creationKit.corePrompts.find((entry) => entry.id === selectedPromptId) ?? null,
+    () =>
+      draft?.world.creationKit.corePrompts.find((entry) => entry.id === selectedPromptId) ?? null,
     [draft, selectedPromptId],
   );
 
@@ -124,7 +125,8 @@ export function CreatorWorkbenchTab() {
       name: nameSeed.trim() || "Unnamed Operative",
       archetype: archetype.title,
       pitch: `${archetype.fantasy} Tuned for ${focus}.`,
-      signatureMove: archetype.startingMoves[seed % archetype.startingMoves.length] ?? "Adaptive stance",
+      signatureMove:
+        archetype.startingMoves[seed % archetype.startingMoves.length] ?? "Adaptive stance",
       flaw: FLAWS[seed % FLAWS.length] ?? "keeps vital secrets too long",
       goal: GOALS[(seed >> 3) % GOALS.length] ?? "protect an at-risk district",
       stats: nextStats,
@@ -206,7 +208,9 @@ export function CreatorWorkbenchTab() {
                     onChange={(event) => {
                       const nextValue = Number(event.target.value);
                       updateActiveProject((next) => {
-                        const target = next.world.archetypes.find((entry) => entry.id === archetype.id);
+                        const target = next.world.archetypes.find(
+                          (entry) => entry.id === archetype.id,
+                        );
                         const targetStat = target?.stats.find((entry) => entry.key === stat.key);
                         if (targetStat) targetStat.base = nextValue;
                         return next;
@@ -421,7 +425,9 @@ export function CreatorWorkbenchTab() {
           </select>
         </label>
 
-        <pre className="paper-panel-flat p-3 text-xs whitespace-pre-wrap overflow-x-auto">{compiledPrompt}</pre>
+        <pre className="paper-panel-flat p-3 text-xs whitespace-pre-wrap overflow-x-auto">
+          {compiledPrompt}
+        </pre>
       </section>
     </div>
   );

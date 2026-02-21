@@ -56,7 +56,11 @@ export const upsertProviderKey = mutation({
         updatedAt: now,
       });
 
-      return { providerKeyId: existing._id, provider: args.provider, keyPreview: preview(args.apiKey) };
+      return {
+        providerKeyId: existing._id,
+        provider: args.provider,
+        keyPreview: preview(args.apiKey),
+      };
     }
 
     const providerKeyId = await ctx.db.insert("providerKeys", {
@@ -119,7 +123,9 @@ export const internalGetActiveProviderKey = internalQuery({
   handler: async (ctx, args) => {
     const keyRow = await ctx.db
       .query("providerKeys")
-      .withIndex("by_user_provider", (q) => q.eq("userId", args.userId).eq("provider", args.provider))
+      .withIndex("by_user_provider", (q) =>
+        q.eq("userId", args.userId).eq("provider", args.provider),
+      )
       .first();
 
     if (!keyRow || !keyRow.isActive) return null;

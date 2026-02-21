@@ -135,7 +135,7 @@ export function PhaseBar({
                   isActive &&
                     "bg-linear-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/30 scale-105",
                   isPast && "text-muted-foreground/70 bg-muted/30",
-                  !isActive && !isPast && "text-muted-foreground/40 bg-muted/10"
+                  !isActive && !isPast && "text-muted-foreground/40 bg-muted/10",
                 )}
               >
                 <span className="hidden sm:inline">{phase.label}</span>

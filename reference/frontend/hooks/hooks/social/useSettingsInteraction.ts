@@ -22,11 +22,11 @@ export function useSettingsInteraction() {
   // Data Fetching
   const currentUser = useConvexQuery(
     typedApi.core.users.currentUser,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
   const preferences = useConvexQuery(
     typedApi.core.userPreferences.getPreferences,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Mutations

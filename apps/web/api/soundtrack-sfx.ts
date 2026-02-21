@@ -80,8 +80,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
     return;
   }
 
-  const key =
-    typeof request.query.name === "string" ? request.query.name.trim().toLowerCase() : "";
+  const key = typeof request.query.name === "string" ? request.query.name.trim().toLowerCase() : "";
   const frequency = TRACK_FREQUENCY_HZ[key] ?? 220;
 
   response.setHeader("Content-Type", "audio/wav");

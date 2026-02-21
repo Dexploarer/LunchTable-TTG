@@ -103,7 +103,7 @@ export function PriorityIndicator({
             hasPriority
               ? "border-green-500/50 shadow-green-500/20"
               : "border-slate-500/50 shadow-slate-500/20",
-            className
+            className,
           )}
           data-testid="priority-indicator"
         >
@@ -112,7 +112,7 @@ export function PriorityIndicator({
             <div
               className={cn(
                 "flex items-center gap-1.5",
-                hasPriority ? "text-green-400" : "text-slate-400"
+                hasPriority ? "text-green-400" : "text-slate-400",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function PriorityIndicator({
                     <motion.div
                       className={cn(
                         "h-full rounded-full",
-                        seconds <= 5 ? "bg-red-500" : "bg-green-500"
+                        seconds <= 5 ? "bg-red-500" : "bg-green-500",
                       )}
                       style={{ width: `${progressPercent}%` }}
                     />
@@ -166,7 +166,7 @@ export function PriorityIndicator({
                   <span
                     className={cn(
                       "text-xs font-bold tabular-nums w-6 text-right",
-                      seconds <= 5 ? "text-red-500" : "text-muted-foreground"
+                      seconds <= 5 ? "text-red-500" : "text-muted-foreground",
                     )}
                   >
                     {seconds}s

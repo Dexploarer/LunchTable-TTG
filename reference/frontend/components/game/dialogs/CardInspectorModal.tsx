@@ -96,7 +96,7 @@ export function CardInspectorModal({
                     <span
                       className={cn(
                         "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase text-white",
-                        CARD_TYPE_COLORS[card.cardType] ?? "bg-slate-600"
+                        CARD_TYPE_COLORS[card.cardType] ?? "bg-slate-600",
                       )}
                     >
                       {card.cardType}
@@ -121,7 +121,7 @@ export function CardInspectorModal({
                   <div
                     className={cn(
                       "w-16 h-24 sm:w-20 sm:h-28 rounded-lg border-2 overflow-hidden shrink-0",
-                      RARITY_BORDERS[card.rarity ?? "common"] ?? RARITY_BORDERS.common
+                      RARITY_BORDERS[card.rarity ?? "common"] ?? RARITY_BORDERS.common,
                     )}
                   >
                     {card.imageUrl ? (
@@ -171,7 +171,7 @@ export function CardInspectorModal({
                                   key={`level-indicator-${i}`}
                                   className="w-1.5 h-1.5 rounded-full bg-yellow-400"
                                 />
-                              )
+                              ),
                             )}
                           </div>
                         </div>
@@ -187,7 +187,9 @@ export function CardInspectorModal({
                               <span
                                 className={cn(
                                   "text-[10px]",
-                                  (card.attackModifier ?? 0) > 0 ? "text-green-400" : "text-red-500"
+                                  (card.attackModifier ?? 0) > 0
+                                    ? "text-green-400"
+                                    : "text-red-500",
                                 )}
                               >
                                 ({(card.attackModifier ?? 0) > 0 ? "+" : ""}
@@ -206,7 +208,7 @@ export function CardInspectorModal({
                                   "text-[10px]",
                                   (card.defenseModifier ?? 0) > 0
                                     ? "text-green-400"
-                                    : "text-red-500"
+                                    : "text-red-500",
                                 )}
                               >
                                 ({(card.defenseModifier ?? 0) > 0 ? "+" : ""}
@@ -229,7 +231,7 @@ export function CardInspectorModal({
                           "px-1.5 py-0.5 rounded text-[10px] font-medium",
                           card.position === "attack"
                             ? "bg-red-500/20 text-red-400"
-                            : "bg-blue-500/20 text-blue-400"
+                            : "bg-blue-500/20 text-blue-400",
                         )}
                       >
                         {card.position === "attack" ? "Attack Position" : "Defense Position"}
@@ -257,7 +259,7 @@ export function CardInspectorModal({
                             "flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs",
                             (card.attackModifier ?? 0) > 0
                               ? "bg-green-500/10 text-green-400"
-                              : "bg-red-500/10 text-red-400"
+                              : "bg-red-500/10 text-red-400",
                           )}
                         >
                           {(card.attackModifier ?? 0) > 0 ? (
@@ -277,7 +279,7 @@ export function CardInspectorModal({
                             "flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs",
                             (card.defenseModifier ?? 0) > 0
                               ? "bg-green-500/10 text-green-400"
-                              : "bg-red-500/10 text-red-400"
+                              : "bg-red-500/10 text-red-400",
                           )}
                         >
                           {(card.defenseModifier ?? 0) > 0 ? (
@@ -327,7 +329,7 @@ export function CardInspectorModal({
                                   "text-[10px] px-1 py-0.5 rounded",
                                   effect.spellSpeed === 3
                                     ? "bg-red-500/10 text-red-400"
-                                    : "bg-yellow-500/10 text-yellow-400"
+                                    : "bg-yellow-500/10 text-yellow-400",
                                 )}
                               >
                                 Speed {effect.spellSpeed}

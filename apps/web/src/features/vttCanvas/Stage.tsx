@@ -9,12 +9,7 @@ interface StageProps {
   tokens: VttToken[];
   walls: VttWall[];
   fogEnabled: boolean;
-  onTokenMove?: (
-    tokenId: string,
-    x: number,
-    y: number,
-    options?: { commit?: boolean },
-  ) => void;
+  onTokenMove?: (tokenId: string, x: number, y: number, options?: { commit?: boolean }) => void;
 }
 
 export function Stage({ tokens, walls, fogEnabled, onTokenMove }: StageProps) {
@@ -33,39 +28,41 @@ export function Stage({ tokens, walls, fogEnabled, onTokenMove }: StageProps) {
     const app = new Application();
     let disposed = false;
 
-    void app.init({
-      width: host.clientWidth,
-      height: host.clientHeight,
-      antialias: true,
-      backgroundColor: 0xf7f5ef,
-      resolution: window.devicePixelRatio || 1,
-      autoDensity: true,
-    }).then(() => {
-      if (disposed) return;
-      host.appendChild(app.canvas);
+    void app
+      .init({
+        width: host.clientWidth,
+        height: host.clientHeight,
+        antialias: true,
+        backgroundColor: 0xf7f5ef,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+      })
+      .then(() => {
+        if (disposed) return;
+        host.appendChild(app.canvas);
 
-      const bg = new Graphics();
-      bg.rect(0, 0, app.screen.width, app.screen.height).fill({ color: 0xf8f6f0 });
-      app.stage.addChild(bg);
+        const bg = new Graphics();
+        bg.rect(0, 0, app.screen.width, app.screen.height).fill({ color: 0xf8f6f0 });
+        app.stage.addChild(bg);
 
-      const grid = new Graphics();
-      grid.setStrokeStyle({ color: 0xd9d4c7, width: 1, alpha: 0.8 });
-      const step = Math.max(24, Math.round(app.screen.width / 20));
-      for (let x = 0; x <= app.screen.width; x += step) {
-        grid.moveTo(x, 0);
-        grid.lineTo(x, app.screen.height);
-      }
-      for (let y = 0; y <= app.screen.height; y += step) {
-        grid.moveTo(0, y);
-        grid.lineTo(app.screen.width, y);
-      }
-      app.stage.addChild(grid);
+        const grid = new Graphics();
+        grid.setStrokeStyle({ color: 0xd9d4c7, width: 1, alpha: 0.8 });
+        const step = Math.max(24, Math.round(app.screen.width / 20));
+        for (let x = 0; x <= app.screen.width; x += step) {
+          grid.moveTo(x, 0);
+          grid.lineTo(x, app.screen.height);
+        }
+        for (let y = 0; y <= app.screen.height; y += step) {
+          grid.moveTo(0, y);
+          grid.lineTo(app.screen.width, y);
+        }
+        app.stage.addChild(grid);
 
-      const inkBorder = new Graphics();
-      inkBorder.setStrokeStyle({ color: 0x121212, width: 3 });
-      inkBorder.rect(1.5, 1.5, app.screen.width - 3, app.screen.height - 3);
-      app.stage.addChild(inkBorder);
-    });
+        const inkBorder = new Graphics();
+        inkBorder.setStrokeStyle({ color: 0x121212, width: 3 });
+        inkBorder.rect(1.5, 1.5, app.screen.width - 3, app.screen.height - 3);
+        app.stage.addChild(inkBorder);
+      });
 
     const resizeObserver = new ResizeObserver(() => {
       if (!canvasRef.current) return;
@@ -116,12 +113,7 @@ export function Stage({ tokens, walls, fogEnabled, onTokenMove }: StageProps) {
             bounds,
           );
 
-          onTokenMove(
-            selected.id,
-            clampPercent(point.x),
-            clampPercent(point.y),
-            { commit: true },
-          );
+          onTokenMove(selected.id, clampPercent(point.x), clampPercent(point.y), { commit: true });
         }}
       >
         <div ref={canvasRef} className="absolute inset-0" />

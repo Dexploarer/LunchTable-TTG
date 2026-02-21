@@ -113,7 +113,7 @@ export function usePriceHistory(): UsePriceHistoryReturn {
   const avgPrice =
     history.length > 0
       ? Math.round(
-          history.reduce((sum: number, d: PriceDataPoint) => sum + d.avgPrice, 0) / history.length
+          history.reduce((sum: number, d: PriceDataPoint) => sum + d.avgPrice, 0) / history.length,
         )
       : 0;
 

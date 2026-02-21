@@ -2,13 +2,7 @@ import { useState } from "react";
 import { apiAny, useConvexMutation, useConvexQuery } from "@/lib/convexHelpers";
 import { TrayNav } from "@/components/layout/TrayNav";
 
-const PROVIDERS = [
-  "openai",
-  "anthropic",
-  "openrouter",
-  "vercel_gateway",
-  "eliza",
-];
+const PROVIDERS = ["openai", "anthropic", "openrouter", "vercel_gateway", "eliza"];
 type ProviderKey = {
   _id: string;
   provider: string;
@@ -40,7 +34,9 @@ export function ProviderSettings() {
       <main className="max-w-4xl mx-auto p-4 md:p-6 space-y-4">
         <header className="paper-panel p-4">
           <h1 className="text-4xl uppercase">Provider Keys (BYOK)</h1>
-          <p className="text-sm text-[#121212]/70 mt-1">Keys are encrypted server-side and surfaced only as previews.</p>
+          <p className="text-sm text-[#121212]/70 mt-1">
+            Keys are encrypted server-side and surfaced only as previews.
+          </p>
         </header>
 
         <section className="paper-panel p-4 space-y-3">
@@ -51,7 +47,9 @@ export function ProviderSettings() {
             onChange={(event) => setProvider(event.target.value)}
           >
             {PROVIDERS.map((item) => (
-              <option key={item} value={item}>{item}</option>
+              <option key={item} value={item}>
+                {item}
+              </option>
             ))}
           </select>
 
@@ -108,7 +106,9 @@ export function ProviderSettings() {
                 </button>
               </div>
             ))}
-            {providerKeyList.length === 0 ? <p className="text-sm text-[#121212]/60">No provider keys saved.</p> : null}
+            {providerKeyList.length === 0 ? (
+              <p className="text-sm text-[#121212]/60">No provider keys saved.</p>
+            ) : null}
           </div>
         </section>
       </main>

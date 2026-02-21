@@ -4,8 +4,7 @@
  * Use `blob()` for dynamic paths or import specific constants.
  */
 
-const BLOB_BASE =
-  "https://ubssmtksaikjji5g.public.blob.vercel-storage.com/lunchtable/lunchtable";
+const BLOB_BASE = "https://ubssmtksaikjji5g.public.blob.vercel-storage.com/lunchtable/lunchtable";
 
 /** Resolve a blob URL from a relative path (e.g. "logo.png", "vices/crypto.png") */
 export function blob(path: string): string {

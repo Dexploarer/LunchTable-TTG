@@ -75,26 +75,26 @@ export function useFriendsInteraction(): UseFriendsInteractionReturn {
       },
       { id: "blocked" as const, label: "Blocked", count: friendsHook.blockedUsers?.length ?? 0 },
     ],
-    [friendsHook]
+    [friendsHook],
   );
 
   // Filter friends by search
   const filteredFriends = useMemo(() => {
     if (!searchQuery) return friendsHook.friends;
     return friendsHook.friends?.filter((f) =>
-      f.username?.toLowerCase().includes(searchQuery.toLowerCase())
+      f.username?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [friendsHook.friends, searchQuery]);
 
   // Separate online and offline
   const offlineFriends = useMemo(
     () => filteredFriends?.filter((f) => !f.isOnline) ?? [],
-    [filteredFriends]
+    [filteredFriends],
   );
 
   const filteredOnline = useMemo(
     () => filteredFriends?.filter((f) => f.isOnline) ?? [],
-    [filteredFriends]
+    [filteredFriends],
   );
 
   return {

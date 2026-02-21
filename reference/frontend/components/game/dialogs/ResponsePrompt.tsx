@@ -60,7 +60,7 @@ export function ResponsePrompt({
     (card: ResponseCard) => {
       onActivate(card.cardId, card.effectIndex);
     },
-    [onActivate]
+    [onActivate],
   );
 
   const seconds = Math.ceil(timeRemaining / 1000);
@@ -117,7 +117,7 @@ export function ResponsePrompt({
                 <span
                   className={cn(
                     "text-sm font-bold tabular-nums",
-                    seconds <= 5 ? "text-red-500" : "text-yellow-500"
+                    seconds <= 5 ? "text-red-500" : "text-yellow-500",
                   )}
                 >
                   {seconds}s
@@ -129,7 +129,7 @@ export function ResponsePrompt({
                 <motion.div
                   className={cn(
                     "h-full rounded-full transition-colors",
-                    seconds <= 5 ? "bg-red-500" : "bg-yellow-500"
+                    seconds <= 5 ? "bg-red-500" : "bg-yellow-500",
                   )}
                   style={{ width: `${progressPercent}%` }}
                 />
@@ -145,7 +145,7 @@ export function ResponsePrompt({
                       onClick={() => handleActivate(response)}
                       className={cn(
                         "w-full flex items-center gap-2 p-2 rounded-lg border-2 transition-all",
-                        "border-slate-700 bg-slate-800/50 hover:border-yellow-500/50 hover:bg-slate-800"
+                        "border-slate-700 bg-slate-800/50 hover:border-yellow-500/50 hover:bg-slate-800",
                       )}
                       data-testid="chain-link"
                     >

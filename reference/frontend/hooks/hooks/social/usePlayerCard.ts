@@ -112,7 +112,7 @@ export function usePlayerCard(userId: Id<"users"> | null) {
     mode: MatchMode,
     wagerAmount?: number,
     cryptoWagerCurrency?: WagerCurrency,
-    cryptoWagerTier?: number
+    cryptoWagerTier?: number,
   ) => {
     if (!isAuthenticated) throw new Error("Not authenticated");
     try {

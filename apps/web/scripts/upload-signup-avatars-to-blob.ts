@@ -3,9 +3,9 @@
  * Upload standardized signup avatars to Vercel Blob.
  */
 
-import {put} from "@vercel/blob";
-import {readdir, readFile, stat, writeFile} from "node:fs/promises";
-import {join} from "node:path";
+import { put } from "@vercel/blob";
+import { readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const AVATAR_DIR = "./public/lunchtable/avatars/signup";
 const REPORT_PATH = "./signup-avatar-blob-report.json";

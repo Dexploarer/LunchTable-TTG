@@ -140,7 +140,7 @@ export function useMyHostedTournament(): UseMyHostedTournamentReturn {
 
   const tournament = useConvexQuery(
     typedApi.social.userTournaments.getMyHostedTournament,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   return {
@@ -175,7 +175,7 @@ export function useMyRegisteredTournaments(): UseMyRegisteredTournamentsReturn {
 
   const tournaments = useConvexQuery(
     typedApi.social.userTournaments.getMyRegisteredTournaments,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   return {
@@ -211,7 +211,7 @@ export function useTournamentByCode(joinCode: string): UseTournamentByCodeReturn
 
   const tournament = useConvexQuery(
     typedApi.social.userTournaments.getTournamentByCode,
-    shouldQuery ? { joinCode } : "skip"
+    shouldQuery ? { joinCode } : "skip",
   );
 
   return {
@@ -292,7 +292,7 @@ export function useCreateUserTournament(): UseCreateUserTournamentReturn {
 interface UseJoinUserTournamentReturn {
   joinByCode: (code: string) => Promise<{ success: boolean; message: string; isFull: boolean }>;
   joinById: (
-    tournamentId: Id<"tournaments">
+    tournamentId: Id<"tournaments">,
   ) => Promise<{ success: boolean; message: string; isFull: boolean }>;
   isJoining: boolean;
 }

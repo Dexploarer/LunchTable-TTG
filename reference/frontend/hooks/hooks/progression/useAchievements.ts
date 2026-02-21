@@ -77,7 +77,7 @@ export function useAchievements(): UseAchievementsReturn {
   // Query for user's achievements
   const achievements = useQuery(
     api.progression.achievements.getUserAchievements,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Separate achievements by status

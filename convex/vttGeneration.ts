@@ -1,5 +1,11 @@
 import { v } from "convex/values";
-import { internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+  mutation,
+  query,
+} from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { requireUser } from "./auth";
@@ -168,9 +174,7 @@ export function extractJsonFromText(text: string): unknown | null {
   if (!trimmed) return null;
 
   // Best-effort: grab the first top-level JSON object/array from the response.
-  const start = Math.min(
-    ...[trimmed.indexOf("{"), trimmed.indexOf("[")].filter((idx) => idx >= 0),
-  );
+  const start = Math.min(...[trimmed.indexOf("{"), trimmed.indexOf("[")].filter((idx) => idx >= 0));
   if (!Number.isFinite(start)) return null;
 
   const lastBrace = trimmed.lastIndexOf("}");
@@ -423,7 +427,9 @@ export const runGenerationJob = internalAction({
               status: "failed",
               outputJson,
               error:
-                postError instanceof Error ? postError.message : "Failed to post narration to session",
+                postError instanceof Error
+                  ? postError.message
+                  : "Failed to post narration to session",
             });
             return { ok: false };
           }

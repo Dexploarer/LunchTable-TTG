@@ -154,7 +154,7 @@ export function showEffectActivated(cardName: string, effectDescription: string)
 export function showEffectResolved(
   cardName: string,
   effectDescription: string,
-  category?: EffectCategory
+  category?: EffectCategory,
 ) {
   showEffectToast({
     cardName: `${cardName} resolved`,

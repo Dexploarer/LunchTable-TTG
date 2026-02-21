@@ -20,7 +20,7 @@ import { useCallback, useMemo } from "react";
 export function useConvexQuery<Query extends FunctionReference<"query">>(
   query: Query,
   args: OptionalRestArgs<Query>[0],
-  options?: Omit<UseQueryOptions<any, any, any, any>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<any, any, any, any>, "queryKey" | "queryFn">,
 ) {
   const convex = useConvex();
 

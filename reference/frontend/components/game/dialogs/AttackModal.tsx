@@ -132,7 +132,7 @@ export function AttackModal({
                             !isDraw &&
                             "bg-red-500/10 border-red-500/40 hover:bg-red-500/20 hover:border-red-500/60",
                           !hasKnownStats &&
-                            "bg-purple-500/10 border-purple-500/40 hover:bg-purple-500/20 hover:border-purple-500/60"
+                            "bg-purple-500/10 border-purple-500/40 hover:bg-purple-500/20 hover:border-purple-500/60",
                         )}
                         variant="outline"
                         onClick={() => onSelectTarget(target.instanceId)}
@@ -140,13 +140,13 @@ export function AttackModal({
                         <div
                           className={cn(
                             "h-8 w-8 rounded flex items-center justify-center",
-                            isDefense ? "bg-blue-500/20" : "bg-orange-500/20"
+                            isDefense ? "bg-blue-500/20" : "bg-orange-500/20",
                           )}
                         >
                           <Shield
                             className={cn(
                               "h-4 w-4",
-                              isDefense ? "text-blue-400" : "text-orange-400"
+                              isDefense ? "text-blue-400" : "text-orange-400",
                             )}
                           />
                         </div>

@@ -30,22 +30,22 @@ export function useCardBinder(): UseCardBinderReturn {
   // TanStack Queries (using useConvexQuery)
   const userCards = useQuery(
     typedApi.lunchtable_tcg_cards.cards.getUserCards,
-    userId ? { userId } : "skip"
+    userId ? { userId } : "skip",
   );
 
   const favoriteCards = useQuery(
     typedApi.lunchtable_tcg_cards.cards.getUserFavoriteCards,
-    userId ? { userId } : "skip"
+    userId ? { userId } : "skip",
   );
 
   const collectionStats = useQuery(
     typedApi.lunchtable_tcg_cards.cards.getCollectionStats,
-    userId ? { userId } : "skip"
+    userId ? { userId } : "skip",
   );
 
   // Mutation
   const toggleFavoriteMutation = useMutation(
-    (api as any).lunchtable_tcg_cards.cards.toggleFavorite
+    (api as any).lunchtable_tcg_cards.cards.toggleFavorite,
   );
 
   const toggleFavorite = async (playerCardId: Id<"playerCards">) => {

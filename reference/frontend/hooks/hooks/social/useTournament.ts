@@ -210,12 +210,12 @@ export function useTournament(tournamentId: Id<"tournaments"> | undefined): UseT
   // Queries
   const tournament = useConvexQuery(
     typedApi.social.tournaments.getTournamentDetails,
-    tournamentId ? { tournamentId } : "skip"
+    tournamentId ? { tournamentId } : "skip",
   );
 
   const bracket = useConvexQuery(
     typedApi.social.tournaments.getTournamentBracket,
-    tournamentId ? { tournamentId } : "skip"
+    tournamentId ? { tournamentId } : "skip",
   );
 
   // Mutations
@@ -281,12 +281,12 @@ export function useTournamentHistory(limit = 20): UseTournamentHistoryReturn {
 
   const history = useConvexQuery(
     typedApi.social.tournaments.getUserTournamentHistory,
-    isAuthenticated ? { limit } : "skip"
+    isAuthenticated ? { limit } : "skip",
   );
 
   const stats = useConvexQuery(
     typedApi.social.tournaments.getUserTournamentStats,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   return {

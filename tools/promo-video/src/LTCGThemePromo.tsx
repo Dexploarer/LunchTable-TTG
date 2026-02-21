@@ -1,5 +1,5 @@
-import {Audio} from "@remotion/media";
-import type {CSSProperties, FC} from "react";
+import { Audio } from "@remotion/media";
+import type { CSSProperties, FC } from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -10,14 +10,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import {
-  linearTiming,
-  springTiming,
-  TransitionSeries,
-} from "@remotion/transitions";
-import {fade} from "@remotion/transitions/fade";
-import {slide} from "@remotion/transitions/slide";
-import {wipe} from "@remotion/transitions/wipe";
+import { linearTiming, springTiming, TransitionSeries } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
 
 const SCENE_DURATIONS = {
   intro: 150,
@@ -41,12 +37,12 @@ export const durationInFrames =
   TRANSITION_DURATION * 4;
 
 const viceIcons = [
-  {src: "lunchtable/vices/crypto.png", label: "Crypto"},
-  {src: "lunchtable/vices/social-media.png", label: "Clout"},
-  {src: "lunchtable/vices/gambling.png", label: "Risk"},
-  {src: "lunchtable/vices/narcissism.png", label: "Ego"},
-  {src: "lunchtable/vices/validation.png", label: "Validation"},
-  {src: "lunchtable/vices/adderall.png", label: "Overdrive"},
+  { src: "lunchtable/vices/crypto.png", label: "Crypto" },
+  { src: "lunchtable/vices/social-media.png", label: "Clout" },
+  { src: "lunchtable/vices/gambling.png", label: "Risk" },
+  { src: "lunchtable/vices/narcissism.png", label: "Ego" },
+  { src: "lunchtable/vices/validation.png", label: "Validation" },
+  { src: "lunchtable/vices/adderall.png", label: "Overdrive" },
 ] as const;
 
 const sequenceTimings = [
@@ -90,9 +86,9 @@ const Backdrop: FC<{
   tint?: string;
   zoom?: number;
   pan?: number;
-}> = ({src, tint = "rgba(0,0,0,0.35)", zoom = 0.1, pan = 25}) => {
+}> = ({ src, tint = "rgba(0,0,0,0.35)", zoom = 0.1, pan = 25 }) => {
   const frame = useCurrentFrame();
-  const {durationInFrames: localDuration} = useVideoConfig();
+  const { durationInFrames: localDuration } = useVideoConfig();
 
   const progress = interpolate(frame, [0, localDuration], [0, 1], {
     extrapolateLeft: "clamp",
@@ -109,7 +105,7 @@ const Backdrop: FC<{
   });
 
   return (
-    <AbsoluteFill style={{overflow: "hidden"}}>
+    <AbsoluteFill style={{ overflow: "hidden" }}>
       <Img
         src={staticFile(src)}
         style={{
@@ -118,7 +114,7 @@ const Backdrop: FC<{
           transform: `translate(${x}px, ${y}px) scale(${scale})`,
         }}
       />
-      <AbsoluteFill style={{background: tint}} />
+      <AbsoluteFill style={{ background: tint }} />
     </AbsoluteFill>
   );
 };
@@ -157,11 +153,11 @@ const GrainOverlay: FC = () => {
 
 const IntroScene: FC = () => {
   const frame = useCurrentFrame();
-  const {fps: localFps} = useVideoConfig();
+  const { fps: localFps } = useVideoConfig();
   const entrance = spring({
     fps: localFps,
     frame,
-    config: {damping: 200},
+    config: { damping: 200 },
   });
   const logoScale = interpolate(entrance, [0, 1], [0.8, 1], {
     extrapolateLeft: "clamp",
@@ -220,8 +216,8 @@ const IntroScene: FC = () => {
           Vice-themed deck duels. No training wheels.
         </p>
       </AbsoluteFill>
-      <AbsoluteFill style={{padding: 42}}>
-        <div style={{...stampStyle, transform: "rotate(-2deg)"}}>New Promo Cut</div>
+      <AbsoluteFill style={{ padding: 42 }}>
+        <div style={{ ...stampStyle, transform: "rotate(-2deg)" }}>New Promo Cut</div>
       </AbsoluteFill>
       <GrainOverlay />
     </AbsoluteFill>
@@ -230,11 +226,11 @@ const IntroScene: FC = () => {
 
 const StoryScene: FC = () => {
   const frame = useCurrentFrame();
-  const {fps: localFps} = useVideoConfig();
+  const { fps: localFps } = useVideoConfig();
   const rise = spring({
     fps: localFps,
     frame,
-    config: {damping: 200},
+    config: { damping: 200 },
   });
 
   const cards = [
@@ -252,7 +248,7 @@ const StoryScene: FC = () => {
         const pop = spring({
           fps: localFps,
           frame: frame - delay,
-          config: {damping: 180},
+          config: { damping: 180 },
         });
         const scale = interpolate(pop, [0, 1], [0.78, 1], {
           extrapolateLeft: "clamp",
@@ -278,7 +274,7 @@ const StoryScene: FC = () => {
               overflow: "hidden",
             }}
           >
-            <Img src={staticFile(src)} style={{width: "100%", height: 220, objectFit: "cover"}} />
+            <Img src={staticFile(src)} style={{ width: "100%", height: 220, objectFit: "cover" }} />
           </div>
         );
       })}
@@ -311,16 +307,21 @@ const StoryScene: FC = () => {
 
 const VicesScene: FC = () => {
   const frame = useCurrentFrame();
-  const {fps: localFps} = useVideoConfig();
+  const { fps: localFps } = useVideoConfig();
   const titleEnter = spring({
     fps: localFps,
     frame,
-    config: {damping: 200},
+    config: { damping: 200 },
   });
 
   return (
     <AbsoluteFill>
-      <Backdrop src="lunchtable/vices/vice-splash.png" tint="rgba(5,5,5,0.62)" zoom={0.12} pan={20} />
+      <Backdrop
+        src="lunchtable/vices/vice-splash.png"
+        tint="rgba(5,5,5,0.62)"
+        zoom={0.12}
+        pan={20}
+      />
 
       {viceIcons.map((icon, index) => {
         const delay = index * 6;
@@ -328,7 +329,7 @@ const VicesScene: FC = () => {
         const pulse = spring({
           fps: localFps,
           frame: frame - delay,
-          config: {damping: 170},
+          config: { damping: 170 },
         });
         const radiusX = 520;
         const radiusY = 250;
@@ -360,7 +361,10 @@ const VicesScene: FC = () => {
               gap: 8,
             }}
           >
-            <Img src={staticFile(icon.src)} style={{width: 76, height: 76, objectFit: "contain"}} />
+            <Img
+              src={staticFile(icon.src)}
+              style={{ width: 76, height: 76, objectFit: "contain" }}
+            />
             <span
               style={{
                 ...panelTextStyle,
@@ -426,11 +430,11 @@ const VicesScene: FC = () => {
 
 const DuelScene: FC = () => {
   const frame = useCurrentFrame();
-  const {fps: localFps} = useVideoConfig();
+  const { fps: localFps } = useVideoConfig();
   const slideIn = spring({
     fps: localFps,
     frame,
-    config: {damping: 200},
+    config: { damping: 200 },
   });
 
   const leftX = interpolate(slideIn, [0, 1], [-420, 0], {
@@ -458,7 +462,10 @@ const DuelScene: FC = () => {
           overflow: "hidden",
         }}
       >
-        <Img src={staticFile("lunchtable/deck-bg.png")} style={{width: "100%", height: 370, objectFit: "cover"}} />
+        <Img
+          src={staticFile("lunchtable/deck-bg.png")}
+          style={{ width: "100%", height: 370, objectFit: "cover" }}
+        />
       </div>
 
       <div
@@ -473,7 +480,10 @@ const DuelScene: FC = () => {
           overflow: "hidden",
         }}
       >
-        <Img src={staticFile("lunchtable/about/about-3-stream.png")} style={{width: "100%", height: 360, objectFit: "cover"}} />
+        <Img
+          src={staticFile("lunchtable/about/about-3-stream.png")}
+          style={{ width: "100%", height: 360, objectFit: "cover" }}
+        />
       </div>
 
       <AbsoluteFill
@@ -492,8 +502,8 @@ const DuelScene: FC = () => {
             padding: "22px 26px",
           }}
         >
-          <h2 style={{...panelTextStyle, margin: 0, fontSize: 76}}>Deckbuild. Duel. Dominate.</h2>
-          <p style={{...panelTextStyle, margin: "10px 0 0", fontSize: 26, color: "#fde68a"}}>
+          <h2 style={{ ...panelTextStyle, margin: 0, fontSize: 76 }}>Deckbuild. Duel. Dominate.</h2>
+          <p style={{ ...panelTextStyle, margin: "10px 0 0", fontSize: 26, color: "#fde68a" }}>
             Fast turns. Heavy combos. No mercy.
           </p>
         </div>
@@ -505,11 +515,11 @@ const DuelScene: FC = () => {
 
 const CtaScene: FC = () => {
   const frame = useCurrentFrame();
-  const {fps: localFps} = useVideoConfig();
+  const { fps: localFps } = useVideoConfig();
   const pop = spring({
     fps: localFps,
     frame,
-    config: {damping: 180},
+    config: { damping: 180 },
   });
   const scale = interpolate(pop, [0, 1], [0.65, 1], {
     extrapolateLeft: "clamp",
@@ -579,80 +589,60 @@ export const LTCGThemePromo: FC = () => {
   });
 
   return (
-    <AbsoluteFill style={{backgroundColor: "#050505"}}>
+    <AbsoluteFill style={{ backgroundColor: "#050505" }}>
       <Audio
         src={staticFile("lunchtable/soundtrack/THEME.mp3")}
         trimAfter={durationInFrames}
         volume={(f) =>
-          interpolate(
-            f,
-            [0, 45, durationInFrames - 45, durationInFrames],
-            [0, 1, 1, 0],
-            {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            },
-          )
+          interpolate(f, [0, 45, durationInFrames - 45, durationInFrames], [0, 1, 1, 0], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          })
         }
       />
 
       <TransitionSeries>
-        <TransitionSeries.Sequence
-          durationInFrames={sequenceTimings[0]}
-          premountFor={fps}
-        >
+        <TransitionSeries.Sequence durationInFrames={sequenceTimings[0]} premountFor={fps}>
           <IntroScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
-          timing={linearTiming({durationInFrames: TRANSITION_DURATION})}
+          timing={linearTiming({ durationInFrames: TRANSITION_DURATION })}
         />
 
-        <TransitionSeries.Sequence
-          durationInFrames={sequenceTimings[1]}
-          premountFor={fps}
-        >
+        <TransitionSeries.Sequence durationInFrames={sequenceTimings[1]} premountFor={fps}>
           <StoryScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
-          presentation={slide({direction: "from-right"})}
+          presentation={slide({ direction: "from-right" })}
           timing={springTiming({
             durationInFrames: TRANSITION_DURATION,
-            config: {damping: 200},
+            config: { damping: 200 },
           })}
         />
 
-        <TransitionSeries.Sequence
-          durationInFrames={sequenceTimings[2]}
-          premountFor={fps}
-        >
+        <TransitionSeries.Sequence durationInFrames={sequenceTimings[2]} premountFor={fps}>
           <VicesScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
-          presentation={wipe({direction: "from-top-left"})}
-          timing={linearTiming({durationInFrames: TRANSITION_DURATION})}
+          presentation={wipe({ direction: "from-top-left" })}
+          timing={linearTiming({ durationInFrames: TRANSITION_DURATION })}
         />
 
-        <TransitionSeries.Sequence
-          durationInFrames={sequenceTimings[3]}
-          premountFor={fps}
-        >
+        <TransitionSeries.Sequence durationInFrames={sequenceTimings[3]} premountFor={fps}>
           <DuelScene />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
-          timing={linearTiming({durationInFrames: TRANSITION_DURATION})}
+          timing={linearTiming({ durationInFrames: TRANSITION_DURATION })}
         />
 
-        <TransitionSeries.Sequence
-          durationInFrames={sequenceTimings[4]}
-          premountFor={fps}
-        >
+        <TransitionSeries.Sequence durationInFrames={sequenceTimings[4]} premountFor={fps}>
           <CtaScene />
         </TransitionSeries.Sequence>
       </TransitionSeries>
 
-      <AbsoluteFill style={{backgroundColor: "#000000", opacity: finalFade}} />
+      <AbsoluteFill style={{ backgroundColor: "#000000", opacity: finalFade }} />
     </AbsoluteFill>
   );
 };

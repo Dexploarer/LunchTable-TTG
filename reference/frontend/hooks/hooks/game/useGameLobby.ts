@@ -76,7 +76,7 @@ interface UseGameLobbyReturn {
   createLobby: (
     mode: MatchMode,
     isPrivate?: boolean,
-    spectatorOptions?: { allowSpectators?: boolean; maxSpectators?: number }
+    spectatorOptions?: { allowSpectators?: boolean; maxSpectators?: number },
   ) => Promise<CreateLobbyResult>;
   joinLobby: (lobbyId: Id<"gameLobbies">, joinCode?: string) => Promise<JoinLobbyResult>;
   joinByCode: (joinCode: string) => Promise<JoinLobbyResult>;
@@ -153,7 +153,7 @@ export function useGameLobby(): UseGameLobbyReturn {
   const createLobby = async (
     mode: MatchMode,
     isPrivate = false,
-    spectatorOptions?: { allowSpectators?: boolean; maxSpectators?: number }
+    spectatorOptions?: { allowSpectators?: boolean; maxSpectators?: number },
   ) => {
     try {
       const result = await createMutation({

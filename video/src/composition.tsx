@@ -1,5 +1,5 @@
-import {Audio} from "@remotion/media";
-import type {FC} from "react";
+import { Audio } from "@remotion/media";
+import type { FC } from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -10,9 +10,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import {linearTiming, TransitionSeries} from "@remotion/transitions";
-import {fade} from "@remotion/transitions/fade";
-import {slide} from "@remotion/transitions/slide";
+import { linearTiming, TransitionSeries } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
 
 export interface PromoProps {
   headline: string;
@@ -33,8 +33,7 @@ const SCENE = {
 } as const;
 const TRANSITION = 18;
 
-export const promoDurationInFrames =
-  SCENE.hook + SCENE.product + SCENE.cta - TRANSITION * 2;
+export const promoDurationInFrames = SCENE.hook + SCENE.product + SCENE.cta - TRANSITION * 2;
 
 const FrameNoise: FC = () => {
   const frame = useCurrentFrame();
@@ -51,10 +50,10 @@ const FrameNoise: FC = () => {
   );
 };
 
-const HookScene: FC<PromoProps> = ({headline, subheadline, accentColor}) => {
+const HookScene: FC<PromoProps> = ({ headline, subheadline, accentColor }) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const enter = spring({frame, fps, config: {damping: 200}});
+  const { fps } = useVideoConfig();
+  const enter = spring({ frame, fps, config: { damping: 200 } });
   const scale = interpolate(enter, [0, 1], [0.8, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -68,9 +67,15 @@ const HookScene: FC<PromoProps> = ({headline, subheadline, accentColor}) => {
     <AbsoluteFill>
       <Img
         src={staticFile("lunchtable/landing-bg.jpg")}
-        style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover"}}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
-      <AbsoluteFill style={{backgroundColor: "rgba(0,0,0,0.58)"}} />
+      <AbsoluteFill style={{ backgroundColor: "rgba(0,0,0,0.58)" }} />
 
       <AbsoluteFill
         style={{
@@ -82,7 +87,7 @@ const HookScene: FC<PromoProps> = ({headline, subheadline, accentColor}) => {
           transform: `translateY(${y}px) scale(${scale})`,
         }}
       >
-        <Img src={staticFile("lunchtable/logo.png")} style={{width: 300, height: "auto"}} />
+        <Img src={staticFile("lunchtable/logo.png")} style={{ width: 300, height: "auto" }} />
         <h1
           style={{
             margin: 0,
@@ -115,15 +120,15 @@ const HookScene: FC<PromoProps> = ({headline, subheadline, accentColor}) => {
   );
 };
 
-const ProductScene: FC<PromoProps> = ({accentColor}) => {
+const ProductScene: FC<PromoProps> = ({ accentColor }) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const { fps } = useVideoConfig();
 
   const cardIn = (delay: number) =>
     spring({
       frame: frame - delay,
       fps,
-      config: {damping: 180},
+      config: { damping: 180 },
     });
 
   const cardStyles = [0, 14, 28].map((delay, index) => {
@@ -145,12 +150,18 @@ const ProductScene: FC<PromoProps> = ({accentColor}) => {
     <AbsoluteFill>
       <Img
         src={staticFile("lunchtable/story-bg.png")}
-        style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover"}}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
-      <AbsoluteFill style={{backgroundColor: "rgba(0,0,0,0.62)"}} />
+      <AbsoluteFill style={{ backgroundColor: "rgba(0,0,0,0.62)" }} />
 
-      <AbsoluteFill style={{padding: "170px 72px 120px"}}>
-        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+      <AbsoluteFill style={{ padding: "170px 72px 120px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div
             style={{
               width: 290,
@@ -160,7 +171,10 @@ const ProductScene: FC<PromoProps> = ({accentColor}) => {
               ...cardStyles[0],
             }}
           >
-            <Img src={staticFile("lunchtable/story/story-1-2.png")} style={{width: "100%", height: 430, objectFit: "cover"}} />
+            <Img
+              src={staticFile("lunchtable/story/story-1-2.png")}
+              style={{ width: "100%", height: 430, objectFit: "cover" }}
+            />
           </div>
           <div
             style={{
@@ -171,7 +185,10 @@ const ProductScene: FC<PromoProps> = ({accentColor}) => {
               ...cardStyles[1],
             }}
           >
-            <Img src={staticFile("lunchtable/story/story-3-3.png")} style={{width: "100%", height: 450, objectFit: "cover"}} />
+            <Img
+              src={staticFile("lunchtable/story/story-3-3.png")}
+              style={{ width: "100%", height: 450, objectFit: "cover" }}
+            />
           </div>
           <div
             style={{
@@ -182,11 +199,14 @@ const ProductScene: FC<PromoProps> = ({accentColor}) => {
               ...cardStyles[2],
             }}
           >
-            <Img src={staticFile("lunchtable/story/story-4-4.png")} style={{width: "100%", height: 430, objectFit: "cover"}} />
+            <Img
+              src={staticFile("lunchtable/story/story-4-4.png")}
+              style={{ width: "100%", height: 430, objectFit: "cover" }}
+            />
           </div>
         </div>
 
-        <div style={{marginTop: 88, textAlign: "center"}}>
+        <div style={{ marginTop: 88, textAlign: "center" }}>
           <h2
             style={{
               margin: 0,
@@ -207,7 +227,7 @@ const ProductScene: FC<PromoProps> = ({accentColor}) => {
   );
 };
 
-const CtaScene: FC<PromoProps> = ({cta, accentColor}) => {
+const CtaScene: FC<PromoProps> = ({ cta, accentColor }) => {
   const frame = useCurrentFrame();
   const opacity = interpolate(frame, [0, 18], [0, 1], {
     easing: Easing.out(Easing.quad),
@@ -215,12 +235,18 @@ const CtaScene: FC<PromoProps> = ({cta, accentColor}) => {
     extrapolateRight: "clamp",
   });
   return (
-    <AbsoluteFill style={{opacity}}>
+    <AbsoluteFill style={{ opacity }}>
       <Img
         src={staticFile("lunchtable/stream-bg.png")}
-        style={{position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover"}}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
       />
-      <AbsoluteFill style={{backgroundColor: "rgba(0,0,0,0.58)"}} />
+      <AbsoluteFill style={{ backgroundColor: "rgba(0,0,0,0.58)" }} />
       <AbsoluteFill
         style={{
           alignItems: "center",
@@ -230,7 +256,10 @@ const CtaScene: FC<PromoProps> = ({cta, accentColor}) => {
           gap: 30,
         }}
       >
-        <Img src={staticFile("lunchtable/title.png")} style={{width: 920, maxWidth: "92%", height: "auto"}} />
+        <Img
+          src={staticFile("lunchtable/title.png")}
+          style={{ width: 920, maxWidth: "92%", height: "auto" }}
+        />
         <div
           style={{
             color: "#121212",
@@ -255,7 +284,7 @@ const CtaScene: FC<PromoProps> = ({cta, accentColor}) => {
 
 export const PromoComposition: FC<PromoProps> = (props) => {
   return (
-    <AbsoluteFill style={{backgroundColor: "#000"}}>
+    <AbsoluteFill style={{ backgroundColor: "#000" }}>
       <Audio
         src={staticFile(props.themeTrack)}
         trimAfter={promoDurationInFrames}
@@ -272,14 +301,14 @@ export const PromoComposition: FC<PromoProps> = (props) => {
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
-          timing={linearTiming({durationInFrames: TRANSITION})}
+          timing={linearTiming({ durationInFrames: TRANSITION })}
         />
         <TransitionSeries.Sequence durationInFrames={SCENE.product} premountFor={promoFps}>
           <ProductScene {...props} />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
-          presentation={slide({direction: "from-bottom"})}
-          timing={linearTiming({durationInFrames: TRANSITION})}
+          presentation={slide({ direction: "from-bottom" })}
+          timing={linearTiming({ durationInFrames: TRANSITION })}
         />
         <TransitionSeries.Sequence durationInFrames={SCENE.cta} premountFor={promoFps}>
           <CtaScene {...props} />

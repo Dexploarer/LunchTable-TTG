@@ -27,7 +27,7 @@ export function usePrivyAuthForConvex() {
         return null;
       }
     },
-    [getAccessToken, authenticated]
+    [getAccessToken, authenticated],
   );
 
   return {

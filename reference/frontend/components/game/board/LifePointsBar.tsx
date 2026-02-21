@@ -33,7 +33,7 @@ export function LifePointsBar({
       className={cn(
         "flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border transition-all flex-1 sm:flex-none",
         isActive && "border-primary bg-primary/5",
-        !isActive && "border-border bg-muted/30"
+        !isActive && "border-border bg-muted/30",
       )}
     >
       {/* Player name */}
@@ -41,7 +41,7 @@ export function LifePointsBar({
         <div
           className={cn(
             "w-1.5 h-1.5 rounded-full shrink-0",
-            isActive ? "bg-green-500 animate-pulse" : "bg-muted-foreground/30"
+            isActive ? "bg-green-500 animate-pulse" : "bg-muted-foreground/30",
           )}
         />
         <div className="flex flex-col min-w-0">
@@ -49,7 +49,7 @@ export function LifePointsBar({
             <span
               className={cn(
                 "font-medium text-[10px] sm:text-xs truncate",
-                isOpponent && "text-muted-foreground"
+                isOpponent && "text-muted-foreground",
               )}
             >
               {playerName}

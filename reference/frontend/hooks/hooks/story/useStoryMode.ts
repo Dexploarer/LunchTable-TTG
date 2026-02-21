@@ -10,7 +10,7 @@ export function useStoryMode() {
 
   const currentUser = useConvexQuery(
     typedApi.core.users.currentUser,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   // Feature flag check
@@ -19,16 +19,16 @@ export function useStoryMode() {
   // Fetch real data
   const allChapters = useConvexQuery(
     typedApi.progression.story.getAvailableChapters,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   const playerProgress = useConvexQuery(
     typedApi.progression.story.getPlayerProgress,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   const initializeStoryProgress = useConvexMutation(
-    typedApi.progression.story.initializeStoryProgress
+    typedApi.progression.story.initializeStoryProgress,
   );
 
   // Initialize progress on first access
@@ -79,7 +79,7 @@ export function useStoryMode() {
           starredStages: chapter.starsEarned || 0,
           isCompleted: chapter.status === "completed",
         };
-      }
+      },
     );
   }, [allChapters]);
 

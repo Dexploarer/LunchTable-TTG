@@ -58,7 +58,9 @@ export const getLatestModeration = query({
   handler: async (ctx, args) => {
     const events = await ctx.db
       .query("moderationEvents")
-      .withIndex("by_target", (q) => q.eq("targetType", args.targetType).eq("targetId", args.targetId))
+      .withIndex("by_target", (q) =>
+        q.eq("targetType", args.targetType).eq("targetId", args.targetId),
+      )
       .collect();
 
     return events.sort((a, b) => b.createdAt - a.createdAt)[0] ?? null;

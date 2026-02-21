@@ -56,14 +56,8 @@ export function WorldOverviewTab() {
     });
   }, [items, searchQuery, genreFilter, moodFilter]);
 
-  const genres = useMemo(
-    () => ["all", ...new Set(items.map((item) => item.world.genre))],
-    [items],
-  );
-  const moods = useMemo(
-    () => ["all", ...new Set(items.map((item) => item.world.mood))],
-    [items],
-  );
+  const genres = useMemo(() => ["all", ...new Set(items.map((item) => item.world.genre))], [items]);
+  const moods = useMemo(() => ["all", ...new Set(items.map((item) => item.world.mood))], [items]);
 
   const activeIssues = useMemo(() => (draft ? validateDraft(draft) : []), [draft]);
 
@@ -72,7 +66,10 @@ export function WorldOverviewTab() {
       <section className="paper-panel p-4 md:p-6 grid gap-4 md:grid-cols-4">
         <StatCard label="Published Worlds" value={String(items.length)} />
         <StatCard label="Archetypes" value={String(draft?.world.archetypes.length ?? 0)} />
-        <StatCard label="Prompt Templates" value={String(draft?.world.creationKit.corePrompts.length ?? 0)} />
+        <StatCard
+          label="Prompt Templates"
+          value={String(draft?.world.creationKit.corePrompts.length ?? 0)}
+        />
         <StatCard
           label="Preflight"
           value={activeIssues.some((issue) => issue.severity === "error") ? "Needs Fixes" : "Ready"}
@@ -148,7 +145,9 @@ export function WorldOverviewTab() {
                 key={item.id}
                 onClick={() => setActiveProject(item.id)}
                 className={`paper-panel-flat text-left p-4 transition ${
-                  isActive ? "ring-4 ring-[#ffcc00]" : "hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  isActive
+                    ? "ring-4 ring-[#ffcc00]"
+                    : "hover:-translate-x-0.5 hover:-translate-y-0.5"
                 }`}
               >
                 <p className="text-[11px] uppercase text-[#121212]/60">{item.world.genre}</p>
@@ -166,7 +165,11 @@ export function WorldOverviewTab() {
         <h3 className="text-xl">Create New Project from Seed World</h3>
         <div className="grid gap-2 md:grid-cols-3">
           {playableWorlds.map((world) => (
-            <button key={world.id} className="tcg-button" onClick={() => createProjectFromWorld(world.id)}>
+            <button
+              key={world.id}
+              className="tcg-button"
+              onClick={() => createProjectFromWorld(world.id)}
+            >
               New: {world.name}
             </button>
           ))}

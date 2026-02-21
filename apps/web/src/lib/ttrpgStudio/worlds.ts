@@ -106,7 +106,11 @@ export const playableWorlds: PlayableWorld[] = [
         name: "Patchwork Cinder",
         voice: "Fast-talking broker",
         personality: ["mercenary", "funny", "paranoid"],
-        directives: ["Trade in favors", "Expose faction conflicts", "Escalate stakes every 20 minutes"],
+        directives: [
+          "Trade in favors",
+          "Expose faction conflicts",
+          "Escalate stakes every 20 minutes",
+        ],
       },
     ],
     playerAgentTemplates: [
@@ -626,7 +630,11 @@ export const playableWorlds: PlayableWorld[] = [
         name: "Keelwake",
         voice: "Steady and reassuring",
         personality: ["protective", "stoic", "resolute"],
-        directives: ["Guard weaker allies", "Manage pressure clock", "Trade safety for intel when needed"],
+        directives: [
+          "Guard weaker allies",
+          "Manage pressure clock",
+          "Trade safety for intel when needed",
+        ],
       },
     ],
     maps: [
@@ -655,7 +663,11 @@ export const playableWorlds: PlayableWorld[] = [
         camera: "topdown",
         lightingPreset: "Lightning reflections + rain sheets",
         ambience: ["thunder", "sheet rain", "stone spillways"],
-        objectives: ["Stabilize tide engine", "Negotiate oracle terms", "Escape collapsing aqueduct"],
+        objectives: [
+          "Stabilize tide engine",
+          "Negotiate oracle terms",
+          "Escape collapsing aqueduct",
+        ],
       },
     ],
     dungeons: [

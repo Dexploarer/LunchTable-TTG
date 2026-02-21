@@ -32,10 +32,10 @@ describe("vttGeneration helpers", () => {
     expect(extractJsonFromText("")).toBeNull();
     expect(extractJsonFromText("no json here")).toBeNull();
 
-    expect(extractJsonFromText("{\"a\":1}")).toEqual({ a: 1 });
+    expect(extractJsonFromText('{"a":1}')).toEqual({ a: 1 });
     expect(extractJsonFromText("[1,2,3]")).toEqual([1, 2, 3]);
-    expect(extractJsonFromText("before {\"a\":1} after")).toEqual({ a: 1 });
-    expect(extractJsonFromText("```json\n{\"a\":1}\n```")).toEqual({ a: 1 });
+    expect(extractJsonFromText('before {"a":1} after')).toEqual({ a: 1 });
+    expect(extractJsonFromText('```json\n{"a":1}\n```')).toEqual({ a: 1 });
   });
 
   it("builds narration prompt with JSON-only requirements and context fields", () => {
@@ -50,7 +50,7 @@ describe("vttGeneration helpers", () => {
     });
 
     expect(prompt).toContain("Return JSON only");
-    expect(prompt).toContain("{ \"narration\": string }");
+    expect(prompt).toContain('{ "narration": string }');
     expect(prompt).toContain("2-4 sentences");
     expect(prompt).toContain("Present tense");
     expect(prompt).toContain("World name: Harborfall");

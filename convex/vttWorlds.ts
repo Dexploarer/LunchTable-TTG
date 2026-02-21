@@ -5,15 +5,13 @@ import type { Id } from "./_generated/dataModel";
 import { getOptionalUser, requireUser } from "./auth";
 import { isWorldVisibleToViewer } from "./permissions";
 
-type WorldRulesSnapshot =
-  | {
-      name: string;
-      summary: string;
-      turnLoop: string[];
-      failForwardPolicy: string;
-      escalationTrack: string;
-    }
-  | null;
+type WorldRulesSnapshot = {
+  name: string;
+  summary: string;
+  turnLoop: string[];
+  failForwardPolicy: string;
+  escalationTrack: string;
+} | null;
 
 type WorldMapSnapshot = {
   name: string;
@@ -239,7 +237,9 @@ export const updateWorld = mutation({
     tagline: v.optional(v.string()),
     genre: v.optional(v.string()),
     mood: v.optional(v.string()),
-    visibility: v.optional(v.union(v.literal("public"), v.literal("private"), v.literal("unlisted"))),
+    visibility: v.optional(
+      v.union(v.literal("public"), v.literal("private"), v.literal("unlisted")),
+    ),
     recommendedPartySize: v.optional(v.string()),
     sessionLength: v.optional(v.string()),
   },
@@ -255,7 +255,8 @@ export const updateWorld = mutation({
     if (args.genre !== undefined) patch.genre = args.genre;
     if (args.mood !== undefined) patch.mood = args.mood;
     if (args.visibility !== undefined) patch.visibility = args.visibility;
-    if (args.recommendedPartySize !== undefined) patch.recommendedPartySize = args.recommendedPartySize;
+    if (args.recommendedPartySize !== undefined)
+      patch.recommendedPartySize = args.recommendedPartySize;
     if (args.sessionLength !== undefined) patch.sessionLength = args.sessionLength;
 
     await ctx.db.patch(args.worldId, patch);

@@ -148,30 +148,30 @@ export function useBattlePass(): UseBattlePassReturn {
   // Queries - using typedApi helpers to avoid TS2589 deep type errors
   const status = useConvexQuery(
     typedApi.progression.battlePass.getBattlePassStatus,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   ) as BattlePassStatus | undefined;
   const tiers = useConvexQuery(
     typedApi.progression.battlePass.getBattlePassTiers,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   ) as BattlePassTier[] | undefined;
 
   // Mutations - using typedApi helpers to avoid TS2589 deep type errors
   const claimRewardMutation = useConvexMutation(
-    typedApi.progression.battlePass.claimBattlePassReward
+    typedApi.progression.battlePass.claimBattlePassReward,
   ) as (args: { tier: number; track: "free" | "premium" }) => Promise<ClaimRewardResult>;
   const claimAllMutation = useConvexMutation(
-    typedApi.progression.battlePass.claimAllAvailableRewards
+    typedApi.progression.battlePass.claimAllAvailableRewards,
   ) as (args: Record<string, never>) => Promise<ClaimAllResult>;
 
   // Action for creating Stripe checkout session
   const createCheckoutSession = useConvexAction(
-    typedApi.stripe.checkout.createCheckoutSession
+    typedApi.stripe.checkout.createCheckoutSession,
   ) as (args: { planInterval: "month" | "year" }) => Promise<PurchasePremiumResult>;
 
   // Query subscription status
   const hasSubscription = useConvexQuery(
     typedApi.stripe.queries.hasActiveSubscription,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   ) as boolean | undefined;
 
   // Claim individual reward
@@ -201,7 +201,7 @@ export function useBattlePass(): UseBattlePassReturn {
       const totalClaimed = result.claimedFree + result.claimedPremium;
       if (totalClaimed > 0) {
         toast.success(
-          `Claimed ${totalClaimed} rewards! (${result.claimedFree} free, ${result.claimedPremium} premium)`
+          `Claimed ${totalClaimed} rewards! (${result.claimedFree} free, ${result.claimedPremium} premium)`,
         );
       } else {
         toast.info("No rewards available to claim");

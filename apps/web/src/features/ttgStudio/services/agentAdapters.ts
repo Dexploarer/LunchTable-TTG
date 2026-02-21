@@ -1,9 +1,5 @@
 import { runDeterministicDice } from "@/lib/ttrpgStudio";
-import type {
-  AgentProviderKind,
-  TTGPlaytestEvent,
-  TTGProjectDraft,
-} from "@/lib/ttrpgStudio";
+import type { AgentProviderKind, TTGPlaytestEvent, TTGProjectDraft } from "@/lib/ttrpgStudio";
 
 export interface AgentHealth {
   connected: boolean;
@@ -126,11 +122,16 @@ export class SimulatedAgentAdapter implements TTGAgentAdapter {
     session.turn += 1;
     const now = Date.now();
     const narrator =
-      state.draft.world.hostedAgents.find((agent) => agent.id === state.draft.agentOps.narratorId) ??
-      state.draft.world.hostedAgents[0];
+      state.draft.world.hostedAgents.find(
+        (agent) => agent.id === state.draft.agentOps.narratorId,
+      ) ?? state.draft.world.hostedAgents[0];
     const scene = state.draft.world.maps[(session.turn - 1) % state.draft.world.maps.length];
-    const move = state.draft.world.diceMoves[(session.turn - 1) % state.draft.world.diceMoves.length];
-    const dice = runDeterministicDice(simplifyExpression(move?.expression ?? "1d20+2"), session.seed + session.turn);
+    const move =
+      state.draft.world.diceMoves[(session.turn - 1) % state.draft.world.diceMoves.length];
+    const dice = runDeterministicDice(
+      simplifyExpression(move?.expression ?? "1d20+2"),
+      session.seed + session.turn,
+    );
 
     const events: TTGPlaytestEvent[] = [
       {
@@ -154,7 +155,9 @@ export class SimulatedAgentAdapter implements TTGAgentAdapter {
     ];
 
     if (dice.total >= 12 && state.objectivePool.length > 0) {
-      const remaining = state.objectivePool.filter((objective) => !state.completedObjectives.has(objective));
+      const remaining = state.objectivePool.filter(
+        (objective) => !state.completedObjectives.has(objective),
+      );
       const picked = remaining[0];
       if (picked) {
         state.completedObjectives.add(picked);

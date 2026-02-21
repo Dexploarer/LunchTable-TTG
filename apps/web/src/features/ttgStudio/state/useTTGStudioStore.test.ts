@@ -9,8 +9,7 @@ describe("useTTGStudioStore", () => {
 
   it("supports draft updates with undo/redo", () => {
     const store = useTTGStudioStore.getState();
-    const originalName =
-      store.projects[store.activeProjectId]?.world.name ?? "";
+    const originalName = store.projects[store.activeProjectId]?.world.name ?? "";
 
     store.updateActiveProject((draft) => {
       draft.world.name = "Edited Draft Name";

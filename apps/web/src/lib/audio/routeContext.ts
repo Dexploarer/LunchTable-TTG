@@ -6,8 +6,10 @@ export function getAudioContextFromPath(pathname: string): string {
   if (!firstSegment) return "landing";
 
   if (firstSegment === "table") return "play";
-  if (firstSegment === "worlds" || firstSegment === "studio" || firstSegment === "publish") return "studio";
-  if (firstSegment === "privacy" || firstSegment === "terms" || firstSegment === "about") return "legal";
+  if (firstSegment === "worlds" || firstSegment === "studio" || firstSegment === "publish")
+    return "studio";
+  if (firstSegment === "privacy" || firstSegment === "terms" || firstSegment === "about")
+    return "legal";
 
   return firstSegment;
 }

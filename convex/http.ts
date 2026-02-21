@@ -373,7 +373,8 @@ corsRoute({
       genre: typeof body?.genre === "string" ? body.genre : "Custom",
       mood: typeof body?.mood === "string" ? body.mood : "Neutral",
       visibility: parseWorldVisibility(body?.visibility, "private"),
-      recommendedPartySize: typeof body?.recommendedPartySize === "string" ? body.recommendedPartySize : undefined,
+      recommendedPartySize:
+        typeof body?.recommendedPartySize === "string" ? body.recommendedPartySize : undefined,
       sessionLength: typeof body?.sessionLength === "string" ? body.sessionLength : undefined,
       rules: parseWorldRules(body?.rules),
       maps: parseWorldMaps(body?.maps),
@@ -492,8 +493,7 @@ corsRoute({
 
     const result = await ctx.runMutation(api.vttAgents.agentCreateGenerationJob, {
       agentUserId: agent.userId,
-      worldId:
-        typeof body?.worldId === "string" ? toId<"worlds">(body.worldId) : undefined,
+      worldId: typeof body?.worldId === "string" ? toId<"worlds">(body.worldId) : undefined,
       kind,
       provider,
       input: body?.input ?? {},

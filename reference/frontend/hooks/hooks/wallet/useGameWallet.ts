@@ -100,7 +100,7 @@ export function useGameWallet(): UseGameWalletReturn {
   // Only query when explicitly authenticated (not during initial auth check) to avoid "Authentication required" errors
   const savedWallet = useConvexQuery(
     typedApi.wallet.userWallet.getUserWallet,
-    isAuthenticated === true && !authLoading ? {} : "skip"
+    isAuthenticated === true && !authLoading ? {} : "skip",
   );
   const saveWalletMutation = useConvexMutation(typedApi.wallet.userWallet.saveConnectedWallet);
   const disconnectWalletMutation = useConvexMutation(typedApi.wallet.userWallet.disconnectWallet);
@@ -108,13 +108,13 @@ export function useGameWallet(): UseGameWalletReturn {
   // Find embedded wallet (isPrivyWallet flag or name contains 'Privy')
   const embeddedWallet = useMemo(
     () => wallets.find((w) => isPrivyEmbeddedWallet(w)) ?? null,
-    [wallets]
+    [wallets],
   );
 
   // Find external wallet (any wallet that's not a Privy embedded wallet)
   const externalWallet = useMemo(
     () => wallets.find((w) => !isPrivyEmbeddedWallet(w)) ?? null,
-    [wallets]
+    [wallets],
   );
 
   // Determine the active wallet based on what's saved in Convex

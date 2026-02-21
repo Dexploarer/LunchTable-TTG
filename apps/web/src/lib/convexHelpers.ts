@@ -1,9 +1,4 @@
-import {
-  type OptionalRestArgsOrSkip,
-  useAction,
-  useMutation,
-  useQuery,
-} from "convex/react";
+import { type OptionalRestArgsOrSkip, useAction, useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import type { DefaultFunctionArgs, FunctionReference } from "convex/server";
 
@@ -33,10 +28,7 @@ export function useConvexMutation<
  */
 export function useConvexQuery<
   TQuery extends FunctionReference<"query", "public", DefaultFunctionArgs>,
->(
-  path: TQuery,
-  ...args: OptionalRestArgsOrSkip<TQuery>
-) {
+>(path: TQuery, ...args: OptionalRestArgsOrSkip<TQuery>) {
   return useQuery(path, ...args);
 }
 

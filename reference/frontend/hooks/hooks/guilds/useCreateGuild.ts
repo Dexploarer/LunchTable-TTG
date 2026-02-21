@@ -49,7 +49,7 @@ export function useCreateGuild() {
   const createGuild = async (
     data: CreateGuildData,
     profileImage?: File,
-    bannerImage?: File
+    bannerImage?: File,
   ): Promise<Id<"guilds">> => {
     setIsCreating(true);
     setError(null);

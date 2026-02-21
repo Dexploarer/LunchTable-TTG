@@ -77,17 +77,17 @@ export function useNotifications(): UseNotificationsReturn {
   // Queries
   const unreadNotifications = useConvexQuery(
     typedApi.progression.notifications.getUnreadNotifications,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   const allNotifications = useConvexQuery(
     typedApi.progression.notifications.getAllNotifications,
-    isAuthenticated ? { limit: 50 } : "skip"
+    isAuthenticated ? { limit: 50 } : "skip",
   );
 
   // Mutations
   const markAsReadMutation = useConvexMutation(
-    typedApi.progression.notifications.markNotificationAsRead
+    typedApi.progression.notifications.markNotificationAsRead,
   );
   const markAllAsReadMutation = useConvexMutation(typedApi.progression.notifications.markAllAsRead);
 

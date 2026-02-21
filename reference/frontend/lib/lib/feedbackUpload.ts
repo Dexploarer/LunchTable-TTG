@@ -28,7 +28,7 @@ interface UploadResult {
 export async function uploadFeedbackMedia(
   file: Blob,
   _filename: string,
-  options: UploadOptions
+  options: UploadOptions,
 ): Promise<UploadResult> {
   const { feedbackType, mediaType } = options;
 
@@ -66,7 +66,7 @@ export async function uploadFeedbackMedia(
  */
 export async function uploadScreenshot(
   screenshot: Blob,
-  feedbackType: "bug" | "feature"
+  feedbackType: "bug" | "feature",
 ): Promise<string> {
   const result = await uploadFeedbackMedia(screenshot, `screenshot-${Date.now()}.png`, {
     feedbackType,
@@ -84,7 +84,7 @@ export async function uploadScreenshot(
  */
 export async function uploadRecording(
   recording: Blob,
-  feedbackType: "bug" | "feature"
+  feedbackType: "bug" | "feature",
 ): Promise<string> {
   const result = await uploadFeedbackMedia(recording, `recording-${Date.now()}.webm`, {
     feedbackType,

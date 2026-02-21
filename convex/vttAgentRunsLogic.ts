@@ -1,7 +1,7 @@
 export type SeededRng = () => number;
 
 export function makeSeededRng(seed: number): SeededRng {
-  let state = (seed >>> 0) || 1;
+  let state = seed >>> 0 || 1;
   return () => {
     // Mulberry32 PRNG
     state = (state + 0x6d2b79f5) | 0;
@@ -65,7 +65,12 @@ export function advanceRunState(params: {
   objectiveTarget: number;
   rollTotals: number[];
   objectiveThreshold: number;
-}): { nextTurn: number; nextObjectiveIndex: number; completed: boolean; objectiveAdvanced: boolean } {
+}): {
+  nextTurn: number;
+  nextObjectiveIndex: number;
+  completed: boolean;
+  objectiveAdvanced: boolean;
+} {
   const nextTurn = params.turn + 1;
   const hitObjective = params.rollTotals.some((total) => total >= params.objectiveThreshold);
 
@@ -83,4 +88,3 @@ export function advanceRunState(params: {
     objectiveAdvanced: nextObjectiveIndex > params.objectiveIndex,
   };
 }
-

@@ -26,14 +26,14 @@ const PLATFORM_FEE_PERCENT = 0.05;
 export function useTokenPurchase(
   listing: TokenPurchaseListing,
   open: boolean,
-  options: UseTokenPurchaseOptions
+  options: UseTokenPurchaseOptions,
 ) {
   const { onSuccess, onOpenChange } = options;
 
   const [step, setStep] = useState<PurchaseStep>("confirm");
   const [error, setError] = useState<string | null>(null);
   const [pendingPurchaseId, setPendingPurchaseId] = useState<Id<"pendingTokenPurchases"> | null>(
-    null
+    null,
   );
   const autoCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -44,19 +44,19 @@ export function useTokenPurchase(
 
   // Convex mutations
   const initiatePurchase = useConvexMutation(
-    typedApi.economy.tokenMarketplace.initiateTokenPurchase
+    typedApi.economy.tokenMarketplace.initiateTokenPurchase,
   );
   const submitSignedTransaction = useConvexMutation(
-    typedApi.economy.tokenMarketplace.submitSignedTransaction
+    typedApi.economy.tokenMarketplace.submitSignedTransaction,
   );
   const cancelPendingPurchase = useConvexMutation(
-    typedApi.economy.tokenMarketplace.cancelPendingPurchase
+    typedApi.economy.tokenMarketplace.cancelPendingPurchase,
   );
 
   // Query pending purchases to poll for status
   const pendingPurchases = useConvexQuery(
     typedApi.economy.tokenMarketplace.getUserPendingPurchases,
-    walletConnected ? {} : "skip"
+    walletConnected ? {} : "skip",
   );
 
   // Calculate price breakdown
@@ -139,7 +139,7 @@ export function useTokenPurchase(
 
       // Step 2: Decode the base64 transaction
       const transactionBytes = Uint8Array.from(atob(result.transactionBase64), (c) =>
-        c.charCodeAt(0)
+        c.charCodeAt(0),
       );
 
       // Step 3: Sign and send using Privy

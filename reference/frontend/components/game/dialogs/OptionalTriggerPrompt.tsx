@@ -125,7 +125,7 @@ export function OptionalTriggerPrompt({
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const respondToTrigger = useConvexMutation(
-    typedApi.gameplay.triggerSystem.respondToOptionalTrigger
+    typedApi.gameplay.triggerSystem.respondToOptionalTrigger,
   );
 
   // Filter triggers for current player only
@@ -167,7 +167,7 @@ export function OptionalTriggerPrompt({
       currentIndex,
       playerTriggers.length,
       onClose,
-    ]
+    ],
   );
 
   // Don't render if no triggers for current player
@@ -236,7 +236,7 @@ export function OptionalTriggerPrompt({
               <div
                 className={cn(
                   "w-24 h-32 rounded-lg border-2 overflow-hidden shrink-0",
-                  RARITY_BORDERS[cardInfo?.rarity ?? "common"] ?? RARITY_BORDERS["common"]
+                  RARITY_BORDERS[cardInfo?.rarity ?? "common"] ?? RARITY_BORDERS["common"],
                 )}
               >
                 {cardInfo?.imageUrl ? (
@@ -266,7 +266,7 @@ export function OptionalTriggerPrompt({
                 <div
                   className={cn(
                     "inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-medium",
-                    triggerColor
+                    triggerColor,
                   )}
                 >
                   <Zap className="w-3 h-3" />
@@ -390,7 +390,7 @@ export function OptionalTriggerPrompt({
                         ? "bg-green-500"
                         : idx === currentIndex
                           ? "bg-amber-400"
-                          : "bg-[#3d2b1f]"
+                          : "bg-[#3d2b1f]",
                     )}
                   />
                 ))}

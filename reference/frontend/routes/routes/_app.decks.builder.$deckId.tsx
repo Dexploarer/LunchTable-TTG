@@ -89,7 +89,7 @@ function DeckBuilderPage() {
           return prev;
         }
         return prev.map((c) =>
-          c.cardDefinitionId === card._id ? { ...c, quantity: c.quantity + 1 } : c
+          c.cardDefinitionId === card._id ? { ...c, quantity: c.quantity + 1 } : c,
         );
       }
       return [...prev, { cardDefinitionId: card._id, quantity: 1, card }];
@@ -103,7 +103,7 @@ function DeckBuilderPage() {
 
       if (existing.quantity > 1) {
         return prev.map((c) =>
-          c.cardDefinitionId === cardId ? { ...c, quantity: c.quantity - 1 } : c
+          c.cardDefinitionId === cardId ? { ...c, quantity: c.quantity - 1 } : c,
         );
       }
       return prev.filter((c) => c.cardDefinitionId !== cardId);
@@ -160,7 +160,7 @@ function DeckBuilderPage() {
                   ? "text-yellow-600"
                   : totalCards > 60
                     ? "text-red-600"
-                    : "text-green-600"
+                    : "text-green-600",
               )}
             >
               {totalCards}

@@ -9,7 +9,10 @@ export function useUserSync() {
   const { isAuthenticated: convexReady } = useConvexAuth();
 
   const syncUser = useConvexMutation(apiAny.auth.syncUser);
-  const onboardingStatus = useConvexQuery(apiAny.auth.getOnboardingStatus, convexReady ? {} : "skip");
+  const onboardingStatus = useConvexQuery(
+    apiAny.auth.getOnboardingStatus,
+    convexReady ? {} : "skip",
+  );
 
   const synced = useRef(false);
   const [syncInFlight, setSyncInFlight] = useState(false);
@@ -34,9 +37,18 @@ export function useUserSync() {
       .finally(() => {
         setSyncInFlight(false);
       });
-  }, [authEnabled, authenticated, convexReady, onboardingStatus, syncUser, privyUser, syncInFlight]);
+  }, [
+    authEnabled,
+    authenticated,
+    convexReady,
+    onboardingStatus,
+    syncUser,
+    privyUser,
+    syncInFlight,
+  ]);
 
-  const isLoading = authEnabled && authenticated && convexReady && (onboardingStatus === undefined || syncInFlight);
+  const isLoading =
+    authEnabled && authenticated && convexReady && (onboardingStatus === undefined || syncInFlight);
 
   return {
     isLoading,

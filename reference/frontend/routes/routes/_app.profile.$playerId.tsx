@@ -201,7 +201,7 @@ function PlayerProfilePage() {
             <Badge
               className={cn(
                 "absolute top-0 right-0 translate-x-[20%] -translate-y-[20%] text-xs px-4 py-2 font-black uppercase tracking-widest z-20 rounded-none shadow-zine rotate-3",
-                "bg-yellow-400 text-black border-zine hover:bg-yellow-400"
+                "bg-yellow-400 text-black border-zine hover:bg-yellow-400",
               )}
             >
               <RankIcon className="w-4 h-4 mr-2" />
@@ -438,7 +438,7 @@ function PlayerProfilePage() {
                       key={match.id}
                       className={cn(
                         "flex items-center justify-between p-4 border-zine transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-zine",
-                        match.result === "victory" ? "bg-green-50" : "bg-red-50"
+                        match.result === "victory" ? "bg-green-50" : "bg-red-50",
                       )}
                     >
                       <div className="flex items-center gap-4">
@@ -447,7 +447,7 @@ function PlayerProfilePage() {
                             "w-10 h-10 flex items-center justify-center border-2 border-black font-black text-lg",
                             match.result === "victory"
                               ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
+                              : "bg-red-500 text-white",
                           )}
                         >
                           {match.result === "victory" ? "W" : "L"}
@@ -465,7 +465,7 @@ function PlayerProfilePage() {
                         <p
                           className={cn(
                             "text-lg font-black",
-                            match.ratingChange >= 0 ? "text-green-600" : "text-red-600"
+                            match.ratingChange >= 0 ? "text-green-600" : "text-red-600",
                           )}
                         >
                           {match.ratingChange >= 0 ? "+" : ""}
@@ -549,7 +549,12 @@ function StatPanel({
   title,
   children,
   accentColor,
-}: { icon: any; title: string; children: React.ReactNode; accentColor: string }) {
+}: {
+  icon: any;
+  title: string;
+  children: React.ReactNode;
+  accentColor: string;
+}) {
   return (
     <div className="p-6 bg-white border-zine shadow-zine relative overflow-hidden group hover:-translate-y-1 hover:shadow-zine-lg transition-all ink-wash">
       <h3 className="text-lg font-black mb-6 text-black uppercase tracking-widest flex items-center gap-3 border-b-2 border-black/10 pb-3">
@@ -583,7 +588,7 @@ function StatCard({ icon: Icon, label, value, color }: StatCardProps) {
       <div
         className={cn(
           "absolute top-0 right-0 p-3 border-l-2 border-b-2 border-primary rounded-none",
-          color
+          color,
         )}
       >
         <Icon className="w-5 h-5 opacity-80" />
@@ -611,13 +616,13 @@ function Achievement({ name, description, unlocked }: AchievementProps) {
     <div
       className={cn(
         "p-4 border-zine transition-all relative overflow-hidden h-full flex flex-col items-center text-center ink-wash",
-        unlocked ? "bg-amber-50 shadow-zine" : "bg-slate-100 opacity-60 grayscale border-dashed"
+        unlocked ? "bg-amber-50 shadow-zine" : "bg-slate-100 opacity-60 grayscale border-dashed",
       )}
     >
       <div
         className={cn(
           "w-12 h-12 rounded-full flex items-center justify-center mb-3 border-zine",
-          unlocked ? "bg-yellow-400 text-black shadow-zine-sm" : "bg-slate-300 text-black/40"
+          unlocked ? "bg-yellow-400 text-black shadow-zine-sm" : "bg-slate-300 text-black/40",
         )}
       >
         <Star className="w-6 h-6 fill-current" />

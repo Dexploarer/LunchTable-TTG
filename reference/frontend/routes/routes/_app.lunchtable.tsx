@@ -56,7 +56,7 @@ function LunchtablePage() {
   const [cpuDifficulty, setCpuDifficulty] = useState<"easy" | "medium" | "hard" | "boss">("easy");
   const [isStartingCPU, setIsStartingCPU] = useState(false);
   const quickPlayMutation = useConvexMutation(
-    typedApi.progression.storyBattle.quickPlayStoryBattle
+    typedApi.progression.storyBattle.quickPlayStoryBattle,
   );
 
   // Auto-navigate host to game when opponent joins (lobby becomes active)
@@ -94,7 +94,7 @@ function LunchtablePage() {
         setIsJoining(false);
       }
     },
-    [joinLobby, navigate]
+    [joinLobby, navigate],
   );
 
   const handleJoinByCode = useCallback(async () => {
@@ -211,8 +211,8 @@ function LunchtablePage() {
                     Incoming Challenge!
                   </h3>
                   <p className="text-sm font-bold text-black/60">
-                    {incomingChallenge.hostUsername} ({incomingChallenge.hostRank}) wants to battle —{" "}
-                    {incomingChallenge.mode}
+                    {incomingChallenge.hostUsername} ({incomingChallenge.hostRank}) wants to battle
+                    — {incomingChallenge.mode}
                   </p>
                 </div>
               </div>
@@ -225,9 +225,7 @@ function LunchtablePage() {
                   Decline
                 </Button>
                 <Button
-                  onClick={() =>
-                    handleJoinLobby(incomingChallenge._id)
-                  }
+                  onClick={() => handleJoinLobby(incomingChallenge._id)}
                   className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white border-zine font-black uppercase shadow-zine-sm hover:shadow-zine hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
                   Accept
@@ -310,7 +308,7 @@ function LunchtablePage() {
                       "p-4 border-zine text-center transition-all font-black uppercase text-sm",
                       selectedMode === "casual"
                         ? "bg-primary text-white shadow-zine -translate-x-0.5 -translate-y-0.5"
-                        : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5"
+                        : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5",
                     )}
                   >
                     <Gamepad2 className="w-5 h-5 mx-auto mb-1" />
@@ -323,7 +321,7 @@ function LunchtablePage() {
                       "p-4 border-zine text-center transition-all font-black uppercase text-sm",
                       selectedMode === "ranked"
                         ? "bg-primary text-white shadow-zine -translate-x-0.5 -translate-y-0.5"
-                        : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5"
+                        : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5",
                     )}
                   >
                     <Trophy className="w-5 h-5 mx-auto mb-1" />
@@ -342,13 +340,13 @@ function LunchtablePage() {
                   onClick={() => setIsPrivate(!isPrivate)}
                   className={cn(
                     "w-12 h-6 border-2 border-black transition-colors relative",
-                    isPrivate ? "bg-primary" : "bg-slate-200"
+                    isPrivate ? "bg-primary" : "bg-slate-200",
                   )}
                 >
                   <div
                     className={cn(
                       "w-4 h-4 bg-white border border-black absolute top-0.5 transition-all",
-                      isPrivate ? "left-6" : "left-0.5"
+                      isPrivate ? "left-6" : "left-0.5",
                     )}
                   />
                 </button>
@@ -415,7 +413,7 @@ function LunchtablePage() {
                         "p-3 border-zine text-center transition-all font-black uppercase text-xs",
                         cpuDifficulty === diff
                           ? "bg-primary text-white shadow-zine -translate-x-0.5 -translate-y-0.5"
-                          : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5"
+                          : "bg-white text-black shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5",
                       )}
                     >
                       {diff}
@@ -505,7 +503,7 @@ function LunchtablePage() {
                             "font-black uppercase text-xs rounded-none border-2",
                             lobby.mode === "ranked"
                               ? "bg-amber-100 text-amber-700 border-amber-500"
-                              : "bg-slate-100 text-slate-700 border-slate-400"
+                              : "bg-slate-100 text-slate-700 border-slate-400",
                           )}
                         >
                           {lobby.mode}

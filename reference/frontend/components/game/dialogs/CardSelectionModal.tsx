@@ -162,7 +162,7 @@ export function CardSelectionModal({
                             "aspect-2/3 group",
                             isSelected
                               ? "border-primary ring-2 ring-primary shadow-lg shadow-primary/50"
-                              : "border-border hover:border-primary/50"
+                              : "border-border hover:border-primary/50",
                           )}
                         >
                           {/* Card Image */}
@@ -179,7 +179,7 @@ export function CardSelectionModal({
                               className={cn(
                                 "w-full h-full flex items-center justify-center text-center p-2",
                                 "bg-linear-to-br",
-                                ZONE_COLORS[zone]
+                                ZONE_COLORS[zone],
                               )}
                             >
                               <span className="text-[10px] text-white/90 font-medium leading-tight">

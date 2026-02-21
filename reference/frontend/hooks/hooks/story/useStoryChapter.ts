@@ -13,12 +13,12 @@ export function useStoryChapter(chapterId: string) {
 
   const currentUser = useConvexQuery(
     typedApi.core.users.currentUser,
-    isAuthenticated ? {} : "skip"
+    isAuthenticated ? {} : "skip",
   );
 
   const chapterDetails = useConvexQuery(
     typedApi.progression.story.getChapterDetails,
-    isAuthenticated && actNumber && chapterNumber ? { actNumber, chapterNumber } : "skip"
+    isAuthenticated && actNumber && chapterNumber ? { actNumber, chapterNumber } : "skip",
   );
 
   type StageData = {
@@ -37,11 +37,11 @@ export function useStoryChapter(chapterId: string) {
   const [isStarting, setIsStarting] = useState(false);
 
   const initializeStageProgress = useConvexMutation(
-    typedApi.progression.storyStages.initializeChapterStageProgress
+    typedApi.progression.storyStages.initializeChapterStageProgress,
   );
 
   const initializeStoryBattle = useConvexMutation(
-    typedApi.progression.storyBattle.initializeStoryBattle
+    typedApi.progression.storyBattle.initializeStoryBattle,
   );
 
   // Initialize stage progress when chapter loads
@@ -69,7 +69,7 @@ export function useStoryChapter(chapterId: string) {
 
     if (!currentUser?.activeDeckId) {
       const shouldNavigate = confirm(
-        "You must select a deck before starting a battle.\n\nWould you like to go to your profile to select a deck?"
+        "You must select a deck before starting a battle.\n\nWould you like to go to your profile to select a deck?",
       );
       if (shouldNavigate) {
         navigate({ to: "/profile" });

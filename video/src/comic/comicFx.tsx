@@ -1,4 +1,4 @@
-import type {FC} from "react";
+import type { FC } from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -7,14 +7,14 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import {nearestAccentInfo} from "./beatMap";
+import { nearestAccentInfo } from "./beatMap";
 
 const clampOptions = {
   extrapolateLeft: "clamp" as const,
   extrapolateRight: "clamp" as const,
 };
 
-export const HalftoneOverlay: FC<{opacity?: number}> = ({opacity = 0.15}) => {
+export const HalftoneOverlay: FC<{ opacity?: number }> = ({ opacity = 0.15 }) => {
   const frame = useCurrentFrame();
   const pulse = interpolate(Math.sin(frame * 0.08), [-1, 1], [0.85, 1.15], clampOptions);
   const dotSize = 9 + Math.sin(frame * 0.05) * 1.4;
@@ -22,8 +22,7 @@ export const HalftoneOverlay: FC<{opacity?: number}> = ({opacity = 0.15}) => {
   return (
     <AbsoluteFill
       style={{
-        backgroundImage:
-          "radial-gradient(circle, rgba(20,20,20,0.36) 1.1px, transparent 1.2px)",
+        backgroundImage: "radial-gradient(circle, rgba(20,20,20,0.36) 1.1px, transparent 1.2px)",
         backgroundSize: `${dotSize}px ${dotSize}px`,
         opacity: opacity * pulse,
         mixBlendMode: "multiply",
@@ -39,7 +38,7 @@ export const PanelGutterOverlay: FC = () => {
   const lines = [0.33, 0.66];
 
   return (
-    <AbsoluteFill style={{pointerEvents: "none"}}>
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
       <div
         style={{
           position: "absolute",
@@ -75,7 +74,7 @@ export const PanelGutterOverlay: FC = () => {
   );
 };
 
-export const SpeedLinesOverlay: FC<{strength?: number; color?: string}> = ({
+export const SpeedLinesOverlay: FC<{ strength?: number; color?: string }> = ({
   strength = 0.6,
   color = "rgba(255,245,180,0.25)",
 }) => {
@@ -98,11 +97,11 @@ export const SpeedLinesOverlay: FC<{strength?: number; color?: string}> = ({
   );
 };
 
-export const BoundaryInkWipe: FC<{boundaries: readonly number[]}> = ({boundaries}) => {
+export const BoundaryInkWipe: FC<{ boundaries: readonly number[] }> = ({ boundaries }) => {
   const frame = useCurrentFrame();
 
   return (
-    <AbsoluteFill style={{pointerEvents: "none"}}>
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
       {boundaries.map((boundary) => {
         const local = frame - boundary;
         if (local < -8 || local > 12) {
@@ -133,16 +132,16 @@ export const BoundaryInkWipe: FC<{boundaries: readonly number[]}> = ({boundaries
 
 const IMPACT_WORDS = ["BAM", "CLASH", "DRAW", "STACK", "SNAP", "HIT", "RUSH"];
 const IMPACT_POSITIONS = [
-  {left: "8%", top: "14%"},
-  {left: "61%", top: "16%"},
-  {left: "14%", top: "63%"},
-  {left: "64%", top: "66%"},
-  {left: "38%", top: "43%"},
+  { left: "8%", top: "14%" },
+  { left: "61%", top: "16%" },
+  { left: "14%", top: "63%" },
+  { left: "64%", top: "66%" },
+  { left: "38%", top: "43%" },
 ];
 
-export const AccentPulseOverlay: FC<{accentFrames: readonly number[]}> = ({accentFrames}) => {
+export const AccentPulseOverlay: FC<{ accentFrames: readonly number[] }> = ({ accentFrames }) => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
+  const { fps } = useVideoConfig();
   const nearest = nearestAccentInfo(frame);
   const accentFrame = accentFrames[nearest.index] ?? nearest.frame;
   const delta = frame - accentFrame;
@@ -156,7 +155,7 @@ export const AccentPulseOverlay: FC<{accentFrames: readonly number[]}> = ({accen
   const reveal = spring({
     frame: delta + 4,
     fps,
-    config: {damping: 16, stiffness: 210},
+    config: { damping: 16, stiffness: 210 },
     durationInFrames: 18,
   });
   const scale = interpolate(reveal, [0, 1], [0.72, 1.08], clampOptions);
@@ -175,7 +174,7 @@ export const AccentPulseOverlay: FC<{accentFrames: readonly number[]}> = ({accen
         });
 
   return (
-    <AbsoluteFill style={{pointerEvents: "none"}}>
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
       <AbsoluteFill
         style={{
           backgroundColor: `rgba(255,255,255,${0.18 * punch})`,

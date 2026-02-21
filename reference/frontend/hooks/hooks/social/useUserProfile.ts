@@ -35,7 +35,7 @@ export function useUserProfile({ playerId }: UseUserProfileOptions) {
   // Referral data (only for own profile)
   const myReferralLink = useQuery(
     api.social.referrals.getMyReferralLink,
-    isOwnProfile ? {} : "skip"
+    isOwnProfile ? {} : "skip",
   );
   const referralStats = useQuery(api.social.referrals.getReferralStats, isOwnProfile ? {} : "skip");
 

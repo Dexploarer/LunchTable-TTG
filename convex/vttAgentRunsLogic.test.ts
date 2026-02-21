@@ -73,4 +73,3 @@ describe("vttAgentRunsLogic", () => {
     expect(endByObjectives.completed).toBe(true);
   });
 });
-

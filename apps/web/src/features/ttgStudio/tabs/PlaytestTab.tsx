@@ -160,7 +160,9 @@ export function PlaytestTab() {
           <h4 className="text-sm uppercase mb-2">Dice Timeline</h4>
           <div className="max-h-48 overflow-auto space-y-1 text-sm">
             {diceTimeline.map((event) => (
-              <p key={event.id}>T{event.turn}: {event.message}</p>
+              <p key={event.id}>
+                T{event.turn}: {event.message}
+              </p>
             ))}
             {diceTimeline.length === 0 ? <p className="text-[#121212]/60">No rolls yet.</p> : null}
           </div>
@@ -170,9 +172,13 @@ export function PlaytestTab() {
           <h4 className="text-sm uppercase mb-2">Objective Progress</h4>
           <div className="space-y-1 text-sm">
             {objectives.map(([objective, done]) => (
-              <p key={objective}>{done ? "[done]" : "[open]"} {objective}</p>
+              <p key={objective}>
+                {done ? "[done]" : "[open]"} {objective}
+              </p>
             ))}
-            {objectives.length === 0 ? <p className="text-[#121212]/60">No objective events yet.</p> : null}
+            {objectives.length === 0 ? (
+              <p className="text-[#121212]/60">No objective events yet.</p>
+            ) : null}
           </div>
         </div>
 
@@ -180,9 +186,13 @@ export function PlaytestTab() {
           <h4 className="text-sm uppercase mb-2">Fail-Forward Feed</h4>
           <div className="max-h-48 overflow-auto space-y-1 text-sm">
             {failForwardEvents.map((event) => (
-              <p key={event.id}>T{event.turn}: {event.message}</p>
+              <p key={event.id}>
+                T{event.turn}: {event.message}
+              </p>
             ))}
-            {failForwardEvents.length === 0 ? <p className="text-[#121212]/60">No fail-forward events yet.</p> : null}
+            {failForwardEvents.length === 0 ? (
+              <p className="text-[#121212]/60">No fail-forward events yet.</p>
+            ) : null}
           </div>
         </div>
       </section>

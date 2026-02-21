@@ -29,7 +29,9 @@ interface DiscoveryListing {
 }
 
 export function Worlds() {
-  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
+  const convexEnabled = Boolean(
+    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
+  );
   const { authenticated } = useAppAuth();
   const navigate = useNavigate();
   useUserSync();
@@ -66,7 +68,10 @@ export function Worlds() {
     });
   }, [search]);
 
-  const seededLiveWorldIds = useMemo(() => new Set((liveWorlds ?? []).map((world) => world._id)), [liveWorlds]);
+  const seededLiveWorldIds = useMemo(
+    () => new Set((liveWorlds ?? []).map((world) => world._id)),
+    [liveWorlds],
+  );
 
   return (
     <div className="min-h-screen bg-[#fdfdfb] pb-24">
@@ -74,7 +79,8 @@ export function Worlds() {
         <header className="paper-panel p-4 md:p-6">
           <h1 className="text-4xl uppercase">World Library</h1>
           <p className="text-sm text-[#121212]/70 mt-1">
-            Browse Convex-backed worlds, fork seed templates into Studio, then launch AI-assisted live sessions.
+            Browse Convex-backed worlds, fork seed templates into Studio, then launch AI-assisted
+            live sessions.
           </p>
           <label className="mt-3 block text-xs uppercase font-bold">Search</label>
           <input
@@ -102,8 +108,12 @@ export function Worlds() {
                     Rating: {listing.rating.toFixed(1)}
                   </p>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <Link to={`/worlds/${listing.worldId}`} className="tcg-button">Details</Link>
-                    <Link to={`/table/new?worldId=${listing.worldId}`} className="tcg-button">Open Table</Link>
+                    <Link to={`/worlds/${listing.worldId}`} className="tcg-button">
+                      Details
+                    </Link>
+                    <Link to={`/table/new?worldId=${listing.worldId}`} className="tcg-button">
+                      Open Table
+                    </Link>
                     <button
                       className="tcg-button"
                       disabled={forkingWorldId === listing.worldId || !authenticated}
@@ -116,7 +126,8 @@ export function Worlds() {
                         setForkingWorldId(listing.worldId);
                         try {
                           const result = await forkWorld({ worldId: listing.worldId });
-                          const nextWorldId = typeof result?.worldId === "string" ? result.worldId : "";
+                          const nextWorldId =
+                            typeof result?.worldId === "string" ? result.worldId : "";
                           if (!nextWorldId) {
                             setStatus("Fork succeeded but no worldId returned.");
                             return;
@@ -124,7 +135,9 @@ export function Worlds() {
                           setStatus("World forked.");
                           navigate(`/worlds/${nextWorldId}`);
                         } catch (error) {
-                          setStatus(error instanceof Error ? error.message : "Failed to fork world.");
+                          setStatus(
+                            error instanceof Error ? error.message : "Failed to fork world.",
+                          );
                         } finally {
                           setForkingWorldId(null);
                         }
@@ -138,7 +151,8 @@ export function Worlds() {
             </div>
             {(publishedListings ?? []).length === 0 ? (
               <p className="paper-panel p-4 text-sm text-[#121212]/70">
-                No published listings yet. Publish a world from the Publish console to populate discovery.
+                No published listings yet. Publish a world from the Publish console to populate
+                discovery.
               </p>
             ) : null}
           </section>
@@ -165,8 +179,12 @@ export function Worlds() {
                       </p>
                     ) : null}
                     <div className="flex flex-wrap gap-2 pt-2">
-                      <Link to={`/worlds/${world._id}`} className="tcg-button">Details</Link>
-                      <Link to={`/table/new?worldId=${world._id}`} className="tcg-button">Open Table</Link>
+                      <Link to={`/worlds/${world._id}`} className="tcg-button">
+                        Details
+                      </Link>
+                      <Link to={`/table/new?worldId=${world._id}`} className="tcg-button">
+                        Open Table
+                      </Link>
                     </div>
                   </article>
                 );
@@ -174,7 +192,8 @@ export function Worlds() {
             </div>
             {(liveWorlds ?? []).length === 0 ? (
               <p className="paper-panel p-4 text-sm text-[#121212]/70">
-                No Convex worlds yet. Seed one from templates below, then start sessions from real world IDs.
+                No Convex worlds yet. Seed one from templates below, then start sessions from real
+                world IDs.
               </p>
             ) : null}
           </section>
@@ -190,7 +209,9 @@ export function Worlds() {
                 <p className="text-sm text-[#121212]/70">{world.tagline}</p>
                 <p className="text-xs uppercase">Mood: {world.mood}</p>
                 <div className="flex flex-wrap gap-2 pt-2">
-                  <Link to={`/worlds/${world.id}`} className="tcg-button">Details</Link>
+                  <Link to={`/worlds/${world.id}`} className="tcg-button">
+                    Details
+                  </Link>
                   <button
                     className="tcg-button"
                     onClick={() => {
@@ -244,7 +265,9 @@ export function Worlds() {
                           }
                           if (worldId) navigate(`/worlds/${worldId}`);
                         } catch (error) {
-                          setStatus(error instanceof Error ? error.message : "Failed to seed world.");
+                          setStatus(
+                            error instanceof Error ? error.message : "Failed to seed world.",
+                          );
                         } finally {
                           setSeedingWorldId(null);
                         }
@@ -253,7 +276,9 @@ export function Worlds() {
                       {seedingWorldId === world.id ? "Seeding..." : "Seed To Convex"}
                     </button>
                   ) : (
-                    <Link to={`/table/new`} className="tcg-button">Open Sandbox Table</Link>
+                    <Link to={`/table/new`} className="tcg-button">
+                      Open Sandbox Table
+                    </Link>
                   )}
                 </div>
               </article>

@@ -1,5 +1,5 @@
-import {Composition} from "remotion";
-import {z} from "zod";
+import { Composition } from "remotion";
+import { z } from "zod";
 import {
   PromoComposition,
   promoDurationInFrames,

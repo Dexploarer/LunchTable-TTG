@@ -73,7 +73,7 @@ function DeckPile({ count }: { count: number }) {
             className={cn(
               "absolute inset-0 rounded-md border-2",
               "bg-linear-to-br from-indigo-900 to-indigo-950",
-              "border-indigo-700/50"
+              "border-indigo-700/50",
             )}
             style={{
               transform: `translateY(${-i * 1}px)`,
@@ -115,7 +115,7 @@ function GraveyardPile({
         "relative w-8 h-11 sm:w-10 sm:h-14 rounded-md border-2 transition-all",
         count > 0
           ? "border-gray-500/50 hover:border-gray-400 cursor-pointer"
-          : "border-dashed border-gray-700/30 cursor-default"
+          : "border-dashed border-gray-700/30 cursor-default",
       )}
     >
       {count > 0 ? (
@@ -175,7 +175,7 @@ function GraveyardPreview({
       className={cn(
         "absolute z-50 bg-background/95 backdrop-blur-sm border rounded-lg p-2 shadow-xl",
         "min-w-[150px] max-w-[200px] max-h-[200px] overflow-y-auto",
-        isOpponent ? "top-full mt-1" : "bottom-full mb-1"
+        isOpponent ? "top-full mt-1" : "bottom-full mb-1",
       )}
     >
       <div className="flex items-center justify-between mb-1">

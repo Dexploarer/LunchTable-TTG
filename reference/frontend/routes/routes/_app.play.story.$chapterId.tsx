@@ -5,16 +5,7 @@ import { useStoryChapter } from "@/hooks/story/useStoryChapter";
 import { cn } from "@/lib/utils";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  ChevronRight,
-  Loader2,
-  Lock,
-  Play,
-  Star,
-  Swords,
-  Trophy,
-} from "lucide-react";
+import { ArrowLeft, ChevronRight, Loader2, Lock, Play, Star, Swords, Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/_app/play/story/$chapterId")({
   component: StoryChapterDetailPage,
@@ -23,14 +14,8 @@ export const Route = createFileRoute("/_app/play/story/$chapterId")({
 function StoryChapterDetailPage() {
   const { chapterId } = Route.useParams();
   const navigate = useNavigate();
-  const {
-    chapterDetails,
-    selectedStage,
-    handleStageSelect,
-    startBattle,
-    isLoading,
-    isMissing,
-  } = useStoryChapter(chapterId);
+  const { chapterDetails, selectedStage, handleStageSelect, startBattle, isLoading, isMissing } =
+    useStoryChapter(chapterId);
 
   if (isLoading) {
     return (
@@ -44,7 +29,9 @@ function StoryChapterDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background scanner-noise gap-4">
         <h2 className="text-2xl font-black text-black uppercase">Chapter Not Found</h2>
-        <p className="text-black/60 font-bold">This chapter doesn't exist or hasn't been unlocked.</p>
+        <p className="text-black/60 font-bold">
+          This chapter doesn't exist or hasn't been unlocked.
+        </p>
         <Link
           to="/play/story"
           className="text-primary font-bold uppercase underline underline-offset-4"
@@ -80,9 +67,7 @@ function StoryChapterDetailPage() {
             {chapterDetails.title}
           </h1>
           {chapterDetails.description && (
-            <p className="text-primary/60 font-bold mt-2 max-w-2xl">
-              {chapterDetails.description}
-            </p>
+            <p className="text-primary/60 font-bold mt-2 max-w-2xl">{chapterDetails.description}</p>
           )}
         </div>
 
@@ -114,7 +99,7 @@ function StoryChapterDetailPage() {
                       ? "opacity-50 cursor-not-allowed bg-slate-50"
                       : isSelected
                         ? "bg-primary/5 shadow-zine -translate-y-0.5 border-primary/30"
-                        : "bg-white shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5"
+                        : "bg-white shadow-zine-sm hover:shadow-zine hover:-translate-y-0.5",
                   )}
                 >
                   {/* Stage Number */}
@@ -125,7 +110,7 @@ function StoryChapterDetailPage() {
                         ? "bg-slate-200 text-slate-400"
                         : isCompleted
                           ? "bg-amber-100 text-amber-700"
-                          : "bg-white text-black"
+                          : "bg-white text-black",
                     )}
                   >
                     {isLocked ? (
@@ -158,7 +143,7 @@ function StoryChapterDetailPage() {
                             "w-3.5 h-3.5",
                             star <= (stage.starsEarned ?? 0)
                               ? "fill-yellow-400 text-yellow-400"
-                              : "text-slate-300"
+                              : "text-slate-300",
                           )}
                         />
                       ))}
@@ -168,7 +153,7 @@ function StoryChapterDetailPage() {
                   <ChevronRight
                     className={cn(
                       "w-4 h-4 shrink-0 transition-colors",
-                      isSelected ? "text-primary" : "text-black/30"
+                      isSelected ? "text-primary" : "text-black/30",
                     )}
                   />
                 </motion.button>
@@ -221,7 +206,7 @@ function StoryChapterDetailPage() {
                               "w-4 h-4",
                               s <= selectedStage.starsEarned
                                 ? "fill-yellow-400 text-yellow-400"
-                                : "text-slate-300"
+                                : "text-slate-300",
                             )}
                           />
                         ))}
@@ -241,9 +226,7 @@ function StoryChapterDetailPage() {
             ) : (
               <div className="p-6 bg-white border-zine shadow-zine ink-wash text-center">
                 <Swords className="w-8 h-8 text-black/20 mx-auto mb-3" />
-                <p className="font-bold text-black/40 text-sm">
-                  Select a stage to see details
-                </p>
+                <p className="font-bold text-black/40 text-sm">Select a stage to see details</p>
               </div>
             )}
           </div>

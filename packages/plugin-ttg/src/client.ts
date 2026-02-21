@@ -11,7 +11,10 @@ import type {
 } from "./types";
 
 export class TTGClient {
-  constructor(private readonly apiUrl: string, private readonly apiKey: string) {}
+  constructor(
+    private readonly apiUrl: string,
+    private readonly apiKey: string,
+  ) {}
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const response = await fetch(`${this.apiUrl}${path}`, {

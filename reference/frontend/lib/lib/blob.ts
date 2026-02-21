@@ -157,7 +157,7 @@ export async function uploadToBlob(
   options?: {
     contentType?: string;
     access?: "public";
-  }
+  },
 ): Promise<PutBlobResult> {
   const result = await put(pathname, file, {
     access: options?.access || "public",
