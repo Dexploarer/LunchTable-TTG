@@ -189,7 +189,6 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
           transaction.feePayer = fromPubkey;
 
           // Step 4: Sign transaction via Privy wallet
-          // biome-ignore lint/suspicious/noExplicitAny: Privy SDK v3 type mismatch — runtime accepts Transaction
           const signedTx = await (solanaWallet.signAndSendTransaction as any)({
             transaction: transaction.serialize({ requireAllSignatures: false }),
             chain: "solana:mainnet",
