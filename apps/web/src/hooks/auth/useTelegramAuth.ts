@@ -33,7 +33,9 @@ export function useTelegramAuth() {
     const safeLinkTelegram = linkTelegram;
 
     // Check if Telegram is already linked
-    const hasTelegram = user?.linkedAccounts?.some((a) => a.type === "telegram");
+    const hasTelegram = user?.linkedAccounts?.some(
+      (a) => a.type === "telegram",
+    );
     if (hasTelegram) {
       linked.current = true;
       return;

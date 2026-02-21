@@ -1,5 +1,5 @@
-import { Audio } from "@remotion/media";
-import type { FC } from "react";
+import {Audio} from "@remotion/media";
+import type {FC} from "react";
 import {
   AbsoluteFill,
   Easing,
@@ -20,7 +20,7 @@ import {
   storyAssets,
   viceAssets,
 } from "./assetManifest";
-import { ACCENT_FRAMES, BAR_FRAMES } from "./beatMap";
+import {ACCENT_FRAMES, BAR_FRAMES} from "./beatMap";
 import {
   AccentPulseOverlay,
   BoundaryInkWipe,
@@ -96,9 +96,9 @@ const BackdropCycle: FC<{
   holdFrames: number;
   tint?: string;
   zoom?: number;
-}> = ({ assets, holdFrames, tint = "rgba(0,0,0,0.45)", zoom = 0.1 }) => {
+}> = ({assets, holdFrames, tint = "rgba(0,0,0,0.45)", zoom = 0.1}) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const {durationInFrames} = useVideoConfig();
   const src = cycleAsset(assets, frame, holdFrames);
   const progress = interpolate(frame, [0, durationInFrames], [0, 1], clamp);
   const scale = 1 + zoom * progress;
@@ -106,7 +106,7 @@ const BackdropCycle: FC<{
   const y = interpolate(progress, [0, 1], [12, -12], clamp);
 
   return (
-    <AbsoluteFill style={{ overflow: "hidden" }}>
+    <AbsoluteFill style={{overflow: "hidden"}}>
       <Img
         src={staticFile(src)}
         style={{
@@ -118,7 +118,7 @@ const BackdropCycle: FC<{
           transform: `translate(${x}px, ${y}px) scale(${scale})`,
         }}
       />
-      <AbsoluteFill style={{ backgroundColor: tint }} />
+      <AbsoluteFill style={{backgroundColor: tint}} />
     </AbsoluteFill>
   );
 };
@@ -128,7 +128,7 @@ const ColdOpenScene: FC = () => {
   const flash = interpolate(frame, [0, 1, 2, 3], [0, 1, 0.35, 0], clamp);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000" }}>
+    <AbsoluteFill style={{backgroundColor: "#000"}}>
       <Img
         src={staticFile("lunchtable/ink-frame.png")}
         style={{
@@ -152,12 +152,12 @@ const ColdOpenScene: FC = () => {
   );
 };
 
-const ActHookScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
+const ActHookScene: FC<{copyPack: CopyPack}> = ({copyPack}) => {
   const frame = useCurrentFrame();
   const globalFrame = ACT_STARTS.hook + frame;
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
 
-  const titleIn = spring({ frame, fps, config: { damping: 18, stiffness: 170 } });
+  const titleIn = spring({frame, fps, config: {damping: 18, stiffness: 170}});
   const titleScale = interpolate(titleIn, [0, 1], [0.8, 1], clamp);
   const titleY = interpolate(titleIn, [0, 1], [36, 0], clamp);
 
@@ -166,16 +166,9 @@ const ActHookScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
 
   return (
     <AbsoluteFill>
-      <BackdropCycle
-        assets={backgroundCycleAssets}
-        holdFrames={24}
-        tint="rgba(0,0,0,0.56)"
-        zoom={0.14}
-      />
+      <BackdropCycle assets={backgroundCycleAssets} holdFrames={24} tint="rgba(0,0,0,0.56)" zoom={0.14} />
 
-      <AbsoluteFill
-        style={{ justifyContent: "center", alignItems: "center", padding: "0 74px", gap: 20 }}
-      >
+      <AbsoluteFill style={{justifyContent: "center", alignItems: "center", padding: "0 74px", gap: 20}}>
         <Img
           src={staticFile("lunchtable/logo.png")}
           style={{
@@ -216,18 +209,20 @@ const ActHookScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
         const pop = spring({
           frame: frame - delay,
           fps,
-          config: { damping: 16, stiffness: 170 },
+          config: {damping: 16, stiffness: 170},
         });
         const scale = interpolate(pop, [0, 1], [0.72, 1], clamp) * accentBoost;
         const y = interpolate(pop, [0, 1], [70, 0], clamp);
         // 145 frames / 5 = 29 steps -> guarantees all signup avatars appear in the hook act.
         const image =
-          signupAvatarAssets[(Math.floor(frame / 5) + slot * 10) % signupAvatarAssets.length];
+          signupAvatarAssets[
+            (Math.floor(frame / 5) + slot * 10) % signupAvatarAssets.length
+          ];
 
         const positions = [
-          { left: 24, top: 210, rotate: -8 },
-          { left: 720, top: 250, rotate: 9 },
-          { left: 378, top: 1180, rotate: -3 },
+          {left: 24, top: 210, rotate: -8},
+          {left: 720, top: 250, rotate: 9},
+          {left: 378, top: 1180, rotate: -3},
         ] as const;
         const position = positions[slot];
 
@@ -247,10 +242,7 @@ const ActHookScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
               background: "rgba(0,0,0,0.45)",
             }}
           >
-            <Img
-              src={staticFile(image)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            <Img src={staticFile(image)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
           </div>
         );
       })}
@@ -258,17 +250,17 @@ const ActHookScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
   );
 };
 
-const ActCastScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
+const ActCastScene: FC<{copyPack: CopyPack}> = ({copyPack}) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
   const segment = Math.floor(frame / 8);
   const panels = [
-    { left: 34, top: 210, width: 300, height: 290, rotate: -4 },
-    { left: 377, top: 170, width: 300, height: 280, rotate: 2 },
-    { left: 720, top: 210, width: 300, height: 290, rotate: 4 },
-    { left: 58, top: 540, width: 330, height: 310, rotate: 3 },
-    { left: 390, top: 520, width: 300, height: 320, rotate: -3 },
-    { left: 716, top: 565, width: 300, height: 300, rotate: 5 },
+    {left: 34, top: 210, width: 300, height: 290, rotate: -4},
+    {left: 377, top: 170, width: 300, height: 280, rotate: 2},
+    {left: 720, top: 210, width: 300, height: 290, rotate: 4},
+    {left: 58, top: 540, width: 330, height: 310, rotate: 3},
+    {left: 390, top: 520, width: 300, height: 320, rotate: -3},
+    {left: 716, top: 565, width: 300, height: 300, rotate: 5},
   ] as const;
 
   return (
@@ -293,7 +285,7 @@ const ActCastScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
         const pop = spring({
           frame: frame - index * 2,
           fps,
-          config: { damping: 20, stiffness: 220 },
+          config: {damping: 20, stiffness: 220},
         });
         const scale = interpolate(pop, [0, 1], [0.65, 1], clamp);
         const y = Math.sin(frame * 0.08 + index) * 6;
@@ -315,15 +307,12 @@ const ActCastScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
               backgroundColor: "rgba(0,0,0,0.4)",
             }}
           >
-            <Img
-              src={staticFile(asset)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            <Img src={staticFile(asset)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
           </div>
         );
       })}
 
-      <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 54px 248px" }}>
+      <AbsoluteFill style={{justifyContent: "flex-end", padding: "0 54px 248px"}}>
         <h2
           style={{
             ...textStyle,
@@ -340,10 +329,10 @@ const ActCastScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
   );
 };
 
-const ActVicesScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
+const ActVicesScene: FC<{copyPack: CopyPack}> = ({copyPack}) => {
   const frame = useCurrentFrame();
   const globalFrame = ACT_STARTS.vices + frame;
-  const { fps } = useVideoConfig();
+  const {fps} = useVideoConfig();
   const accentDistance = nearestDistance(globalFrame, ACCENT_FRAMES);
   const accentBoost = interpolate(accentDistance, [0, 9], [1.15, 1], clamp);
 
@@ -360,8 +349,8 @@ const ActVicesScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
         zoom={0.11}
       />
 
-      <AbsoluteFill style={{ alignItems: "center", paddingTop: 62, gap: 8 }}>
-        <h2 style={{ ...textStyle, margin: 0, fontSize: 58, transform: `scale(${accentBoost})` }}>
+      <AbsoluteFill style={{alignItems: "center", paddingTop: 62, gap: 8}}>
+        <h2 style={{...textStyle, margin: 0, fontSize: 58, transform: `scale(${accentBoost})`}}>
           {copyPack.midA}
         </h2>
         <p
@@ -380,7 +369,7 @@ const ActVicesScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
         </p>
       </AbsoluteFill>
 
-      <AbsoluteFill style={{ padding: "228px 54px 240px" }}>
+      <AbsoluteFill style={{padding: "228px 54px 240px"}}>
         <div
           style={{
             display: "grid",
@@ -394,7 +383,7 @@ const ActVicesScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
             const pop = spring({
               frame: frame - index,
               fps,
-              config: { damping: 15, stiffness: 180 },
+              config: {damping: 15, stiffness: 180},
             });
             const scale = interpolate(pop, [0, 1], [0.72, 1], clamp);
             const label = asset
@@ -417,10 +406,7 @@ const ActVicesScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
                   flexDirection: "column",
                 }}
               >
-                <Img
-                  src={staticFile(asset)}
-                  style={{ width: "100%", height: 160, objectFit: "cover" }}
-                />
+                <Img src={staticFile(asset)} style={{width: "100%", height: 160, objectFit: "cover"}} />
                 <div
                   style={{
                     ...textStyle,
@@ -447,10 +433,10 @@ const ActStoryScene: FC = () => {
   const stageIndex = Math.min(stageAssets.length - 1, Math.floor(frame / 48));
 
   const slots = [
-    { left: 48, top: 168, width: 460, height: 360, rotate: -3 },
-    { left: 572, top: 174, width: 460, height: 355, rotate: 3 },
-    { left: 48, top: 564, width: 460, height: 350, rotate: 2 },
-    { left: 572, top: 564, width: 460, height: 350, rotate: -2 },
+    {left: 48, top: 168, width: 460, height: 360, rotate: -3},
+    {left: 572, top: 174, width: 460, height: 355, rotate: 3},
+    {left: 48, top: 564, width: 460, height: 350, rotate: 2},
+    {left: 572, top: 564, width: 460, height: 350, rotate: -2},
   ] as const;
 
   return (
@@ -480,10 +466,7 @@ const ActStoryScene: FC = () => {
               backgroundColor: "rgba(0,0,0,0.48)",
             }}
           >
-            <Img
-              src={staticFile(asset)}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            <Img src={staticFile(asset)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
           </div>
         );
       })}
@@ -504,7 +487,7 @@ const ActStoryScene: FC = () => {
       >
         <Img
           src={staticFile(stageAssets[stageIndex])}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{width: "100%", height: "100%", objectFit: "cover"}}
         />
       </div>
 
@@ -524,10 +507,10 @@ const ActStoryScene: FC = () => {
   );
 };
 
-const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
+const ActCtaScene: FC<{copyPack: CopyPack}> = ({copyPack}) => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames } = useVideoConfig();
-  const pop = spring({ frame, fps, config: { damping: 18, stiffness: 170 } });
+  const {fps, durationInFrames} = useVideoConfig();
+  const pop = spring({frame, fps, config: {damping: 18, stiffness: 170}});
   const scale = interpolate(pop, [0, 1], [0.7, 1], clamp);
   const textOpacity = interpolate(frame, [0, 20], [0, 1], {
     ...clamp,
@@ -550,10 +533,8 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
     <AbsoluteFill>
       <BackdropCycle assets={aboutAssets} holdFrames={34} tint="rgba(0,0,0,0.62)" zoom={0.1} />
 
-      <AbsoluteFill
-        style={{ justifyContent: "center", alignItems: "center", gap: 14, opacity: textOpacity }}
-      >
-        <p style={{ ...textStyle, margin: 0, fontSize: 30, color: "#fde68a" }}>{copyPack.ctaTop}</p>
+      <AbsoluteFill style={{justifyContent: "center", alignItems: "center", gap: 14, opacity: textOpacity}}>
+        <p style={{...textStyle, margin: 0, fontSize: 30, color: "#fde68a"}}>{copyPack.ctaTop}</p>
         <Img
           src={staticFile("lunchtable/title.png")}
           style={{
@@ -580,10 +561,8 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
         </div>
       </AbsoluteFill>
 
-      <AbsoluteFill
-        style={{ justifyContent: "flex-end", paddingBottom: 192, gap: 10, alignItems: "center" }}
-      >
-        <div style={{ display: "flex", gap: 10 }}>
+      <AbsoluteFill style={{justifyContent: "flex-end", paddingBottom: 192, gap: 10, alignItems: "center"}}>
+        <div style={{display: "flex", gap: 10}}>
           {miniStrip.map((asset) => (
             <div
               key={asset}
@@ -596,10 +575,7 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
                 transform: "rotate(-1.5deg)",
               }}
             >
-              <Img
-                src={staticFile(asset)}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              <Img src={staticFile(asset)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
             </div>
           ))}
         </div>
@@ -621,7 +597,7 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
           boxShadow: "0 -8px 26px rgba(0,0,0,0.58)",
         }}
       >
-        <div style={{ display: "flex", gap: 10, alignItems: "center", minWidth: 302 }}>
+        <div style={{display: "flex", gap: 10, alignItems: "center", minWidth: 302}}>
           <div
             style={{
               width: 72,
@@ -634,10 +610,7 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
               placeItems: "center",
             }}
           >
-            <Img
-              src={staticFile("lunchtable/music-button.png")}
-              style={{ width: 62, height: 62, objectFit: "cover" }}
-            />
+            <Img src={staticFile("lunchtable/music-button.png")} style={{width: 62, height: 62, objectFit: "cover"}} />
           </div>
           {["<<", "II", ">>"].map((label) => (
             <div
@@ -660,7 +633,7 @@ const ActCtaScene: FC<{ copyPack: CopyPack }> = ({ copyPack }) => {
           ))}
           <Img
             src={staticFile("comic/music-1600.png")}
-            style={{ width: 44, height: 44, objectFit: "contain", opacity: 0.95 }}
+            style={{width: 44, height: 44, objectFit: "contain", opacity: 0.95}}
           />
         </div>
 
@@ -712,34 +685,18 @@ export const defaultComicPromoProps: ComicPromoProps = {
 
 export const LTCGComicPromo24: FC<ComicPromoProps> = (props) => {
   const frame = useCurrentFrame();
-  const finalFade = interpolate(
-    frame,
-    [comicDurationInFrames - 22, comicDurationInFrames - 1],
-    [0, 1],
-    clamp,
-  );
-  const speedStrength =
-    frame < ACT_STARTS.cast
-      ? 0.35
-      : frame < ACT_STARTS.vices
-        ? 0.24
-        : frame < ACT_STARTS.story
-          ? 0.32
-          : 0.26;
+  const finalFade = interpolate(frame, [comicDurationInFrames - 22, comicDurationInFrames - 1], [0, 1], clamp);
+  const speedStrength = frame < ACT_STARTS.cast ? 0.35 : frame < ACT_STARTS.vices ? 0.24 : frame < ACT_STARTS.story ? 0.32 : 0.26;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#050505" }}>
+    <AbsoluteFill style={{backgroundColor: "#050505"}}>
       <Audio
         src={staticFile(props.themeTrack)}
         trimAfter={comicDurationInFrames}
         volume={(f) => interpolate(f, [0, 12, 696, 719], [0, 1, 1, 0], clamp)}
       />
 
-      <Sequence
-        from={ACT_STARTS.coldOpen}
-        durationInFrames={ACT_DURATIONS.coldOpen}
-        premountFor={comicFps}
-      >
+      <Sequence from={ACT_STARTS.coldOpen} durationInFrames={ACT_DURATIONS.coldOpen} premountFor={comicFps}>
         <ColdOpenScene />
       </Sequence>
       <Sequence from={ACT_STARTS.hook} durationInFrames={ACT_DURATIONS.hook} premountFor={comicFps}>
@@ -748,18 +705,10 @@ export const LTCGComicPromo24: FC<ComicPromoProps> = (props) => {
       <Sequence from={ACT_STARTS.cast} durationInFrames={ACT_DURATIONS.cast} premountFor={comicFps}>
         <ActCastScene copyPack={props.copyPack} />
       </Sequence>
-      <Sequence
-        from={ACT_STARTS.vices}
-        durationInFrames={ACT_DURATIONS.vices}
-        premountFor={comicFps}
-      >
+      <Sequence from={ACT_STARTS.vices} durationInFrames={ACT_DURATIONS.vices} premountFor={comicFps}>
         <ActVicesScene copyPack={props.copyPack} />
       </Sequence>
-      <Sequence
-        from={ACT_STARTS.story}
-        durationInFrames={ACT_DURATIONS.story}
-        premountFor={comicFps}
-      >
+      <Sequence from={ACT_STARTS.story} durationInFrames={ACT_DURATIONS.story} premountFor={comicFps}>
         <ActStoryScene />
       </Sequence>
       <Sequence from={ACT_STARTS.cta} durationInFrames={ACT_DURATIONS.cta} premountFor={comicFps}>
@@ -787,14 +736,13 @@ export const LTCGComicPromo24: FC<ComicPromoProps> = (props) => {
             style={{
               opacity,
               pointerEvents: "none",
-              background:
-                "linear-gradient(180deg, rgba(255,240,140,0.22), transparent 26%, transparent 74%, rgba(255,240,140,0.22))",
+              background: "linear-gradient(180deg, rgba(255,240,140,0.22), transparent 26%, transparent 74%, rgba(255,240,140,0.22))",
             }}
           />
         );
       })}
 
-      <AbsoluteFill style={{ backgroundColor: "#000", opacity: finalFade }} />
+      <AbsoluteFill style={{backgroundColor: "#000", opacity: finalFade}} />
     </AbsoluteFill>
   );
 };

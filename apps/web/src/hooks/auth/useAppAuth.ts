@@ -26,7 +26,9 @@ export const APP_AUTH_DEFAULT_STATE: AppAuthState = {
   linkTelegram: null,
 };
 
-export const AppAuthContext = createContext<AppAuthState>(APP_AUTH_DEFAULT_STATE);
+export const AppAuthContext = createContext<AppAuthState>(
+  APP_AUTH_DEFAULT_STATE,
+);
 
 export function useAppAuth() {
   return useContext(AppAuthContext);

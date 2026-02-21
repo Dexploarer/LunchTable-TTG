@@ -14,7 +14,7 @@ interface UseDeckBuilderReturn {
   createDeck: (name: string) => Promise<Id<"userDecks">>;
   saveDeck: (
     deckId: Id<"userDecks">,
-    cards: Array<{ cardDefinitionId: Id<"cardDefinitions">; quantity: number }>,
+    cards: Array<{ cardDefinitionId: Id<"cardDefinitions">; quantity: number }>
   ) => Promise<void>;
   renameDeck: (deckId: Id<"userDecks">, newName: string) => Promise<void>;
   deleteDeck: (deckId: Id<"userDecks">) => Promise<void>;
@@ -83,7 +83,7 @@ export function useDeckBuilder(): UseDeckBuilderReturn {
   // Queries
   const decks = useQuery(
     (api as any).lunchtable_tcg_cards.decks.getUserDecks,
-    userId ? { userId } : "skip",
+    userId ? { userId } : "skip"
   );
 
   // Mutations
@@ -110,7 +110,7 @@ export function useDeckBuilder(): UseDeckBuilderReturn {
 
   const saveDeck = async (
     deckId: Id<"userDecks">,
-    cards: Array<{ cardDefinitionId: Id<"cardDefinitions">; quantity: number }>,
+    cards: Array<{ cardDefinitionId: Id<"cardDefinitions">; quantity: number }>
   ) => {
     if (!isAuthenticated || !userId) throw new Error("Not authenticated");
     try {
@@ -231,7 +231,7 @@ export function useDeck(deckId: Id<"userDecks"> | null) {
 
   return useQuery(
     (api as any).lunchtable_tcg_cards.decks.getDeckWithCards,
-    userId && deckId ? { userId, deckId } : "skip",
+    userId && deckId ? { userId, deckId } : "skip"
   );
 }
 
@@ -275,6 +275,6 @@ export function useValidateDeck(deckId: Id<"userDecks"> | null) {
 
   return useQuery(
     (api as any).lunchtable_tcg_cards.decks.validateDeck,
-    userId && deckId ? { userId, deckId } : "skip",
+    userId && deckId ? { userId, deckId } : "skip"
   );
 }

@@ -25,13 +25,11 @@ function downloadJson(filename: string, json: string) {
 
 export function PublishTab() {
   const draft = useActiveProjectDraft();
-  const { updateActiveProject, importProjectFromJson, exportActiveProjectJson } = useTTGStudioStore(
-    (state) => ({
-      updateActiveProject: state.updateActiveProject,
-      importProjectFromJson: state.importProjectFromJson,
-      exportActiveProjectJson: state.exportActiveProjectJson,
-    }),
-  );
+  const { updateActiveProject, importProjectFromJson, exportActiveProjectJson } = useTTGStudioStore((state) => ({
+    updateActiveProject: state.updateActiveProject,
+    importProjectFromJson: state.importProjectFromJson,
+    exportActiveProjectJson: state.exportActiveProjectJson,
+  }));
   const [importStatus, setImportStatus] = useState("");
   const [moderationStatus, setModerationStatus] = useState("");
   const assessPublish = useConvexMutation(apiAny.vttModeration.assessPublish);
@@ -179,22 +177,15 @@ export function PublishTab() {
         <h3 className="text-2xl">Preflight Checklist</h3>
         <div className="space-y-2">
           {preflight.map((issue) => (
-            <div
-              key={`${issue.code}-${issue.path}`}
-              className="paper-panel-flat p-3 flex items-center justify-between gap-2"
-            >
-              <p className="text-sm">
-                [{issue.severity}] {issue.message}
-              </p>
+            <div key={`${issue.code}-${issue.path}`} className="paper-panel-flat p-3 flex items-center justify-between gap-2">
+              <p className="text-sm">[{issue.severity}] {issue.message}</p>
               <code className="text-xs">{issue.path}</code>
             </div>
           ))}
         </div>
 
         <p className={`text-sm font-bold ${hasErrors ? "text-[#b42318]" : "text-[#177245]"}`}>
-          {hasErrors
-            ? "Publishing blocked until errors are resolved."
-            : "Preflight ready for release."}
+          {hasErrors ? "Publishing blocked until errors are resolved." : "Preflight ready for release."}
         </p>
         <div className="flex flex-wrap gap-2">
           <button
@@ -220,12 +211,7 @@ export function PublishTab() {
           <div className="flex flex-wrap gap-2">
             <button
               className="tcg-button"
-              onClick={() =>
-                downloadJson(
-                  `${draft.publish.packageName.replace(/\s+/g, "-").toLowerCase()}.json`,
-                  exportActiveProjectJson(),
-                )
-              }
+              onClick={() => downloadJson(`${draft.publish.packageName.replace(/\s+/g, "-").toLowerCase()}.json`, exportActiveProjectJson())}
               disabled={hasErrors}
             >
               Export Project JSON

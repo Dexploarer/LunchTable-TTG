@@ -102,7 +102,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
 
           // Find supported payment method (Solana exact payment)
           const acceptedPayment = paymentRequired.accepts.find(
-            (req) => req.scheme === "exact" && req.network.startsWith("solana:"),
+            (req) => req.scheme === "exact" && req.network.startsWith("solana:")
           );
 
           if (!acceptedPayment) {
@@ -133,7 +133,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
                 fromPubkey,
                 toPubkey,
                 lamports: Number(amountLamports),
-              }),
+              })
             );
           } else {
             // SPL token transfer (USDC)
@@ -143,11 +143,11 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
             // Derive sender and recipient ATAs
             const [senderAta] = PublicKey.findProgramAddressSync(
               [fromPubkey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintPubkey.toBuffer()],
-              ASSOCIATED_TOKEN_PROGRAM_ID,
+              ASSOCIATED_TOKEN_PROGRAM_ID
             );
             const [recipientAta] = PublicKey.findProgramAddressSync(
               [toPubkey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintPubkey.toBuffer()],
-              ASSOCIATED_TOKEN_PROGRAM_ID,
+              ASSOCIATED_TOKEN_PROGRAM_ID
             );
 
             // Create recipient ATA if it doesn't exist (idempotent instruction)
@@ -163,7 +163,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
                 ],
                 programId: ASSOCIATED_TOKEN_PROGRAM_ID,
                 data: Buffer.alloc(0),
-              }),
+              })
             );
 
             // SPL Token transfer instruction (index 3, 8-byte LE amount)
@@ -180,7 +180,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
                 ],
                 programId: TOKEN_PROGRAM_ID,
                 data,
-              }),
+              })
             );
           }
 
@@ -189,6 +189,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
           transaction.feePayer = fromPubkey;
 
           // Step 4: Sign transaction via Privy wallet
+          // biome-ignore lint/suspicious/noExplicitAny: Privy SDK v3 type mismatch — runtime accepts Transaction
           const signedTx = await (solanaWallet.signAndSendTransaction as any)({
             transaction: transaction.serialize({ requireAllSignatures: false }),
             chain: "solana:mainnet",
@@ -223,7 +224,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
           if (!retryResponse.ok) {
             const errorData = await retryResponse.json().catch(() => ({}));
             throw new Error(
-              errorData.error?.message || `Payment verification failed: ${retryResponse.status}`,
+              errorData.error?.message || `Payment verification failed: ${retryResponse.status}`
             );
           }
 
@@ -244,7 +245,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
         // Other error status codes
         const errorData = await initialResponse.json().catch(() => ({}));
         throw new Error(
-          errorData.error?.message || `Failed to join lobby: ${initialResponse.status}`,
+          errorData.error?.message || `Failed to join lobby: ${initialResponse.status}`
         );
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "Failed to join wager lobby";
@@ -253,7 +254,7 @@ export function useCryptoWagerJoin(): UseCryptoWagerJoinReturn {
         return { success: false, error: errorMsg };
       }
     },
-    [walletAddress, solanaWallet, isConnected],
+    [walletAddress, solanaWallet, isConnected]
   );
 
   return {

@@ -211,7 +211,7 @@ export function useConvexPresence(options: UseConvexPresenceOptions): UseConvexP
         await sendHeartbeat();
       }
     },
-    [isActive, sendHeartbeat],
+    [isActive, sendHeartbeat]
   );
 
   /**

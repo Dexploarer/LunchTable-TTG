@@ -7,9 +7,9 @@ describe("permissions", () => {
   const other = "user_other" as Id<"users">;
 
   it("allows actors to use public/unlisted worlds", () => {
-    expect(canActorUseWorld({ visibility: "public", ownerUserId: owner, actorUserId: other })).toBe(
-      true,
-    );
+    expect(
+      canActorUseWorld({ visibility: "public", ownerUserId: owner, actorUserId: other }),
+    ).toBe(true);
     expect(
       canActorUseWorld({ visibility: "unlisted", ownerUserId: owner, actorUserId: other }),
     ).toBe(true);
@@ -42,3 +42,4 @@ describe("permissions", () => {
     ).toBe(true);
   });
 });
+

@@ -44,14 +44,7 @@ export function App() {
         <Route path="/lfg" element={<Lfg />} />
         <Route path="/publish" element={<Publish />} />
         <Route path="/agent-ops" element={<AgentOps />} />
-        <Route
-          path="/settings/providers"
-          element={
-            <AuthGuard>
-              <ProviderSettings />
-            </AuthGuard>
-          }
-        />
+        <Route path="/settings/providers" element={<AuthGuard><ProviderSettings /></AuthGuard>} />
 
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />

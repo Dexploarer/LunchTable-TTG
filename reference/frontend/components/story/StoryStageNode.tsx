@@ -69,7 +69,7 @@ export function StoryStageNode({ stage, onClick, className }: StoryStageNodeProp
       className={cn(
         "relative group flex flex-col items-center justify-center z-10",
         isLocked && "opacity-50 cursor-not-allowed grayscale",
-        className,
+        className
       )}
     >
       {/* Node Container */}
@@ -80,7 +80,7 @@ export function StoryStageNode({ stage, onClick, className }: StoryStageNodeProp
             !isLocked && config.borderColor,
             stage.aiDifficulty === "boss" &&
               !isLocked &&
-              "border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]",
+              "border-2 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]"
           )}
         >
           {/* Inner Content */}
@@ -129,7 +129,7 @@ export function StoryStageNode({ stage, onClick, className }: StoryStageNodeProp
       <div
         className={cn(
           "absolute -bottom-8 left-1/2 -translate-x-1/2 w-max px-3 py-1 rounded-full bg-black/80 border border-white/20 text-xs text-white opacity-0 transition-all duration-300 pointer-events-none whitespace-nowrap z-30",
-          "group-hover:opacity-100 group-hover:-bottom-10",
+          "group-hover:opacity-100 group-hover:-bottom-10"
         )}
       >
         {stage.name}

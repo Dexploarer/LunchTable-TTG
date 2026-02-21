@@ -57,7 +57,7 @@ export function useCurrency(): UseCurrencyReturn {
 
   const transactions = useQuery(
     api.economy.economy.getTransactionHistory,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
 
   return {

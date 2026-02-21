@@ -56,7 +56,7 @@ export function useShopInteraction() {
   const userCards = useQuery(api.core.cards.getUserCards, currentUser ? {} : "skip");
   const tokenListingsQuery = useQuery(
     api.economy.tokenMarketplace.getTokenListings,
-    currencyFilter === "token" && activeTab === "marketplace" ? {} : "skip",
+    currencyFilter === "token" && activeTab === "marketplace" ? {} : "skip"
   );
 
   // Mutations
@@ -70,7 +70,7 @@ export function useShopInteraction() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       listings = listings.filter((listing: MarketListing) =>
-        listing.cardName.toLowerCase().includes(query),
+        listing.cardName.toLowerCase().includes(query)
       );
     }
 
@@ -130,21 +130,21 @@ export function useShopInteraction() {
             ? `${product.boxConfig.packCount} Packs`
             : undefined,
         quantity: product.currencyConfig?.amount,
-      }),
+      })
     );
   }, [shop.products]);
 
   const packItems = useMemo(
     () => transformedShopItems.filter((item) => item.type === "pack"),
-    [transformedShopItems],
+    [transformedShopItems]
   );
   const boxItems = useMemo(
     () => transformedShopItems.filter((item) => item.type === "box"),
-    [transformedShopItems],
+    [transformedShopItems]
   );
   const currencyItems = useMemo(
     () => transformedShopItems.filter((item) => item.type === "currency"),
-    [transformedShopItems],
+    [transformedShopItems]
   );
 
   // Handlers
@@ -172,7 +172,7 @@ export function useShopInteraction() {
         setIsProcessing(false);
       }
     },
-    [shop],
+    [shop]
   );
 
   const handleMarketPurchase = useCallback(
@@ -187,7 +187,7 @@ export function useShopInteraction() {
         setIsProcessing(false);
       }
     },
-    [marketplace],
+    [marketplace]
   );
 
   const handlePlaceBid = useCallback(
@@ -197,7 +197,7 @@ export function useShopInteraction() {
       try {
         await marketplace.placeBid(
           listingId as Id<"marketplaceListings">,
-          Number.parseInt(bidAmount),
+          Number.parseInt(bidAmount)
         );
         setBidAmount("");
         setSelectedListing(null);
@@ -207,7 +207,7 @@ export function useShopInteraction() {
         setIsProcessing(false);
       }
     },
-    [bidAmount, marketplace],
+    [bidAmount, marketplace]
   );
 
   const handleCreateListing = useCallback(
@@ -229,7 +229,7 @@ export function useShopInteraction() {
         setIsProcessing(false);
       }
     },
-    [listingDialogCard, createListingMutation],
+    [listingDialogCard, createListingMutation]
   );
 
   const handleCancelListing = useCallback(
@@ -243,7 +243,7 @@ export function useShopInteraction() {
         setIsProcessing(false);
       }
     },
-    [marketplace],
+    [marketplace]
   );
 
   return {

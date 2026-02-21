@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { createDraftFromWorld, deserializeDraft, serializeDraft } from "@/lib/ttrpgStudio";
-import type { TTGPlaytestEvent, TTGProjectDraft } from "@/lib/ttrpgStudio";
+import type {
+  TTGPlaytestEvent,
+  TTGProjectDraft,
+} from "@/lib/ttrpgStudio";
 import { playableWorlds } from "@/lib/ttrpgStudio";
 
 export type StudioTab =
@@ -84,9 +87,7 @@ interface TTGStudioState extends PersistedStudioState {
   appendPlaytestEvents: (events: TTGPlaytestEvent[]) => void;
   appendTranscriptLine: (line: string) => void;
   clearTranscript: () => void;
-  importProjectFromJson: (
-    payload: string,
-  ) => { ok: true; id: string } | { ok: false; error: string };
+  importProjectFromJson: (payload: string) => { ok: true; id: string } | { ok: false; error: string };
   exportActiveProjectJson: () => string;
 }
 

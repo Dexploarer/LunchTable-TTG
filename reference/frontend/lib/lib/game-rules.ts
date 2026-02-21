@@ -914,7 +914,7 @@ export function searchGlossary(query: string): GlossaryTerm[] {
   const lowerQuery = query.toLowerCase();
   return GLOSSARY.filter(
     (g) =>
-      g.term.toLowerCase().includes(lowerQuery) || g.definition.toLowerCase().includes(lowerQuery),
+      g.term.toLowerCase().includes(lowerQuery) || g.definition.toLowerCase().includes(lowerQuery)
   );
 }
 

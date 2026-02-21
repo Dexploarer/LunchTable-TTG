@@ -28,7 +28,7 @@ function AlertDialogOverlay({
       data-slot="alert-dialog-overlay"
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/60 backdrop-blur-sm",
-        className,
+        className
       )}
       {...props}
     />
@@ -46,7 +46,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         className={cn(
           "bg-[#1a1614] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border-2 border-[#3d2b1f] p-6 shadow-2xl duration-200 sm:max-w-md",
-          className,
+          className
         )}
         {...props}
       />
@@ -109,7 +109,7 @@ function AlertDialogAction({
       className={cn(
         "inline-flex items-center justify-center transition-colors disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2",
         "bg-red-500 hover:bg-red-600 text-white font-semibold",
-        className,
+        className
       )}
       {...props}
     />
@@ -125,7 +125,7 @@ function AlertDialogCancel({
       className={cn(
         "inline-flex items-center justify-center transition-colors disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2",
         "border border-[#3d2b1f] bg-transparent text-[#a89f94] hover:bg-[#3d2b1f]/50 hover:text-[#e8e0d5]",
-        className,
+        className
       )}
       {...props}
     />

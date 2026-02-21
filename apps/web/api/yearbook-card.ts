@@ -61,8 +61,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   const rank = getIntQuery(req.query.rank, 999, 1, 9999);
   const score = getIntQuery(req.query.score, 0, 0, 9_999_999);
   const breakdowns = getIntQuery(req.query.breakdowns, 0, 0, 9999);
-  const type =
-    getStringQuery(req.query.type, "human", 8).toLowerCase() === "agent" ? "agent" : "human";
+  const type = getStringQuery(req.query.type, "human", 8).toLowerCase() === "agent" ? "agent" : "human";
   const quote = YEARBOOK_QUOTES[name] ?? DEFAULT_QUOTE;
 
   const accentColor = type === "agent" ? "#ffcc00" : "#121212";

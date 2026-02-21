@@ -94,7 +94,7 @@ export function useQuests(): UseQuestsReturn {
           const result = await ensureQuestsMutation({});
           if (result.dailyGenerated > 0 || result.weeklyGenerated > 0) {
             toast.success(
-              `Generated ${result.dailyGenerated} daily and ${result.weeklyGenerated} weekly quests!`,
+              `Generated ${result.dailyGenerated} daily and ${result.weeklyGenerated} weekly quests!`
             );
           }
         } catch (error) {
@@ -117,7 +117,7 @@ export function useQuests(): UseQuestsReturn {
       const result = await claimRewardMutation({ questRecordId });
       const gemsText = result.rewards.gems ? `, ${result.rewards.gems} Gems` : "";
       toast.success(
-        `Claimed rewards: ${result.rewards.gold} Gold, ${result.rewards.xp} XP${gemsText}`,
+        `Claimed rewards: ${result.rewards.gold} Gold, ${result.rewards.xp} XP${gemsText}`
       );
       return result;
     } catch (error) {

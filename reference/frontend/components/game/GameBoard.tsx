@@ -452,7 +452,7 @@ export function GameBoard({
           availableTributes={
             player?.frontline || player?.support?.length > 0
               ? [...(player.frontline ? [player.frontline] : []), ...(player.support || [])].filter(
-                  (card) => !card.isFaceDown,
+                  (card) => !card.isFaceDown
                 )
               : []
           }

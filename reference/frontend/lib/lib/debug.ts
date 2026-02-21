@@ -64,7 +64,7 @@ class FrontendLogger {
   private formatMessage(
     level: LogLevel,
     message: string,
-    context?: LogContext,
+    context?: LogContext
   ): [string, LogContext | Record<string, never>] {
     const timestamp = new Date().toISOString();
     const emoji = {

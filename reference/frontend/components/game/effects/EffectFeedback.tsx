@@ -206,7 +206,7 @@ export function useEffectFeedback() {
   const addFloatingNumber = (
     value: number,
     type: FloatingNumberProps["type"],
-    position: { x: number; y: number },
+    position: { x: number; y: number }
   ) => {
     const id = `floating-${Date.now()}-${Math.random()}`;
     setFloatingNumbers((prev) => [...prev, { id, value, type, position }]);
@@ -220,7 +220,7 @@ export function useEffectFeedback() {
     cardId: string,
     type: EffectAnimation["type"],
     color: EffectAnimation["color"],
-    duration?: number,
+    duration?: number
   ) => {
     const id = `anim-${Date.now()}-${Math.random()}`;
     setAnimations((prev) => [...prev, { id, cardId, type, color, duration }]);
@@ -234,7 +234,7 @@ export function useEffectFeedback() {
     cardId: string,
     statType: "attack" | "defense",
     change: number,
-    element: HTMLElement,
+    element: HTMLElement
   ) => {
     const rect = element.getBoundingClientRect();
     const position = {

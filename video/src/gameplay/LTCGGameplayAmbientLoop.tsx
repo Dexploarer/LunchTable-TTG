@@ -1,5 +1,5 @@
-import type { FC } from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import type {FC} from "react";
+import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 
 const clamp = {
   extrapolateLeft: "clamp" as const,
@@ -14,16 +14,16 @@ export const gameplayAmbientDurationInFrames = 180;
 const STAMPS = ["DRAW", "CHAIN", "CLASH", "STACK", "TURN"] as const;
 
 const STAMP_LAYOUT = [
-  { left: 6, top: 12, rotate: -7, scale: 1 },
-  { left: 74, top: 16, rotate: 6, scale: 0.95 },
-  { left: 16, top: 74, rotate: -5, scale: 0.92 },
-  { left: 68, top: 78, rotate: 7, scale: 1.04 },
-  { left: 43, top: 44, rotate: -2, scale: 0.98 },
+  {left: 6, top: 12, rotate: -7, scale: 1},
+  {left: 74, top: 16, rotate: 6, scale: 0.95},
+  {left: 16, top: 74, rotate: -5, scale: 0.92},
+  {left: 68, top: 78, rotate: 7, scale: 1.04},
+  {left: 43, top: 44, rotate: -2, scale: 0.98},
 ] as const;
 
 export const LTCGGameplayAmbientLoop: FC = () => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const {durationInFrames} = useVideoConfig();
   const progress = frame / durationInFrames;
 
   const phaseA = progress * Math.PI * 2;
@@ -36,7 +36,7 @@ export const LTCGGameplayAmbientLoop: FC = () => {
   const stampOpacity = 0.07 + (Math.sin(phaseB) + 1) * 0.04;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#fdfdfb", overflow: "hidden" }}>
+    <AbsoluteFill style={{backgroundColor: "#fdfdfb", overflow: "hidden"}}>
       <AbsoluteFill
         style={{
           background:
@@ -55,7 +55,7 @@ export const LTCGGameplayAmbientLoop: FC = () => {
         }}
       />
 
-      {Array.from({ length: 6 }).map((_, index) => {
+      {Array.from({length: 6}).map((_, index) => {
         const drift = (index + 1) * 0.7;
         const wave = Math.sin(phaseA + index) * 40;
         return (

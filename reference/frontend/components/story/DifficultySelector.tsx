@@ -109,7 +109,7 @@ export function DifficultySelector({
                   ? "opacity-50 cursor-not-allowed border-gray-600/50 bg-gray-800/30"
                   : isSelected
                     ? cn(config.bgColor, config.borderColor, config.glowColor, "border-2")
-                    : cn("border-[#3d2b1f]/50 bg-black/30 hover:border-[#3d2b1f]"),
+                    : cn("border-[#3d2b1f]/50 bg-black/30 hover:border-[#3d2b1f]")
               )}
             >
               {/* Lock Overlay */}
@@ -134,7 +134,7 @@ export function DifficultySelector({
               <config.icon
                 className={cn(
                   "w-5 h-5 transition-colors",
-                  isSelected && !isLocked ? config.color : "text-[#a89f94]",
+                  isSelected && !isLocked ? config.color : "text-[#a89f94]"
                 )}
               />
 
@@ -142,7 +142,7 @@ export function DifficultySelector({
               <span
                 className={cn(
                   "text-xs font-medium transition-colors",
-                  isSelected && !isLocked ? config.color : "text-[#e8e0d5]",
+                  isSelected && !isLocked ? config.color : "text-[#e8e0d5]"
                 )}
               >
                 {difficulty.label}
@@ -152,7 +152,7 @@ export function DifficultySelector({
               <div
                 className={cn(
                   "flex items-center gap-1 text-[10px]",
-                  isSelected && !isLocked ? config.color : "text-[#a89f94]/70",
+                  isSelected && !isLocked ? config.color : "text-[#a89f94]/70"
                 )}
               >
                 <Sparkles className="w-3 h-3" />
@@ -176,7 +176,7 @@ export function DifficultySelector({
                     "absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center",
                     config.bgColor,
                     "border",
-                    config.borderColor,
+                    config.borderColor
                   )}
                   initial={false}
                 >

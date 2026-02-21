@@ -56,7 +56,7 @@ export function ChainDisplayWidget({
         "w-48 max-h-[60vh] overflow-y-auto",
         "bg-background/95 backdrop-blur-md border-2 border-purple-500/50 rounded-xl",
         "shadow-2xl shadow-purple-500/20 p-2",
-        className,
+        className
       )}
       data-testid="chain-display"
     >
@@ -90,7 +90,7 @@ export function ChainDisplayWidget({
                   SPELL_SPEED_COLORS[link.spellSpeed],
                   isTopOfChain &&
                     isResolving &&
-                    "ring-2 ring-purple-400 ring-offset-1 ring-offset-background",
+                    "ring-2 ring-purple-400 ring-offset-1 ring-offset-background"
                 )}
               >
                 <div className="flex items-center gap-1.5">

@@ -42,18 +42,13 @@ export function Home() {
           <p className="text-xs uppercase text-[#121212]/60">LunchTable TTG</p>
           <h1 className="text-5xl uppercase leading-none">AI-Native Tabletop Fabrication</h1>
           <p className="mt-2 text-sm text-[#121212]/70 max-w-3xl">
-            Build complete game systems, generate worlds with AI, run live sessions, and ship
-            publishable creator packs with discoverability and LFG built in.
+            Build complete game systems, generate worlds with AI, run live sessions, and ship publishable creator packs with discoverability and LFG built in.
           </p>
         </header>
 
         <section className="grid md:grid-cols-2 xl:grid-cols-3 gap-3">
           {CARDS.map((card) => (
-            <Link
-              key={card.to}
-              to={card.to}
-              className="paper-panel p-4 hover:-translate-y-0.5 transition-transform"
-            >
+            <Link key={card.to} to={card.to} className="paper-panel p-4 hover:-translate-y-0.5 transition-transform">
               <h2 className="text-2xl uppercase">{card.title}</h2>
               <p className="text-sm text-[#121212]/70 mt-1">{card.description}</p>
             </Link>

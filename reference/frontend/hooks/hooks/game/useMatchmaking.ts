@@ -76,7 +76,7 @@ export function useMatchmaking(): UseMatchmakingReturn {
         return { success: false, error: message };
       }
     },
-    [joinQueueMutation],
+    [joinQueueMutation]
   );
 
   const leaveQueue = useCallback(async () => {

@@ -61,7 +61,7 @@ export function useAIChat(): UseAIChatReturn {
   // Get the current user from Convex for the userId
   const currentUser = useConvexQuery(
     typedApi.core.users.currentUser,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
   const userId = currentUser?._id;
 
@@ -72,7 +72,7 @@ export function useAIChat(): UseAIChatReturn {
   // Get messages for current session
   const messagesData = useConvexQuery(
     typedApi.social.aiChat.getSessionMessages,
-    sessionId ? { sessionId } : "skip",
+    sessionId ? { sessionId } : "skip"
   );
 
   // Mutations
@@ -140,7 +140,7 @@ export function useAIChat(): UseAIChatReturn {
         throw error;
       }
     },
-    [isAuthenticated, userId, sessionId, sendUserMessageMutation, getAccessToken],
+    [isAuthenticated, userId, sessionId, sendUserMessageMutation, getAccessToken]
   );
 
   /**
@@ -181,7 +181,7 @@ export function useAIChat(): UseAIChatReturn {
       role: m.role,
       message: m.message,
       createdAt: m.createdAt,
-    }),
+    })
   );
 
   return {

@@ -5,7 +5,14 @@ import { cn } from "@/lib/utils";
 import type { Id } from "@convex/_generated/dataModel";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, Crown, Loader2, Skull, Swords, Trophy } from "lucide-react";
+import {
+  ArrowLeft,
+  Crown,
+  Loader2,
+  Skull,
+  Swords,
+  Trophy,
+} from "lucide-react";
 import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/_app/results/$matchId")({
@@ -18,7 +25,7 @@ function ResultsPage() {
 
   const lobby = useConvexQuery(
     typedApi.games.getLobbyDetails,
-    isAuthenticated ? { lobbyId: matchId } : "skip",
+    isAuthenticated ? { lobbyId: matchId } : "skip"
   );
 
   if (!lobby) {
@@ -71,7 +78,7 @@ function ResultsPage() {
           <div
             className={cn(
               "w-24 h-24 mx-auto mb-6 border-zine shadow-zine flex items-center justify-center",
-              winnerId ? "bg-amber-400" : "bg-slate-400",
+              winnerId ? "bg-amber-400" : "bg-slate-400"
             )}
           >
             {winnerId ? (

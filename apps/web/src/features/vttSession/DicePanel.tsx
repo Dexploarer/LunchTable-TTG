@@ -62,9 +62,7 @@ export function DicePanel({ history, onRoll }: DicePanelProps) {
       <div className="paper-panel-flat p-2 max-h-32 overflow-auto space-y-1 text-sm">
         {history.length === 0 ? <p className="text-xs text-[#121212]/60">No rolls yet.</p> : null}
         {history.map((roll, index) => (
-          <p key={`${roll.expression}-${index}`}>
-            {roll.expression} = {roll.total}
-          </p>
+          <p key={`${roll.expression}-${index}`}>{roll.expression} = {roll.total}</p>
         ))}
       </div>
     </section>

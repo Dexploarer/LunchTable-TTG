@@ -9,12 +9,7 @@ import { buildWorldVersionSnapshot } from "./vttWorlds";
 import { vVttProvider } from "./vttAiProviders";
 
 function normalizeUsername(value: string) {
-  return (
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9_]/g, "_")
-      .slice(0, 18) || "agent"
-  );
+  return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 18) || "agent";
 }
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -231,8 +226,7 @@ export const agentPostCommand = mutation({
     const now = Date.now();
 
     if (command === "DICE_ROLL") {
-      const expression =
-        typeof payloadObject.expression === "string" ? payloadObject.expression : "";
+      const expression = typeof payloadObject.expression === "string" ? payloadObject.expression : "";
       const total = typeof payloadObject.total === "number" ? payloadObject.total : Number.NaN;
       if (!expression || !Number.isFinite(total)) {
         throw new Error("DICE_ROLL requires expression (string) and total (number)");
@@ -265,9 +259,7 @@ export const agentPostCommand = mutation({
       const x = typeof payloadObject.x === "number" ? payloadObject.x : Number.NaN;
       const y = typeof payloadObject.y === "number" ? payloadObject.y : Number.NaN;
       const layer =
-        payloadObject.layer === "ground" ||
-        payloadObject.layer === "mid" ||
-        payloadObject.layer === "air"
+        payloadObject.layer === "ground" || payloadObject.layer === "mid" || payloadObject.layer === "air"
           ? payloadObject.layer
           : "mid";
       const color = typeof payloadObject.color === "string" ? payloadObject.color : undefined;
@@ -503,9 +495,7 @@ export const agentUpdateWorld = mutation({
     tagline: v.optional(v.string()),
     genre: v.optional(v.string()),
     mood: v.optional(v.string()),
-    visibility: v.optional(
-      v.union(v.literal("public"), v.literal("private"), v.literal("unlisted")),
-    ),
+    visibility: v.optional(v.union(v.literal("public"), v.literal("private"), v.literal("unlisted"))),
     recommendedPartySize: v.optional(v.string()),
     sessionLength: v.optional(v.string()),
   },
@@ -520,8 +510,7 @@ export const agentUpdateWorld = mutation({
     if (args.genre !== undefined) patch.genre = args.genre;
     if (args.mood !== undefined) patch.mood = args.mood;
     if (args.visibility !== undefined) patch.visibility = args.visibility;
-    if (args.recommendedPartySize !== undefined)
-      patch.recommendedPartySize = args.recommendedPartySize;
+    if (args.recommendedPartySize !== undefined) patch.recommendedPartySize = args.recommendedPartySize;
     if (args.sessionLength !== undefined) patch.sessionLength = args.sessionLength;
 
     await ctx.db.patch(args.worldId, patch);

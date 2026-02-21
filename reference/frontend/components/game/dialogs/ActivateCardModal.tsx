@@ -134,7 +134,7 @@ export function ActivateCardModal({
                               "text-[10px] px-1 py-0.5 rounded",
                               effect.spellSpeed === 3
                                 ? "bg-red-500/10 text-red-400"
-                                : "bg-yellow-500/10 text-yellow-400",
+                                : "bg-yellow-500/10 text-yellow-400"
                             )}
                           >
                             Speed {effect.spellSpeed}

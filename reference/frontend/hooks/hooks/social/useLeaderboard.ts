@@ -61,7 +61,7 @@ interface UseLeaderboardReturn {
  */
 export function useLeaderboard(
   type: GameMode = "ranked",
-  segment: "all" | "humans" | "ai" = "all",
+  segment: "all" | "humans" | "ai" = "all"
 ): UseLeaderboardReturn {
   const { isAuthenticated } = useAuth();
 
@@ -77,7 +77,7 @@ export function useLeaderboard(
   // Battle history
   const battleHistory = useQuery(
     api.social.leaderboards.getBattleHistory,
-    isAuthenticated ? { limit: 20, gameType: type } : "skip",
+    isAuthenticated ? { limit: 20, gameType: type } : "skip"
   );
 
   return {

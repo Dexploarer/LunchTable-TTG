@@ -37,9 +37,7 @@ export default defineConfig(({ mode }) => {
           const message = typeof warning === "string" ? warning : warning.message;
 
           if (
-            message.includes(
-              "contains an annotation that Rollup cannot interpret due to the position of the comment",
-            )
+            message.includes("contains an annotation that Rollup cannot interpret due to the position of the comment")
           ) {
             return;
           }

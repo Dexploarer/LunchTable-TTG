@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formatProviderFallbackMessage, normalizeAgentRunFormState } from "./agentMasterPanelLogic";
+import {
+  formatProviderFallbackMessage,
+  normalizeAgentRunFormState,
+} from "./agentMasterPanelLogic";
 
 describe("agentMasterPanelLogic", () => {
   it("clamps runtime values to allowed ranges", () => {

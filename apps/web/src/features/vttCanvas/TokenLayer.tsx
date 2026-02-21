@@ -13,7 +13,12 @@ interface TokenLayerProps {
   boundsRef?: React.RefObject<HTMLElement | null>;
   selectedTokenId?: string | null;
   onSelectToken?: (tokenId: string) => void;
-  onTokenMove?: (tokenId: string, x: number, y: number, options?: { commit?: boolean }) => void;
+  onTokenMove?: (
+    tokenId: string,
+    x: number,
+    y: number,
+    options?: { commit?: boolean },
+  ) => void;
 }
 
 interface DragState {

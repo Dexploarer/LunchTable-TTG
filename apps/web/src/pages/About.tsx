@@ -54,7 +54,10 @@ export function About() {
 
         <div className="space-y-12">
           {comics.map((panel, i) => (
-            <div key={i} className="relative group mx-auto max-w-2xl">
+            <div
+              key={i}
+              className="relative group mx-auto max-w-2xl"
+            >
               <div
                 className="relative p-2 bg-[#121212] border-2 border-[#2a2a2a] shadow-2xl transform rotate-1 group-hover:rotate-0 transition-transform duration-500"
                 style={{
@@ -85,15 +88,17 @@ export function About() {
         {/* Footer Build Info */}
         <div className="mt-32 text-center">
           <div className="flex flex-wrap justify-center gap-2 opacity-50">
-            {["LunchTable TTG", "Eliza", "Convex", "Privy", "milaidy"].map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-1 text-[10px] uppercase tracking-wider border border-white/20 text-white/40"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
-                {tag}
-              </span>
-            ))}
+            {["LunchTable TTG", "Eliza", "Convex", "Privy", "milaidy"].map(
+              (tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 text-[10px] uppercase tracking-wider border border-white/20 text-white/40"
+                  style={{ fontFamily: "Outfit, sans-serif" }}
+                >
+                  {tag}
+                </span>
+              ),
+            )}
           </div>
         </div>
       </div>

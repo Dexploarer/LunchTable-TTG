@@ -131,21 +131,21 @@ export function useLunchMoney(): UseLunchMoneyReturn {
   const balance = useConvexQuery(typedApi.economy.getPlayerBalance, isAuthenticated ? {} : "skip");
   const tokenData = useConvexQuery(
     typedApi.economy.tokenBalance.getTokenBalance,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
 
   // Listings queries
   const goldListingsData = useConvexQuery(
     typedApi.economy.marketplace.getUserListings,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
   const tokenListingsData = useConvexQuery(
     typedApi.economy.tokenMarketplace.getUserTokenListings,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
   const pendingPurchasesData = useConvexQuery(
     typedApi.economy.tokenMarketplace.getUserPendingPurchases,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
 
   // Market overview
@@ -153,11 +153,11 @@ export function useLunchMoney(): UseLunchMoneyReturn {
 
   // Mutations
   const refreshBalanceMutation = useConvexMutation(
-    typedApi.economy.tokenBalance.requestBalanceRefresh,
+    typedApi.economy.tokenBalance.requestBalanceRefresh
   );
   const cancelGoldListingMutation = useConvexMutation(typedApi.economy.marketplace.cancelListing);
   const cancelTokenListingMutation = useConvexMutation(
-    typedApi.economy.tokenMarketplace.cancelTokenListing,
+    typedApi.economy.tokenMarketplace.cancelTokenListing
   );
 
   // Actions

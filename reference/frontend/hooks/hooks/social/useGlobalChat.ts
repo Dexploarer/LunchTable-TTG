@@ -2,6 +2,7 @@
 
 import { handleHookError } from "@/lib/errorHandling";
 import * as generatedApi from "@convex/_generated/api";
+// biome-ignore lint/suspicious/noExplicitAny: TS2589 workaround for deep type instantiation
 const apiAny = (generatedApi as any).api;
 import { useMutation, usePaginatedQuery } from "convex/react";
 import { toast } from "sonner";
@@ -9,6 +10,7 @@ import { useAuth } from "../auth/useConvexAuthHook";
 import { useConvexPresence } from "./useConvexPresence";
 
 interface UseGlobalChatReturn {
+  // biome-ignore lint/suspicious/noExplicitAny: Avoids TS2589 from deeply nested usePaginatedQuery generic
   messages: any[];
   onlineUsers: ReturnType<typeof useConvexPresence>["users"];
   onlineCount: number;

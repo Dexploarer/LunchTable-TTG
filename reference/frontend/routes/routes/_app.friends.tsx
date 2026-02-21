@@ -449,12 +449,7 @@ function FriendCard({
   onMessage,
   onRemove,
   isOnline,
-}: {
-  friend: Friend;
-  onMessage: () => void;
-  onRemove: () => void;
-  isOnline?: boolean;
-}) {
+}: { friend: Friend; onMessage: () => void; onRemove: () => void; isOnline?: boolean }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -464,7 +459,7 @@ function FriendCard({
         "group relative flex items-center gap-4 p-4 border-zine transition-all bg-white ink-wash",
         isOnline
           ? "shadow-zine"
-          : "shadow-zine-sm opacity-60 grayscale hover:opacity-100 hover:grayscale-0 hover:shadow-zine",
+          : "shadow-zine-sm opacity-60 grayscale hover:opacity-100 hover:grayscale-0 hover:shadow-zine"
       )}
     >
       <div className="relative">
@@ -473,7 +468,7 @@ function FriendCard({
           <AvatarFallback
             className={cn(
               "font-black text-lg rounded-none uppercase",
-              isOnline ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500",
+              isOnline ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
             )}
           >
             {friend.username[0]}
@@ -488,7 +483,7 @@ function FriendCard({
         <h4
           className={cn(
             "text-lg font-black truncate uppercase leading-none mb-1",
-            isOnline ? "text-black" : "text-black/60 group-hover:text-black",
+            isOnline ? "text-black" : "text-black/60 group-hover:text-black"
           )}
         >
           {friend.username}

@@ -12,11 +12,7 @@ interface WallLayerProps {
 
 export function WallLayer({ walls }: WallLayerProps) {
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-    >
+    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
       {walls.map((wall) => (
         <line
           key={wall.id}

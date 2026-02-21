@@ -48,7 +48,7 @@ export function ArchetypeIcon({
         className={cn(
           "relative overflow-hidden bg-black/20",
           rounded && "rounded-lg",
-          "ring-1 ring-white/10",
+          "ring-1 ring-white/10"
         )}
         style={{ width: pixelSize, height: pixelSize }}
       >

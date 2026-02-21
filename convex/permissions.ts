@@ -19,3 +19,4 @@ export function isWorldVisibleToViewer(params: {
   if (params.visibility !== "private") return true;
   return Boolean(params.viewerUserId && params.viewerUserId === params.ownerUserId);
 }
+

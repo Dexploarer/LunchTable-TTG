@@ -142,7 +142,7 @@ export function DialogueDisplay({
                   ? "bg-[#d4af37] scale-125"
                   : index < currentIndex
                     ? "bg-[#d4af37]/50"
-                    : "bg-gray-600",
+                    : "bg-gray-600"
               )}
             />
           ))}

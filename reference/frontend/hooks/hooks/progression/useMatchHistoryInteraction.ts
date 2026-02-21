@@ -23,7 +23,7 @@ export function useMatchHistoryInteraction() {
   // Fetch real match history from Convex
   const matchHistoryQuery = useQuery(
     api.progression.matchHistory.getMatchHistory,
-    isAuthenticated ? { limit: 50 } : "skip",
+    isAuthenticated ? { limit: 50 } : "skip"
   );
 
   const isLoading = profileLoading || matchHistoryQuery === undefined;

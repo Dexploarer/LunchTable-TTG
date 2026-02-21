@@ -30,7 +30,7 @@ export function useTokenListing(card: TokenListingCard, options: UseTokenListing
   const [showWalletConnect, setShowWalletConnect] = useState(false);
 
   const createTokenListing = useConvexMutation(
-    typedApi.economy.tokenMarketplace.createTokenListing,
+    typedApi.economy.tokenMarketplace.createTokenListing
   );
 
   // Parse and validate price input

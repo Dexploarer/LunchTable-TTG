@@ -160,10 +160,7 @@ export const getSessionView = query({
           .collect()
       : [];
 
-    const sortedEvents = events
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, limit)
-      .reverse();
+    const sortedEvents = events.sort((a, b) => b.createdAt - a.createdAt).slice(0, limit).reverse();
 
     const recentDice = isParticipant
       ? await ctx.db

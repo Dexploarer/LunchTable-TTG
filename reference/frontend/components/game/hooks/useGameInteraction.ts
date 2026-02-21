@@ -47,7 +47,7 @@ interface ChainLink {
 export function useGameInteraction(
   lobbyId: Id<"gameLobbies">,
   gameBoard: ReturnType<typeof useGameBoard>,
-  gameMode: "pvp" | "story" = "pvp",
+  gameMode: "pvp" | "story" = "pvp"
 ) {
   const navigate = useNavigate();
 
@@ -112,11 +112,11 @@ export function useGameInteraction(
 
   // Mutations required for interactions
   const completeSearchEffectMutation = useConvexMutation(
-    typedApi.gameplay.gameEngine.spellsTraps.completeSearchEffect,
+    typedApi.gameplay.gameEngine.spellsTraps.completeSearchEffect
   );
 
   const getPendingCostMutation = useConvexMutation(
-    typedApi.gameplay.effectSystem.costPayment.getPendingCostRequirement,
+    typedApi.gameplay.effectSystem.costPayment.getPendingCostRequirement
   );
 
   const completeSearchEffect = useCallback(
@@ -127,13 +127,13 @@ export function useGameInteraction(
     }) => {
       return completeSearchEffectMutation(args);
     },
-    [completeSearchEffectMutation],
+    [completeSearchEffectMutation]
   );
 
   // Queries shifted from GameBoard
   const pendingOptionalTriggers = useConvexQuery(
     typedApi.gameplay.games.queries.getPendingOptionalTriggers,
-    { lobbyId },
+    { lobbyId }
   );
   const timeoutStatus = useConvexQuery(typedApi.gameplay.games.queries.getTimeoutStatus, {
     lobbyId,
@@ -151,7 +151,7 @@ export function useGameInteraction(
     : "skip";
   const gameEvents = useConvexQuery(
     typedApi.gameplay.gameEvents.subscribeToGameEvents,
-    gameEventsArgs,
+    gameEventsArgs
   );
 
   // Show toast notifications for auto-triggered effects
@@ -187,7 +187,7 @@ export function useGameInteraction(
         // Use enhanced toast with categorization
         categorizeEffect(description);
         showEffectActivated(cardName || "Card Effect", description);
-      },
+      }
     );
   }, [gameEvents]);
 
@@ -218,7 +218,7 @@ export function useGameInteraction(
   const attackableAttackers = useMemo(() => {
     if (!attackOptions) return new Set<Id<"cardDefinitions">>();
     return new Set(
-      attackOptions.filter((option) => option.canAttack).map((option) => option.instanceId),
+      attackOptions.filter((option) => option.canAttack).map((option) => option.instanceId)
     );
   }, [attackOptions]);
 
@@ -342,7 +342,7 @@ export function useGameInteraction(
         });
       }
     },
-    [selectedFieldCard, gameBoard.declareAttack],
+    [selectedFieldCard, gameBoard.declareAttack]
   );
 
   const handleHandCardClick = useCallback(
@@ -373,7 +373,7 @@ export function useGameInteraction(
       setSelectedHandCard(card);
       setShowSummonModal(true);
     },
-    [isPlayerTurn, isMainPhase, currentPhase],
+    [isPlayerTurn, isMainPhase, currentPhase]
   );
 
   const handleMonsterAttackClick = useCallback(
@@ -382,7 +382,7 @@ export function useGameInteraction(
       setSelectedFieldCard(card);
       setShowAttackModal(true);
     },
-    [isBattlePhase, isPlayerTurn],
+    [isBattlePhase, isPlayerTurn]
   );
 
   const handleFieldCardClick = useCallback(
@@ -406,7 +406,7 @@ export function useGameInteraction(
         player?.support?.some((c) => c.instanceId === card.instanceId);
       const isMonster = card.cardType === "stereotype";
       const hasManualEffects = card.effects?.some(
-        (e) => e.activationType === "ignition" || e.activationType === "quick",
+        (e) => e.activationType === "ignition" || e.activationType === "quick"
       );
 
       if (isPlayerCard && isMonster && hasManualEffects && !card.isFaceDown && isPlayerTurn) {
@@ -438,7 +438,7 @@ export function useGameInteraction(
       handleDeclareAttack,
       attackableAttackers,
       targetableCards,
-    ],
+    ]
   );
 
   const handleSummon = useCallback(
@@ -457,7 +457,7 @@ export function useGameInteraction(
       }
 
       const result = await perf.time(`normalSummon_${selectedHandCard.name}`, async () =>
-        normalSummon(selectedHandCard.instanceId, position, tributeIds),
+        normalSummon(selectedHandCard.instanceId, position, tributeIds)
       );
 
       if (result.success) {
@@ -470,7 +470,7 @@ export function useGameInteraction(
         });
       }
     },
-    [selectedHandCard, normalSummon],
+    [selectedHandCard, normalSummon]
   );
 
   const handleSetMonster = useCallback(async () => {
@@ -662,7 +662,7 @@ export function useGameInteraction(
         result = (await activateMonsterEffect(
           selectedCard.instanceId,
           effectIndex,
-          costTargets,
+          costTargets
         )) as ActivationResult;
       } else {
         return;
@@ -725,7 +725,7 @@ export function useGameInteraction(
       lobbyId,
       completeSearchEffect,
       getPendingCostMutation,
-    ],
+    ]
   );
 
   const handleChainResponse = useCallback(
@@ -735,7 +735,7 @@ export function useGameInteraction(
         effectIndex,
       });
     },
-    [respondToChain],
+    [respondToChain]
   );
 
   const handlePassChain = useCallback(async () => {

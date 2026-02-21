@@ -59,10 +59,8 @@ const STALE_GLOBAL_LIMIT = 40;
 
 async function loadCardLookup() {
   const cards = await convex.query(api.game.getAllCards, {});
-  const lookup: Record<
-    string,
-    { name?: string; cardType?: string; type?: string; attack?: number; level?: number }
-  > = {};
+  const lookup: Record<string, { name?: string; cardType?: string; type?: string; attack?: number; level?: number }> =
+    {};
   for (const card of cards ?? []) {
     lookup[card._id] = card;
   }
@@ -74,18 +72,14 @@ function cardName(cardLookup: Record<string, any>, cardId: string | undefined) {
   return cardLookup[cardId]?.name ?? cardId;
 }
 
-function normalizeCardList(
-  cards: Array<Record<string, unknown> | null> | undefined,
-  cardLookup: Record<string, any>,
-) {
+function normalizeCardList(cards: Array<Record<string, unknown> | null> | undefined, cardLookup: Record<string, any>) {
   return (cards ?? [])
     .filter(Boolean)
     .map((raw) => {
       const card = raw as Record<string, unknown>;
       const defId = String(card.definitionId ?? "");
       const name = cardName(cardLookup, defId);
-      const attack =
-        card.attack ?? cardLookup[defId]?.attack ?? cardLookup[defId]?.attackPoints ?? 0;
+      const attack = card.attack ?? cardLookup[defId]?.attack ?? cardLookup[defId]?.attackPoints ?? 0;
       const flags: string[] = [];
       if (card.faceDown) return "Face-down";
       if (card.canAttack) flags.push("can-attack");
@@ -181,10 +175,7 @@ async function loadSeatView(matchId: string, seat: Seat) {
 }
 
 function pickTributeCards(view: PlayerView, cardLookup: Record<string, any>): string[] | undefined {
-  const board = (view.board ?? []).filter(Boolean) as Array<{
-    cardId: string;
-    definitionId: string;
-  }>;
+  const board = (view.board ?? []).filter(Boolean) as Array<{ cardId: string; definitionId: string }>;
   if (board.length === 0) return undefined;
   const sorted = [...board].sort((a, b) => {
     const atkA = Number(cardLookup[a.definitionId]?.attack ?? 0);
@@ -194,7 +185,10 @@ function pickTributeCards(view: PlayerView, cardLookup: Record<string, any>): st
   return [sorted[0].cardId];
 }
 
-function chooseMainPhaseCommand(view: PlayerView, cardLookup: Record<string, any>) {
+function chooseMainPhaseCommand(
+  view: PlayerView,
+  cardLookup: Record<string, any>,
+) {
   const monsters = (view.hand ?? [])
     .map((cardId) => ({ cardId, def: cardLookup[cardId] }))
     .filter((entry) => entry.def && entry.def.cardType === "stereotype")
@@ -219,10 +213,11 @@ function chooseMainPhaseCommand(view: PlayerView, cardLookup: Record<string, any
     };
   }
 
-  const backrow = (view.hand ?? []).find((cardId) => {
-    const def = cardLookup[cardId];
-    return def && (def.cardType === "spell" || def.cardType === "trap");
-  });
+  const backrow = (view.hand ?? [])
+    .find((cardId) => {
+      const def = cardLookup[cardId];
+      return def && (def.cardType === "spell" || def.cardType === "trap");
+    });
 
   if (backrow) {
     return {
@@ -251,10 +246,12 @@ function chooseMainPhaseCommand(view: PlayerView, cardLookup: Record<string, any
 }
 
 function chooseCombatCommand(view: PlayerView, cardLookup: Record<string, any>) {
-  const attackers = (view.board ?? []).filter(Boolean).filter((raw) => {
-    const c = raw as { faceDown?: boolean; canAttack?: boolean; hasAttackedThisTurn?: boolean };
-    return !c.faceDown && c.canAttack && !c.hasAttackedThisTurn;
-  });
+  const attackers = (view.board ?? [])
+    .filter(Boolean)
+    .filter((raw) => {
+      const c = raw as { faceDown?: boolean; canAttack?: boolean; hasAttackedThisTurn?: boolean };
+      return !c.faceDown && c.canAttack && !c.hasAttackedThisTurn;
+    });
 
   if (attackers.length === 0) {
     return { type: "ADVANCE_PHASE" as const, _log: "advance phase" };
@@ -263,7 +260,7 @@ function chooseCombatCommand(view: PlayerView, cardLookup: Record<string, any>) 
   const attacker = attackers[0] as Record<string, unknown>;
   const opponentMonsters = (view.opponentBoard ?? [])
     .filter(Boolean)
-    .filter((raw) => !(raw as Record<string, unknown>).faceDown);
+    .filter((raw) => !((raw as Record<string, unknown>).faceDown));
 
   if (opponentMonsters.length === 0) {
     return {
@@ -274,12 +271,8 @@ function chooseCombatCommand(view: PlayerView, cardLookup: Record<string, any>) 
   }
 
   const orderedTargets = [...opponentMonsters].sort((a, b) => {
-    const atkA = Number(
-      cardLookup[String((a as Record<string, unknown>).definitionId)]?.attack ?? 0,
-    );
-    const atkB = Number(
-      cardLookup[String((b as Record<string, unknown>).definitionId)]?.attack ?? 0,
-    );
+    const atkA = Number(cardLookup[String((a as Record<string, unknown>).definitionId)]?.attack ?? 0);
+    const atkB = Number(cardLookup[String((b as Record<string, unknown>).definitionId)]?.attack ?? 0);
     return atkA - atkB;
   });
   const target = orderedTargets[0] as Record<string, unknown>;
@@ -308,7 +301,9 @@ function choosePhaseCommand(view: PlayerView, cardLookup: Record<string, any>) {
   return { type: "END_TURN" as const, _log: "end turn" };
 }
 
-function stripCommandLog(command: Record<string, unknown> & { _log?: string }) {
+function stripCommandLog(
+  command: Record<string, unknown> & { _log?: string },
+) {
   const { _log, ...rest } = command;
   return { ...rest };
 }
@@ -331,7 +326,11 @@ async function trySubmit(
   }
 }
 
-async function performSeatTurn(matchId: string, seat: Seat, cardLookup: Record<string, any>) {
+async function performSeatTurn(
+  matchId: string,
+  seat: Seat,
+  cardLookup: Record<string, any>,
+) {
   const actions: string[] = [];
   let stagnant = 0;
 
@@ -375,23 +374,25 @@ async function performSeatTurn(matchId: string, seat: Seat, cardLookup: Record<s
   return actions;
 }
 
-function parseOutcome(
-  meta: Record<string, any> | null,
-  finalView: PlayerView | null,
-  stage: StageData | null,
-) {
+function parseOutcome(meta: Record<string, any> | null, finalView: PlayerView | null, stage: StageData | null) {
   const winner = (meta?.winner ?? null) as "host" | "away" | null;
   if (!winner) return { outcome: "draw", stars: 0, rewards: { gold: 0, xp: 0 } };
 
   const won = winner === "host";
   const finalLP = finalView?.lifePoints ?? 0;
-  const stars = won ? (finalLP >= 6000 ? 3 : finalLP >= 4500 ? 2 : 1) : 0;
+  const stars = won
+    ? finalLP >= 6000
+      ? 3
+      : finalLP >= 4500
+        ? 2
+        : 1
+    : 0;
   return {
     outcome: won ? "won" : "lost",
     stars,
     rewards: {
-      gold: won ? (stage?.rewardGold ?? 0) : 0,
-      xp: won ? (stage?.rewardXp ?? 0) : 0,
+      gold: won ? stage?.rewardGold ?? 0 : 0,
+      xp: won ? stage?.rewardXp ?? 0 : 0,
     },
   };
 }
@@ -433,9 +434,7 @@ async function main() {
   if (!chapters || chapters.length === 0) throw new Error("No chapter found");
   const chapter = chapters[0];
   const stageNum = 1;
-  console.log(
-    `Using chapter ${chapter._id} (${chapter.title ?? chapter.name ?? "untitled"}), stage ${stageNum}`,
-  );
+  console.log(`Using chapter ${chapter._id} (${chapter.title ?? chapter.name ?? "untitled"}), stage ${stageNum}`);
 
   const stage = await convex.query(api.game.getStageWithNarrative, {
     chapterId: chapter._id,
@@ -480,9 +479,7 @@ async function main() {
       const parsed = parseEvents(events as unknown[]);
       for (const line of parsed) console.log(`[event] ${line}`);
       lastEventVersion = Math.max(
-        ...(events as GameEvent[])
-          .map((e) => Number(e.version ?? 0))
-          .filter((n) => !Number.isNaN(n)),
+        ...((events as GameEvent[]).map((e) => Number(e.version ?? 0)).filter((n) => !Number.isNaN(n))),
       );
     }
 
@@ -493,9 +490,7 @@ async function main() {
     hostSig = hSig;
     awaySig = aSig;
 
-    console.log(
-      `\n[TICK ${steps}] status=${meta?.status} reason=${meta?.endReason ?? "n/a"} turn=${hostView?.currentTurnPlayer} phase=${hostView?.currentPhase} hp=${hp} stale=${staleTicks}`,
-    );
+    console.log(`\n[TICK ${steps}] status=${meta?.status} reason=${meta?.endReason ?? "n/a"} turn=${hostView?.currentTurnPlayer} phase=${hostView?.currentPhase} hp=${hp} stale=${staleTicks}`);
     console.log(summarizeView("HOST", hostView, cardLookup));
     if (awayView) console.log(summarizeView("AWAY", awayView, cardLookup));
 
@@ -518,7 +513,9 @@ async function main() {
     }
 
     if (actions.length === 0) {
-      const fallbackSeat = hostView?.currentTurnPlayer === "away" ? "away" : "host";
+      const fallbackSeat = hostView?.currentTurnPlayer === "away"
+        ? "away"
+        : "host";
       const fallback = await performSeatTurn(matchId, fallbackSeat, cardLookup);
       actions.push(...fallback);
       if (fallback.length > 0) turnCount += 1;
@@ -531,11 +528,7 @@ async function main() {
 
     if (staleTicks >= STALE_GLOBAL_LIMIT) {
       console.log("Stale state exceeded global limit, forcing finalization attempt.");
-      const fallback = await performSeatTurn(
-        matchId,
-        hostView?.currentTurnPlayer ?? "host",
-        cardLookup,
-      );
+      const fallback = await performSeatTurn(matchId, (hostView?.currentTurnPlayer ?? "host"), cardLookup);
       if (fallback.length > 0) {
         for (const action of fallback) console.log(`  - ${action}`);
       }
@@ -577,10 +570,7 @@ async function main() {
       "completeStoryStage unavailable for this agent context:",
       String((error as Error).message ?? error),
     );
-    completion = {
-      ...parseOutcome(finalMeta as Record<string, any> | null, finalView, finalStory),
-      derived: true,
-    };
+    completion = { ...parseOutcome(finalMeta as Record<string, any> | null, finalView, finalStory), derived: true };
   }
 
   console.log("\n=== STAGE COMPLETION ===");
@@ -603,9 +593,7 @@ async function main() {
         outcome: finalStoryContext?.outcome ?? (won ? "won" : "lost"),
         turns,
         steps,
-        stars:
-          finalStoryContext?.starsEarned ??
-          parseOutcome(finalMeta as Record<string, any> | null, finalView, finalStory).stars,
+        stars: finalStoryContext?.starsEarned ?? parseOutcome(finalMeta as Record<string, any> | null, finalView, finalStory).stars,
         rewards: {
           gold: finalStoryContext?.rewardsGold ?? 0,
           xp: finalStoryContext?.rewardsXp ?? 0,

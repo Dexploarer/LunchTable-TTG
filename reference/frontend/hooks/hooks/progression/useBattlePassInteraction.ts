@@ -66,7 +66,7 @@ export function useBattlePassInteraction() {
 
   // Calculate unlocked premium rewards for modal
   const unlockedPremiumRewards = battlePass.tiers.filter(
-    (t) => t.isUnlocked && t.premiumReward && !t.premiumRewardClaimed,
+    (t) => t.isUnlocked && t.premiumReward && !t.premiumRewardClaimed
   ).length;
 
   return {

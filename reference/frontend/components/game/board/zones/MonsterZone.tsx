@@ -37,7 +37,7 @@ export function MonsterZone({
     <div
       className={cn(
         "flex items-center gap-0.5 sm:gap-1",
-        isOpponent ? "flex-row-reverse" : "flex-row",
+        isOpponent ? "flex-row-reverse" : "flex-row"
       )}
     >
       {/* Support Zone (4 slots) */}
@@ -78,7 +78,7 @@ export function MonsterZone({
         <span
           className={cn(
             "text-[8px] sm:text-[10px] font-bold uppercase tracking-wider",
-            frontline ? "text-orange-400" : "text-slate-500",
+            frontline ? "text-orange-400" : "text-slate-500"
           )}
         >
           Front

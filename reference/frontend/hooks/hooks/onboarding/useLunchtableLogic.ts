@@ -46,7 +46,7 @@ export function useLunchtableLogic() {
         setIsClaimingDeck(false);
       }
     },
-    [selectStarterDeck],
+    [selectStarterDeck]
   );
 
   return {

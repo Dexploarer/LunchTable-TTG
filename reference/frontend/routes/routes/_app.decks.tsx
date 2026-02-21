@@ -108,7 +108,7 @@ function DecksPage() {
               "paper-panel group relative flex flex-col p-6 min-h-[220px] transition-all border-2 border-primary",
               "hover:shadow-zine-lg hover:-translate-y-1",
               deck.isActive &&
-                "bg-primary/5 ring-4 ring-primary ring-offset-4 ring-offset-background ink-wash",
+                "bg-primary/5 ring-4 ring-primary ring-offset-4 ring-offset-background ink-wash"
             )}
           >
             {/* Delete Option */}
@@ -134,9 +134,7 @@ function DecksPage() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter className="gap-4">
-                    <AlertDialogCancel className="tcg-button shadow-zine-sm px-6">
-                      Abort
-                    </AlertDialogCancel>
+                    <AlertDialogCancel className="tcg-button shadow-zine-sm px-6">Abort</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => deleteDeck(deck.deckId)}
                       className="tcg-button-primary shadow-zine-sm px-6 hover:bg-primary hover:text-white"

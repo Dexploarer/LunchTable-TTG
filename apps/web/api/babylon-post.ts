@@ -88,11 +88,7 @@ function getAgentCredentials(body: BabylonPostBody): {
   return { agentId, agentSecret };
 }
 
-async function authenticateAgent(
-  apiBase: string,
-  agentId: string,
-  agentSecret: string,
-): Promise<string> {
+async function authenticateAgent(apiBase: string, agentId: string, agentSecret: string): Promise<string> {
   const response = await fetch(`${apiBase}/agents/auth`, {
     method: "POST",
     headers: {
@@ -209,7 +205,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       data: payload,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to post to Babylon";
+    const message =
+      error instanceof Error ? error.message : "Failed to post to Babylon";
     res.status(500).json({
       success: false,
       error: message,

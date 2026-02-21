@@ -108,7 +108,7 @@ export function PhaseSkipButtons({
           onClick={handleSkipBattle}
           className={cn(
             "gap-1 h-6 text-[10px] px-2 border-slate-600 bg-slate-800/50 hover:bg-slate-700/50",
-            loadingAction === "skipBattle" && "opacity-70",
+            loadingAction === "skipBattle" && "opacity-70"
           )}
           data-testid="skip-battle-btn"
         >
@@ -129,7 +129,7 @@ export function PhaseSkipButtons({
           onClick={handleSkipToEnd}
           className={cn(
             "gap-1 h-6 text-[10px] px-2 border-amber-600/50 bg-amber-900/20 hover:bg-amber-800/30 text-amber-400",
-            loadingAction === "skipToEnd" && "opacity-70",
+            loadingAction === "skipToEnd" && "opacity-70"
           )}
           data-testid="skip-to-end-btn"
         >
@@ -150,7 +150,7 @@ export function PhaseSkipButtons({
           onClick={handleEndTurn}
           className={cn(
             "gap-1 h-6 text-[10px] px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700",
-            loadingAction === "endTurn" && "opacity-70",
+            loadingAction === "endTurn" && "opacity-70"
           )}
           data-testid="end-turn-btn"
         >

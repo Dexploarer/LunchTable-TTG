@@ -84,7 +84,7 @@ export function StoryBattleCompleteDialog({
                     <Star
                       className={cn(
                         "w-10 h-10",
-                        star <= starsEarned ? "fill-yellow-400 text-yellow-400" : "text-gray-600",
+                        star <= starsEarned ? "fill-yellow-400 text-yellow-400" : "text-gray-600"
                       )}
                     />
                   </motion.div>

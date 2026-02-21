@@ -74,7 +74,7 @@ export function TimeoutDisplay({
       className={cn(
         "flex items-center gap-2 px-2 py-1.5 rounded-lg border",
         "bg-muted/50 backdrop-blur-sm",
-        className,
+        className
       )}
       data-testid="timeout-display"
     >
@@ -87,7 +87,7 @@ export function TimeoutDisplay({
           showActionWarning &&
             !showActionTimeout &&
             "bg-amber-500/20 border border-amber-500/50 animate-warning-pulse",
-          !showActionWarning && !showActionTimeout && "bg-muted/30",
+          !showActionWarning && !showActionTimeout && "bg-muted/30"
         )}
         data-testid="action-timer"
       >
@@ -107,7 +107,7 @@ export function TimeoutDisplay({
               "text-xs font-mono font-bold tabular-nums leading-tight",
               showActionTimeout && "text-red-500",
               showActionWarning && !showActionTimeout && "text-amber-500",
-              !showActionWarning && !showActionTimeout && "text-foreground",
+              !showActionWarning && !showActionTimeout && "text-foreground"
             )}
           >
             {showActionTimeout ? "0:00" : actionDisplay}
@@ -125,7 +125,7 @@ export function TimeoutDisplay({
           "transition-all duration-200",
           showMatchTimeout && "bg-red-500/20 border border-red-500/50",
           matchLow && !showMatchTimeout && "bg-amber-500/10",
-          !matchLow && !showMatchTimeout && "bg-muted/30",
+          !matchLow && !showMatchTimeout && "bg-muted/30"
         )}
         data-testid="match-timer"
       >
@@ -145,7 +145,7 @@ export function TimeoutDisplay({
               "text-xs font-mono font-bold tabular-nums leading-tight",
               showMatchTimeout && "text-red-500",
               matchLow && !showMatchTimeout && "text-amber-500/80",
-              !matchLow && !showMatchTimeout && "text-muted-foreground",
+              !matchLow && !showMatchTimeout && "text-muted-foreground"
             )}
           >
             {showMatchTimeout ? "0:00" : matchDisplay}

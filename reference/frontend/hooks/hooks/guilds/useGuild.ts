@@ -74,7 +74,11 @@ export function useGuild(guildId: Id<"guilds"> | null) {
   });
 
   // Convenience wrappers that include guildId
-  const updateGuild = (data: { name?: string; description?: string; visibility?: Visibility }) => {
+  const updateGuild = (data: {
+    name?: string;
+    description?: string;
+    visibility?: Visibility;
+  }) => {
     if (!guildId) return Promise.resolve();
     return updateGuildRaw({ guildId, ...data });
   };

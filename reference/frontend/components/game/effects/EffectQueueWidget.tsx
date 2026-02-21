@@ -37,7 +37,7 @@ export function EffectQueueWidget({
         "w-64 max-h-96 overflow-hidden",
         "bg-black/90 backdrop-blur-sm",
         "border-2 border-purple-500/50 rounded-lg shadow-2xl",
-        className,
+        className
       )}
     >
       {/* Header */}
@@ -102,7 +102,7 @@ function EffectQueueItem({
         "px-3 py-2 border-b border-purple-500/10",
         "transition-colors duration-200",
         isNext && "bg-purple-500/20",
-        isResolving && "animate-pulse",
+        isResolving && "animate-pulse"
       )}
     >
       <div className="flex items-start gap-2">
@@ -113,7 +113,7 @@ function EffectQueueItem({
             "text-xs font-bold",
             isNext
               ? "bg-purple-500 text-white"
-              : "bg-purple-900/50 text-purple-300 border border-purple-500/30",
+              : "bg-purple-900/50 text-purple-300 border border-purple-500/30"
           )}
         >
           {effect.chainLink || position}
@@ -136,7 +136,7 @@ function EffectQueueItem({
             <h4
               className={cn(
                 "text-xs font-bold truncate",
-                effect.isPlayerEffect ? "text-green-300" : "text-red-300",
+                effect.isPlayerEffect ? "text-green-300" : "text-red-300"
               )}
             >
               {effect.cardName}

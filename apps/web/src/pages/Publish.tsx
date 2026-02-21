@@ -31,27 +31,22 @@ interface PublishListing {
 }
 
 export function Publish() {
-  const convexEnabled = Boolean(
-    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
-  );
+  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
   const { authenticated } = useAppAuth();
   useUserSync();
 
-  const currentUser = useConvexQuery(apiAny.auth.currentUser, convexEnabled ? {} : "skip") as
-    | CurrentUser
-    | null
-    | undefined;
-  const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as
-    | WorldSummary[]
-    | undefined;
+  const currentUser = useConvexQuery(
+    apiAny.auth.currentUser,
+    convexEnabled ? {} : "skip",
+  ) as CurrentUser | null | undefined;
+  const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as WorldSummary[] | undefined;
   const ownedWorlds = useMemo(() => {
     if (!currentUser) return [];
     return (worlds ?? []).filter((world) => world.ownerUserId === currentUser._id);
   }, [currentUser, worlds]);
-  const listings = useConvexQuery(
-    apiAny.vttPublish.listPublishedWorlds,
-    convexEnabled ? {} : "skip",
-  ) as PublishListing[] | undefined;
+  const listings = useConvexQuery(apiAny.vttPublish.listPublishedWorlds, convexEnabled ? {} : "skip") as
+    | PublishListing[]
+    | undefined;
   const publishWorld = useConvexMutation(apiAny.vttPublish.publishWorld);
 
   const [worldId, setWorldId] = useState("");
@@ -90,9 +85,7 @@ export function Publish() {
           <section className="paper-panel p-4 md:p-6 space-y-4">
             <h2 className="text-2xl uppercase">Live Publish To Discovery</h2>
             <p className="text-xs uppercase text-[#121212]/70">
-              {authenticated
-                ? "Authenticated: publish ready."
-                : "Sign in required for publish actions."}
+              {authenticated ? "Authenticated: publish ready." : "Sign in required for publish actions."}
             </p>
 
             <div className="grid md:grid-cols-2 gap-3">
@@ -185,9 +178,7 @@ export function Publish() {
                 {isPublishing ? "Publishing..." : "Publish World"}
               </button>
               {selectedWorld?.isPublished ? (
-                <p className="text-xs uppercase text-[#177245]">
-                  Selected world already published.
-                </p>
+                <p className="text-xs uppercase text-[#177245]">Selected world already published.</p>
               ) : null}
             </div>
             {status ? <p className="text-xs uppercase">{status}</p> : null}
@@ -200,9 +191,7 @@ export function Publish() {
                 <div className="space-y-2">
                   {(listings ?? []).map((listing) => (
                     <article key={listing._id} className="paper-panel-flat p-3">
-                      <p className="text-xs uppercase text-[#121212]/60">
-                        {listing.moderationStatus}
-                      </p>
+                      <p className="text-xs uppercase text-[#121212]/60">{listing.moderationStatus}</p>
                       <h4 className="text-lg uppercase">{listing.title}</h4>
                       <p className="text-sm text-[#121212]/75">{listing.description}</p>
                       <p className="text-xs uppercase mt-1">

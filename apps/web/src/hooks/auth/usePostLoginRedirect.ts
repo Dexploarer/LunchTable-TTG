@@ -27,7 +27,7 @@ export function usePostLoginRedirect() {
 
   const consumeAndRedirect = useCallback(() => {
     if (fired.current) return;
-
+    
     const path = sessionStorage.getItem(REDIRECT_KEY);
     if (path && path !== location.pathname) {
       fired.current = true;

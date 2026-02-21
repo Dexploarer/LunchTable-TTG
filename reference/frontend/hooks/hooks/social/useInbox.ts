@@ -125,7 +125,7 @@ export function useInbox(): UseInboxReturn {
   // Queries
   const messages = useQuery(
     api.social.inbox.getInboxMessages,
-    userExists ? { limit: 100 } : "skip",
+    userExists ? { limit: 100 } : "skip"
   ) as InboxMessage[] | undefined;
 
   const unreadCountQuery = useQuery(api.social.inbox.getUnreadCount, userExists ? {} : "skip");

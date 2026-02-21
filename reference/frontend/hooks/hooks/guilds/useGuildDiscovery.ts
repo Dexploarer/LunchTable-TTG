@@ -24,7 +24,7 @@ export function useGuildDiscovery() {
   const featuredGuilds = useQuery(getFeaturedGuildsQuery, { limit: 6 });
   const searchResults = useQuery(
     searchGuildsQuery,
-    searchQuery.length >= 2 ? { query: searchQuery, limit: 20 } : "skip",
+    searchQuery.length >= 2 ? { query: searchQuery, limit: 20 } : "skip"
   );
   const publicGuilds = useQuery(getPublicGuildsQuery, { limit: 20, sortBy });
 

@@ -24,8 +24,7 @@ export function PromptStudioTab() {
   }, [draft?.id]);
 
   const prompt = useMemo(
-    () =>
-      draft?.world.creationKit.corePrompts.find((entry) => entry.id === selectedPromptId) ?? null,
+    () => draft?.world.creationKit.corePrompts.find((entry) => entry.id === selectedPromptId) ?? null,
     [draft, selectedPromptId],
   );
 
@@ -87,9 +86,7 @@ export function PromptStudioTab() {
 
         <div className="space-y-3">
           <h3 className="text-2xl">Compiled Prompt</h3>
-          <pre className="paper-panel-flat p-3 text-xs whitespace-pre-wrap min-h-56 overflow-auto">
-            {compiled}
-          </pre>
+          <pre className="paper-panel-flat p-3 text-xs whitespace-pre-wrap min-h-56 overflow-auto">{compiled}</pre>
           <div className="flex flex-wrap gap-2">
             <button
               className="tcg-button"
@@ -110,7 +107,10 @@ export function PromptStudioTab() {
             <button
               className="tcg-button"
               onClick={() =>
-                downloadText(`${prompt.id}-inputs.json`, JSON.stringify(promptValues, null, 2))
+                downloadText(
+                  `${prompt.id}-inputs.json`,
+                  JSON.stringify(promptValues, null, 2),
+                )
               }
             >
               Export Inputs
@@ -133,10 +133,7 @@ export function PromptStudioTab() {
             const passed = score >= 0.35;
 
             return (
-              <div
-                key={item}
-                className="paper-panel-flat p-3 flex items-center justify-between gap-2"
-              >
+              <div key={item} className="paper-panel-flat p-3 flex items-center justify-between gap-2">
                 <p className="text-sm">{item}</p>
                 <span
                   className={`text-xs uppercase font-black px-2 py-1 border border-[#121212] ${

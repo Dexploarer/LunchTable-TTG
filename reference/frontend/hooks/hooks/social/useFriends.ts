@@ -77,12 +77,12 @@ export function useFriends(): UseFriendsReturn {
 
   const incomingRequests = useQuery(
     api.social.friends.getIncomingRequests,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
 
   const outgoingRequests = useQuery(
     api.social.friends.getOutgoingRequests,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   );
 
   const blockedUsers = useQuery(api.social.friends.getBlockedUsers, isAuthenticated ? {} : "skip");
@@ -227,12 +227,12 @@ export function useFriends(): UseFriendsReturn {
  */
 export function useSearchUsers(
   query: string,
-  limit?: number,
+  limit?: number
 ): ReturnType<typeof useQuery<typeof api.social.friends.searchUsers>> | undefined {
   const { isAuthenticated } = useAuth();
 
   return useQuery(
     api.social.friends.searchUsers,
-    isAuthenticated && query.length > 0 ? { query, limit } : "skip",
+    isAuthenticated && query.length > 0 ? { query, limit } : "skip"
   );
 }

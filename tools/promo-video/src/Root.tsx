@@ -1,5 +1,11 @@
-import { Composition } from "remotion";
-import { LTCGThemePromo, durationInFrames, fps, height, width } from "./LTCGThemePromo";
+import {Composition} from "remotion";
+import {
+  LTCGThemePromo,
+  durationInFrames,
+  fps,
+  height,
+  width,
+} from "./LTCGThemePromo";
 
 export const RemotionRoot = () => {
   return (

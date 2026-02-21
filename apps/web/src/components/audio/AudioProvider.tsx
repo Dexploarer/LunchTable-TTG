@@ -22,7 +22,11 @@ const AUDIO_PLAYBACK_INTENT_STORAGE_KEY = "ltcg.audio.playback.intent.v1";
 const SOUNDTRACK_MANIFEST_SOURCE = "/api/soundtrack";
 const MUSIC_BUTTON_FALLBACK = "/lunchtable/music-button.png";
 type AudioPlaybackIntent = "playing" | "paused" | "stopped";
-const VALID_AUDIO_PLAYBACK_INTENTS = new Set<AudioPlaybackIntent>(["playing", "paused", "stopped"]);
+const VALID_AUDIO_PLAYBACK_INTENTS = new Set<AudioPlaybackIntent>([
+  "playing",
+  "paused",
+  "stopped",
+]);
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0;
@@ -85,7 +89,10 @@ function parseStoredSettings(raw: string | null): AudioSettings {
     return {
       musicVolume: normalizeStoredVolume(parsed.musicVolume, DEFAULT_AUDIO_SETTINGS.musicVolume),
       sfxVolume: normalizeStoredVolume(parsed.sfxVolume, DEFAULT_AUDIO_SETTINGS.sfxVolume),
-      musicMuted: normalizeStoredBoolean(parsed.musicMuted, DEFAULT_AUDIO_SETTINGS.musicMuted),
+      musicMuted: normalizeStoredBoolean(
+        parsed.musicMuted,
+        DEFAULT_AUDIO_SETTINGS.musicMuted,
+      ),
       sfxMuted: normalizeStoredBoolean(parsed.sfxMuted, DEFAULT_AUDIO_SETTINGS.sfxMuted),
     };
   } catch {
@@ -242,26 +249,23 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const safePlay = useCallback(
-    async (audio: HTMLAudioElement) => {
-      try {
-        await audio.play();
-        setAutoplayBlocked(false);
-        trackEvent("audio_play_attempt", {
-          action: "play",
-          context: contextKey,
-        });
-      } catch (error) {
-        setAutoplayBlocked(true);
-        captureError(error, { action: "audio_play_attempt", context: contextKey });
-        trackEvent("audio_play_failed", {
-          action: "play",
-          context: contextKey,
-        });
-      }
-    },
-    [contextKey],
-  );
+  const safePlay = useCallback(async (audio: HTMLAudioElement) => {
+    try {
+      await audio.play();
+      setAutoplayBlocked(false);
+      trackEvent("audio_play_attempt", {
+        action: "play",
+        context: contextKey,
+      });
+    } catch (error) {
+      setAutoplayBlocked(true);
+      captureError(error, { action: "audio_play_attempt", context: contextKey });
+      trackEvent("audio_play_failed", {
+        action: "play",
+        context: contextKey,
+      });
+    }
+  }, [contextKey]);
 
   const preloadTrack = useCallback((trackUrl: string) => {
     const preload = musicPreloadRef.current;
@@ -274,19 +278,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setPlaybackIntent = useCallback(
-    (intent: AudioPlaybackIntent) => {
-      if (playbackIntentRef.current === intent) return;
-      playbackIntentRef.current = intent;
-      saveStoredPlaybackIntent(intent);
-      trackEvent("audio_playback_intent_set", {
-        context: contextKey,
-        intent,
-        isPlaying: intent === "playing",
-      });
-    },
-    [contextKey],
-  );
+  const setPlaybackIntent = useCallback((intent: AudioPlaybackIntent) => {
+    if (playbackIntentRef.current === intent) return;
+    playbackIntentRef.current = intent;
+    saveStoredPlaybackIntent(intent);
+    trackEvent("audio_playback_intent_set", {
+      context: contextKey,
+      intent,
+      isPlaying: intent === "playing",
+    });
+  }, [contextKey]);
 
   const playTrackAtIndex = useCallback(
     (index: number, options?: { forcePlay?: boolean }) => {
@@ -395,10 +396,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         const manifest = await loadSoundtrackManifest(SOUNDTRACK_MANIFEST_SOURCE);
         if (!cancelled) setSoundtrack(manifest);
       } catch (error) {
-        captureError(error, {
-          action: "audio_manifest_load_failed",
-          source: SOUNDTRACK_MANIFEST_SOURCE,
-        });
+        captureError(error, { action: "audio_manifest_load_failed", source: SOUNDTRACK_MANIFEST_SOURCE });
         trackEvent("audio_manifest_load_failed", {
           source: SOUNDTRACK_MANIFEST_SOURCE,
         });
@@ -614,10 +612,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setSettings((prev) => ({ ...prev, musicVolume: clamp01(volume) })),
       setSfxVolume: (volume: number) =>
         setSettings((prev) => ({ ...prev, sfxVolume: clamp01(volume) })),
-      setMusicMuted: (muted: boolean) => setSettings((prev) => ({ ...prev, musicMuted: muted })),
-      setSfxMuted: (muted: boolean) => setSettings((prev) => ({ ...prev, sfxMuted: muted })),
-      toggleMusicMuted: () => setSettings((prev) => ({ ...prev, musicMuted: !prev.musicMuted })),
-      toggleSfxMuted: () => setSettings((prev) => ({ ...prev, sfxMuted: !prev.sfxMuted })),
+      setMusicMuted: (muted: boolean) =>
+        setSettings((prev) => ({ ...prev, musicMuted: muted })),
+      setSfxMuted: (muted: boolean) =>
+        setSettings((prev) => ({ ...prev, sfxMuted: muted })),
+      toggleMusicMuted: () =>
+        setSettings((prev) => ({ ...prev, musicMuted: !prev.musicMuted })),
+      toggleSfxMuted: () =>
+        setSettings((prev) => ({ ...prev, sfxMuted: !prev.sfxMuted })),
       pauseMusic,
       resumeMusic,
       togglePlayPause,
@@ -671,10 +673,7 @@ function formatTrackLabel(track: string | null): string {
       .replace(/[_-]+/g, " ")
       .trim();
   } catch {
-    return (raw || track)
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[_-]+/g, " ")
-      .trim();
+    return (raw || track).replace(/\.[^/.]+$/, "").replace(/[_-]+/g, " ").trim();
   }
 }
 

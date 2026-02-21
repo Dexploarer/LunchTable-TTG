@@ -15,3 +15,4 @@ export function clientPointToPercent(
     y: ((point.clientY - bounds.top) / height) * 100,
   };
 }
+

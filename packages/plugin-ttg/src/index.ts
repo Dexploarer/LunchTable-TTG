@@ -17,8 +17,13 @@ export function createTTGPlugin(config: TTGPluginConfig) {
       TTG_STATUS: async () => client.me(),
       TTG_START_SESSION: async ({ worldId, title }: { worldId: string; title?: string }) =>
         client.createSession(worldId, title),
-      TTG_JOIN_SESSION: async ({ sessionId, role }: { sessionId: string; role?: TTGSessionRole }) =>
-        client.joinSession(sessionId, role),
+      TTG_JOIN_SESSION: async ({
+        sessionId,
+        role,
+      }: {
+        sessionId: string;
+        role?: TTGSessionRole;
+      }) => client.joinSession(sessionId, role),
       TTG_DICE_ROLL: async ({
         sessionId,
         payload,

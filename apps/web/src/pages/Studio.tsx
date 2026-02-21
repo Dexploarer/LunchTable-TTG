@@ -164,8 +164,7 @@ export function Studio() {
           className="text-sm md:text-lg text-white/85 mt-2"
           style={{ fontFamily: "Special Elite, cursive" }}
         >
-          Full-feature tabletop creation platform for worlds, agents, story arcs, maps, and
-          release-ready packs.
+          Full-feature tabletop creation platform for worlds, agents, story arcs, maps, and release-ready packs.
         </p>
       </header>
 
@@ -203,7 +202,9 @@ export function Studio() {
           </button>
 
           <div className="ml-auto text-right">
-            <p className="text-xs uppercase font-black">Preflight Errors: {preflightErrors}</p>
+            <p className="text-xs uppercase font-black">
+              Preflight Errors: {preflightErrors}
+            </p>
             <p className="text-[11px] uppercase text-[#121212]/70">{playtestStatus}</p>
           </div>
         </div>
@@ -229,9 +230,7 @@ export function Studio() {
         <main className="paper-panel p-3 md:p-5">{renderTab(activeTab)}</main>
 
         <div className="sticky bottom-0 z-20 paper-panel-flat p-2 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs uppercase">
-            Shortcuts: ⌘/Ctrl+1..7 tabs • ⌘/Ctrl+Z undo • ⇧⌘/Ctrl+Z redo • ⌘/Ctrl+S save
-          </p>
+          <p className="text-xs uppercase">Shortcuts: ⌘/Ctrl+1..7 tabs • ⌘/Ctrl+Z undo • ⇧⌘/Ctrl+Z redo • ⌘/Ctrl+S save</p>
           <p className="text-xs uppercase text-[#121212]/70">{quickNotice || "Autosave enabled"}</p>
         </div>
       </div>

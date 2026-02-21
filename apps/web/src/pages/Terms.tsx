@@ -39,116 +39,82 @@ export function Terms() {
                 Last updated: February 2026
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing or using LunchTable TTG, you agree to be bound by these Terms of
-                Service. If you do not agree, do not use the service.
+                By accessing or using LunchTable TTG, you agree to be bound by these Terms of Service. If you do not
+                agree, do not use the service.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 2. The Platform
               </h2>
               <p>
-                LunchTable TTG is an AI-native tabletop platform inspired by Roll20-style workflows.
-                It includes a creator studio for building worlds and rules, and a live table for
-                running sessions with maps, tokens, fog, chat, and dice. Platform features and
-                policies may change without notice.
+                LunchTable TTG is an AI-native tabletop platform inspired by Roll20-style workflows. It includes a
+                creator studio for building worlds and rules, and a live table for running sessions with maps, tokens,
+                fog, chat, and dice. Platform features and policies may change without notice.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 3. Accounts
               </h2>
               <p>
-                You are responsible for maintaining the security of your account. One account per
-                person. Accounts created through Privy authentication are subject to Privy's terms
-                of service. Sharing accounts or using automated tools to gain unfair advantage is
-                prohibited.
+                You are responsible for maintaining the security of your account. One account per person. Accounts
+                created through Privy authentication are subject to Privy's terms of service. Sharing accounts or using
+                automated tools to gain unfair advantage is prohibited.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 4. AI Agents
               </h2>
               <p>
-                AI agents may participate in sessions as narrators, NPCs, or assistants. Agent
-                actions may post to the session event log (for example chat narration). You are
-                responsible for how you use AI features and for any content you choose to generate
-                or share in a session.
+                AI agents may participate in sessions as narrators, NPCs, or assistants. Agent actions may post to the
+                session event log (for example chat narration). You are responsible for how you use AI features and for
+                any content you choose to generate or share in a session.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 5. Content and Worlds
               </h2>
               <p>
-                Worlds, maps, tokens, journals, chat logs, and other session artifacts are digital
-                content within LunchTable TTG. You retain your rights to content you create where
-                applicable, but you grant us the rights needed to host, process, and display that
-                content for platform operation (including moderation, publishing, and discovery
-                features).
+                Worlds, maps, tokens, journals, chat logs, and other session artifacts are digital content within
+                LunchTable TTG. You retain your rights to content you create where applicable, but you grant us the
+                rights needed to host, process, and display that content for platform operation (including moderation,
+                publishing, and discovery features).
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 6. Conduct
               </h2>
               <p>
-                Players must not exploit bugs, manipulate matchmaking, harass other players, or
-                interfere with gameplay systems. Violations may result in temporary or permanent
-                account suspension.
+                Players must not exploit bugs, manipulate matchmaking, harass other players, or interfere with gameplay
+                systems. Violations may result in temporary or permanent account suspension.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 7. Streaming & Content
               </h2>
               <p>
-                Sessions may be recorded by participants or captured in logs for platform operation.
-                By participating, you grant LunchTable a non-exclusive license to display your
-                username and in-session actions to other session participants and (if you choose to
-                publish) to discovery and community surfaces.
+                Sessions may be recorded by participants or captured in logs for platform operation. By participating,
+                you grant LunchTable a non-exclusive license to display your username and in-session actions to other
+                session participants and (if you choose to publish) to discovery and community surfaces.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 8. Limitation of Liability
               </h2>
               <p>
-                LunchTable is provided "as is" without warranties of any kind. We are not liable for
-                any loss of game data, interruptions of service, or actions taken by AI agents
-                during gameplay.
+                LunchTable is provided "as is" without warranties of any kind. We are not liable for any loss of game
+                data, interruptions of service, or actions taken by AI agents during gameplay.
               </p>
 
-              <h2
-                className="text-lg font-bold text-[#121212] mt-6"
-                style={{ fontFamily: "Outfit, sans-serif" }}
-              >
+              <h2 className="text-lg font-bold text-[#121212] mt-6" style={{ fontFamily: "Outfit, sans-serif" }}>
                 9. Changes
               </h2>
               <p>
-                We may update these terms at any time. Continued use of the service after changes
-                constitutes acceptance of the revised terms.
+                We may update these terms at any time. Continued use of the service after changes constitutes acceptance
+                of the revised terms.
               </p>
             </div>
           </div>

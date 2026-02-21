@@ -90,3 +90,4 @@ function AuthWidgetEnabled({
     </div>
   );
 }
+

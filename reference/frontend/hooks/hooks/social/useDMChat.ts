@@ -20,7 +20,7 @@ export function useDMChat(conversationId?: Id<"dmConversations">) {
   // Get messages for this conversation
   const messages = useQuery(
     api.social.getConversationMessages,
-    conversationId && isAuthenticated ? { conversationId } : "skip",
+    conversationId && isAuthenticated ? { conversationId } : "skip"
   );
 
   // Mutations
@@ -65,7 +65,7 @@ export function useDMChat(conversationId?: Id<"dmConversations">) {
         throw error;
       }
     },
-    [conversationId, sendMessageMutation],
+    [conversationId, sendMessageMutation]
   );
 
   const markAsRead = useCallback(async () => {

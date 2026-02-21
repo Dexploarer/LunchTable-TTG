@@ -44,7 +44,7 @@ export function StoryChapterCard({ chapter, onClick }: StoryChapterCardProps) {
       onClick={onClick}
       className={cn(
         "relative w-full h-64 text-left group transition-all duration-300",
-        !isUnlocked && "opacity-80 grayscale",
+        !isUnlocked && "opacity-80 grayscale"
       )}
     >
       <div className="h-full overflow-hidden zine-border bg-card">
@@ -81,7 +81,7 @@ export function StoryChapterCard({ chapter, onClick }: StoryChapterCardProps) {
               <span
                 className={cn(
                   "inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm border",
-                  archetypeTheme.borderColor,
+                  archetypeTheme.borderColor
                 )}
               >
                 <Image
@@ -125,7 +125,7 @@ export function StoryChapterCard({ chapter, onClick }: StoryChapterCardProps) {
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500 bg-gradient-to-r",
-                      isCompleted ? "from-yellow-500 to-amber-300" : archetypeTheme.gradient,
+                      isCompleted ? "from-yellow-500 to-amber-300" : archetypeTheme.gradient
                     )}
                     style={{ width: `${(completedStages / totalStages) * 100}%` }}
                   />

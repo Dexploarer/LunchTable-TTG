@@ -13,10 +13,13 @@ export async function getByokCryptoKey() {
   const secret = getByokSecret();
   const secretBytes = new TextEncoder().encode(secret);
   const hash = await crypto.subtle.digest("SHA-256", secretBytes);
-  cachedKey = await crypto.subtle.importKey("raw", hash, { name: "AES-GCM" }, false, [
-    "encrypt",
-    "decrypt",
-  ]);
+  cachedKey = await crypto.subtle.importKey(
+    "raw",
+    hash,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt", "decrypt"],
+  );
   return cachedKey;
 }
 

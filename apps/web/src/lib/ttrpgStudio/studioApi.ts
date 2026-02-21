@@ -73,10 +73,7 @@ export function createDraftFromWorld(worldId: string): TTGProjectDraft {
     mapTokens[scene.id] = buildDefaultMapTokens(worldClone.archetypes.map((entry) => entry.title));
   }
 
-  const roomLinks: Record<
-    string,
-    { id: string; fromRoomId: string; toRoomId: string; label: string }[]
-  > = {};
+  const roomLinks: Record<string, { id: string; fromRoomId: string; toRoomId: string; label: string }[]> = {};
   for (const dungeon of worldClone.dungeons) {
     roomLinks[dungeon.id] = [];
   }
@@ -252,10 +249,15 @@ export function validateDraft(draft: TTGProjectDraft): TTGValidationIssue[] {
   return issues;
 }
 
-export function compilePrompt(template: PromptTemplate, inputs: Record<string, string>): string {
+export function compilePrompt(
+  template: PromptTemplate,
+  inputs: Record<string, string>,
+): string {
   return template.template.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (_match, key: string) => {
     const value = inputs[key];
-    return typeof value === "string" && value.trim().length > 0 ? value.trim() : `[missing:${key}]`;
+    return typeof value === "string" && value.trim().length > 0
+      ? value.trim()
+      : `[missing:${key}]`;
   });
 }
 

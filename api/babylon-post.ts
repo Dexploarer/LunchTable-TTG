@@ -25,11 +25,7 @@ function getApiBaseUrl(): string {
   return configured.replace(/\/+$/, "");
 }
 
-async function authenticateAgent(
-  apiBase: string,
-  agentId: string,
-  secret: string,
-): Promise<string> {
+async function authenticateAgent(apiBase: string, agentId: string, secret: string): Promise<string> {
   const response = await fetch(`${apiBase}/agents/auth`, {
     method: "POST",
     headers: {
@@ -43,9 +39,7 @@ async function authenticateAgent(
 
   const payload = await response.json().catch(() => null);
   if (!response.ok || !payload) {
-    throw new Error(
-      payload?.error?.message || payload?.error || `Agent auth failed (${response.status})`,
-    );
+    throw new Error(payload?.error?.message || payload?.error || `Agent auth failed (${response.status})`);
   }
 
   const token = payload.token || payload.accessToken || payload.data?.token;
@@ -105,8 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!response.ok) {
       res.status(response.status).json({
         success: false,
-        error:
-          payload?.error?.message || payload?.error || `Babylon API error (${response.status})`,
+        error: payload?.error?.message || payload?.error || `Babylon API error (${response.status})`,
         raw: payload ?? null,
       });
       return;
@@ -117,7 +110,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       data: payload,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to post to Babylon";
+    const message =
+      error instanceof Error ? error.message : "Failed to post to Babylon";
     res.status(500).json({
       success: false,
       error: message,

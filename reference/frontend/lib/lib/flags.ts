@@ -83,7 +83,7 @@ export async function getFlags(): Promise<AppFeatureFlags> {
  * Get a single feature flag value (server-side only)
  */
 export async function getFlag<K extends keyof AppFeatureFlags>(
-  key: K,
+  key: K
 ): Promise<AppFeatureFlags[K]> {
   const flags = await getFlags();
   return flags[key];

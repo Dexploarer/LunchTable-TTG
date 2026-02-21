@@ -131,7 +131,7 @@ export function GameResultScreen({
               ? "bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-900/30 via-transparent to-transparent"
               : isDraw
                 ? "bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/30 via-transparent to-transparent"
-                : "bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/30 via-transparent to-transparent",
+                : "bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/30 via-transparent to-transparent"
           )}
         />
 
@@ -149,7 +149,7 @@ export function GameResultScreen({
                   ? "bg-yellow-500/20 border-4 border-yellow-500"
                   : isDraw
                     ? "bg-blue-500/20 border-4 border-blue-500"
-                    : "bg-red-500/20 border-4 border-red-500",
+                    : "bg-red-500/20 border-4 border-red-500"
               )}
             >
               {isVictory ? (
@@ -167,7 +167,7 @@ export function GameResultScreen({
               transition={{ delay: 0.3 }}
               className={cn(
                 "text-5xl font-black uppercase tracking-tighter mb-2",
-                isVictory ? "text-yellow-400" : isDraw ? "text-blue-400" : "text-red-400",
+                isVictory ? "text-yellow-400" : isDraw ? "text-blue-400" : "text-red-400"
               )}
             >
               {isVictory ? "Victory!" : isDraw ? "Draw!" : "Defeat"}
@@ -242,7 +242,7 @@ export function GameResultScreen({
                           ? "bg-green-500/10 border border-green-500/30"
                           : rewards.rankChange < 0
                             ? "bg-red-500/10 border border-red-500/30"
-                            : "bg-gray-500/10 border border-gray-500/30",
+                            : "bg-gray-500/10 border border-gray-500/30"
                       )}
                     >
                       {rewards.rankChange > 0 ? (
@@ -257,7 +257,7 @@ export function GameResultScreen({
                             ? "text-green-400"
                             : rewards.rankChange < 0
                               ? "text-red-400"
-                              : "text-gray-400",
+                              : "text-gray-400"
                         )}
                       >
                         {rewards.rankChange > 0 ? "+" : ""}

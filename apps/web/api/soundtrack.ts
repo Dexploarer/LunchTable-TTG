@@ -360,7 +360,10 @@ function setCorsHeaders(response: VercelResponse) {
   response.setHeader("Access-Control-Allow-Origin", "*");
   response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  response.setHeader("Cache-Control", "public, max-age=1200, stale-while-revalidate=3600");
+  response.setHeader(
+    "Cache-Control",
+    "public, max-age=1200, stale-while-revalidate=3600",
+  );
 }
 
 async function readManifestFile(): Promise<string> {
@@ -498,7 +501,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sourceParts.push(`blob:${SOUNDTRACK_BLOB_PREFIX}`);
       }
     } catch (blobError) {
-      const blobMessage = blobError instanceof Error ? blobError.message : "Blob list failed";
+      const blobMessage =
+        blobError instanceof Error ? blobError.message : "Blob list failed";
       console.warn("Fallback soundtrack blob lookup skipped", { error: blobMessage });
     }
 
@@ -510,7 +514,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     const resolved = context ? resolveContext(playlists, context) : null;
-    const message = error instanceof Error ? error.message : "Failed to load soundtrack";
+    const message =
+      error instanceof Error ? error.message : "Failed to load soundtrack";
 
     console.error("Soundtrack API fallback", { error: message });
 

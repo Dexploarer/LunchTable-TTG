@@ -17,7 +17,11 @@ import {
   generateTextForProvider,
 } from "./vttGeneration";
 import { selectNarrationFromNarrationOutput } from "./vttNarrator";
-import { advanceRunState, computeNextTokenPosition, makeSeededRng } from "./vttAgentRunsLogic";
+import {
+  advanceRunState,
+  computeNextTokenPosition,
+  makeSeededRng,
+} from "./vttAgentRunsLogic";
 import {
   formatProviderFallbackMessage,
   isExternalVttProvider,
@@ -121,14 +125,7 @@ export const internalAdvanceRunTurn = internalMutation({
 export const internalPatchRun = internalMutation({
   args: {
     runId: v.id("agentRuns"),
-    status: v.optional(
-      v.union(
-        v.literal("running"),
-        v.literal("stopped"),
-        v.literal("completed"),
-        v.literal("failed"),
-      ),
-    ),
+    status: v.optional(v.union(v.literal("running"), v.literal("stopped"), v.literal("completed"), v.literal("failed"))),
     objectiveIndex: v.optional(v.number()),
     lastError: v.optional(v.string()),
   },
@@ -154,13 +151,7 @@ export const internalTickRun = internalAction({
   handler: async (
     ctx,
     args,
-  ): Promise<{
-    ok: boolean;
-    skipped?: string;
-    stopped?: string;
-    completed?: boolean;
-    error?: string;
-  }> => {
+  ): Promise<{ ok: boolean; skipped?: string; stopped?: string; completed?: boolean; error?: string }> => {
     const run = await ctx.runQuery(internalAgentRuns.getInternalRun, { runId: args.runId });
     if (!run || run.status !== "running") return { ok: false };
 
@@ -420,8 +411,7 @@ export const internalTickRun = internalAction({
       });
 
       if (next.objectiveAdvanced) {
-        const completedObjective =
-          objectives[Math.max(0, next.nextObjectiveIndex - 1)] ?? "Objective";
+        const completedObjective = objectives[Math.max(0, next.nextObjectiveIndex - 1)] ?? "Objective";
         await ctx.runMutation(internal.vttSessions.internalPostChatMessage, {
           sessionId: run.sessionId,
           actorUserId: run.ownerUserId,

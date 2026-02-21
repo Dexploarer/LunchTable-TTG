@@ -149,20 +149,14 @@ export function AgentOpsTab() {
 
         {narrator ? (
           <label className="flex flex-col gap-2">
-            <span className="text-xs uppercase font-bold">
-              Narrator Directives ({narrator.name})
-            </span>
+            <span className="text-xs uppercase font-bold">Narrator Directives ({narrator.name})</span>
             <textarea
               value={narrator.directives.join("\n")}
               onChange={(event) => {
                 const value = event.target.value;
                 updateActiveProject((next) => {
                   const target = next.world.hostedAgents.find((entry) => entry.id === narrator.id);
-                  if (target)
-                    target.directives = value
-                      .split("\n")
-                      .map((line) => line.trim())
-                      .filter(Boolean);
+                  if (target) target.directives = value.split("\n").map((line) => line.trim()).filter(Boolean);
                   return next;
                 });
               }}
@@ -182,9 +176,7 @@ export function AgentOpsTab() {
                   onChange={(event) => {
                     const value = event.target.value;
                     updateActiveProject((next) => {
-                      const target = next.world.playerAgentTemplates.find(
-                        (entry) => entry.id === agent.id,
-                      );
+                      const target = next.world.playerAgentTemplates.find((entry) => entry.id === agent.id);
                       if (target) {
                         target.directives = value
                           .split("\n")

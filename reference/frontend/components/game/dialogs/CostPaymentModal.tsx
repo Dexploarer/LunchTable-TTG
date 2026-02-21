@@ -175,7 +175,7 @@ export function CostPaymentModal({
                     <span
                       className={cn(
                         "font-bold text-lg",
-                        currentLP - costValue <= 0 ? "text-red-500" : "text-green-400",
+                        currentLP - costValue <= 0 ? "text-red-500" : "text-green-400"
                       )}
                     >
                       {Math.max(0, currentLP - costValue)}
@@ -229,7 +229,7 @@ export function CostPaymentModal({
                                 "aspect-2/3 group",
                                 isSelected
                                   ? "border-primary ring-2 ring-primary shadow-lg"
-                                  : "border-border hover:border-primary/50",
+                                  : "border-border hover:border-primary/50"
                               )}
                             >
                               {card.imageUrl ? (

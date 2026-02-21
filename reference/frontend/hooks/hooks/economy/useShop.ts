@@ -164,7 +164,7 @@ export function useShop(): UseShopReturn {
 
   const packHistory = useQuery(
     api.economy.shop.getPackOpeningHistory,
-    isAuthenticated ? {} : "skip",
+    isAuthenticated ? {} : "skip"
   ) as PackHistoryResponse | undefined;
 
   // Mutations

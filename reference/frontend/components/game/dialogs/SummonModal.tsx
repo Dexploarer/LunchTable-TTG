@@ -41,7 +41,7 @@ export function SummonModal({
   const [selectedTributes, setSelectedTributes] = useState<Set<Id<"cardDefinitions">>>(new Set());
   const [showTributeSelection, setShowTributeSelection] = useState(false);
   const [pendingSummonPosition, setPendingSummonPosition] = useState<"attack" | "defense" | null>(
-    null,
+    null
   );
 
   // Reset tribute selection state when modal opens/closes or card changes
@@ -119,7 +119,7 @@ export function SummonModal({
       console.log(
         "[SummonModal] Confirming tribute summon with",
         Array.from(selectedTributes).length,
-        "tributes",
+        "tributes"
       );
       onSummon(pendingSummonPosition, Array.from(selectedTributes));
     }
@@ -277,7 +277,7 @@ export function SummonModal({
                               "text-[10px] px-1.5 py-0.5 rounded",
                               effect.spellSpeed === 3
                                 ? "bg-red-500/20 text-red-400"
-                                : "bg-yellow-500/20 text-yellow-400",
+                                : "bg-yellow-500/20 text-yellow-400"
                             )}
                           >
                             Speed {effect.spellSpeed}

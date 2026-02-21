@@ -30,9 +30,7 @@ interface SessionRecord {
 }
 
 export function Lfg() {
-  const convexEnabled = Boolean(
-    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
-  );
+  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
   const { authenticated } = useAppAuth();
   useUserSync();
 
@@ -49,9 +47,7 @@ export function Lfg() {
     apiAny.vttDiscovery.listLfgPosts,
     convexEnabled ? { status: filter } : "skip",
   ) as LfgPost[] | undefined;
-  const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as
-    | WorldRecord[]
-    | undefined;
+  const worlds = useConvexQuery(apiAny.vttWorlds.listWorlds, convexEnabled ? {} : "skip") as WorldRecord[] | undefined;
   const sessions = useConvexQuery(
     apiAny.vttSessions.listActiveSessions,
     convexEnabled ? {} : "skip",
@@ -110,9 +106,7 @@ export function Lfg() {
                 </select>
               </label>
               <label className="space-y-1">
-                <span className="text-xs uppercase font-bold">
-                  Attach Active Session (Optional)
-                </span>
+                <span className="text-xs uppercase font-bold">Attach Active Session (Optional)</span>
                 <select
                   className="w-full border-2 border-[#121212] px-2 py-2 bg-white"
                   value={selectedSessionId}
@@ -196,9 +190,7 @@ export function Lfg() {
                     setTags("");
                     setSeatsOpen(4);
                   } catch (error) {
-                    setStatus(
-                      error instanceof Error ? error.message : "Failed to create LFG post.",
-                    );
+                    setStatus(error instanceof Error ? error.message : "Failed to create LFG post.");
                   }
                 }}
               >
@@ -227,10 +219,7 @@ export function Lfg() {
 
         <section className="space-y-3">
           {(posts ?? []).map((post) => (
-            <article
-              key={post._id}
-              className="paper-panel p-4 flex flex-wrap justify-between gap-3"
-            >
+            <article key={post._id} className="paper-panel p-4 flex flex-wrap justify-between gap-3">
               <div>
                 <p className="text-xs uppercase text-[#121212]/60">
                   {post.worldName ?? worldNameById.get(post.worldId) ?? "Unknown world"}
@@ -244,13 +233,9 @@ export function Lfg() {
               </div>
               <div className="flex items-center">
                 {post.sessionId ? (
-                  <Link className="tcg-button" to={`/table/${post.sessionId}`}>
-                    Join Table
-                  </Link>
+                  <Link className="tcg-button" to={`/table/${post.sessionId}`}>Join Table</Link>
                 ) : (
-                  <Link className="tcg-button" to={`/table/new?worldId=${post.worldId}`}>
-                    Start Session
-                  </Link>
+                  <Link className="tcg-button" to={`/table/new?worldId=${post.worldId}`}>Start Session</Link>
                 )}
               </div>
             </article>

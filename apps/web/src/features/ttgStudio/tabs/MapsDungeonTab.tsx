@@ -17,9 +17,7 @@ export function MapsDungeonTab() {
   const [customObjective, setCustomObjective] = useState("Track faction reinforcements");
   const [selectedDungeonId, setSelectedDungeonId] = useState("");
   const [newRoomName, setNewRoomName] = useState("Anomaly Chamber");
-  const [newRoomChallenge, setNewRoomChallenge] = useState(
-    "Unstable objective with escalating hazard.",
-  );
+  const [newRoomChallenge, setNewRoomChallenge] = useState("Unstable objective with escalating hazard.");
   const [linkFrom, setLinkFrom] = useState("");
   const [linkTo, setLinkTo] = useState("");
   const [linkLabel, setLinkLabel] = useState("Hidden passage");
@@ -41,8 +39,7 @@ export function MapsDungeonTab() {
   );
 
   const sceneTokens = draft?.mapTokens[selectedSceneId] ?? [];
-  const selectedToken =
-    sceneTokens.find((token) => token.id === selectedTokenId) ?? sceneTokens[0] ?? null;
+  const selectedToken = sceneTokens.find((token) => token.id === selectedTokenId) ?? sceneTokens[0] ?? null;
 
   if (!draft) {
     return <div className="paper-panel p-6">No active project found.</div>;
@@ -94,9 +91,7 @@ export function MapsDungeonTab() {
               onClick={() => {
                 if (!selectedToken) return;
                 updateActiveProject((next) => {
-                  const token = next.mapTokens[selectedSceneId]?.find(
-                    (entry) => entry.id === selectedToken.id,
-                  );
+                  const token = next.mapTokens[selectedSceneId]?.find((entry) => entry.id === selectedToken.id);
                   if (token) token.y = Math.max(4, token.y - 4);
                   return next;
                 });
@@ -109,9 +104,7 @@ export function MapsDungeonTab() {
               onClick={() => {
                 if (!selectedToken) return;
                 updateActiveProject((next) => {
-                  const token = next.mapTokens[selectedSceneId]?.find(
-                    (entry) => entry.id === selectedToken.id,
-                  );
+                  const token = next.mapTokens[selectedSceneId]?.find((entry) => entry.id === selectedToken.id);
                   if (token) token.y = Math.min(96, token.y + 4);
                   return next;
                 });
@@ -124,9 +117,7 @@ export function MapsDungeonTab() {
               onClick={() => {
                 if (!selectedToken) return;
                 updateActiveProject((next) => {
-                  const token = next.mapTokens[selectedSceneId]?.find(
-                    (entry) => entry.id === selectedToken.id,
-                  );
+                  const token = next.mapTokens[selectedSceneId]?.find((entry) => entry.id === selectedToken.id);
                   if (token) token.x = Math.max(4, token.x - 4);
                   return next;
                 });
@@ -139,9 +130,7 @@ export function MapsDungeonTab() {
               onClick={() => {
                 if (!selectedToken) return;
                 updateActiveProject((next) => {
-                  const token = next.mapTokens[selectedSceneId]?.find(
-                    (entry) => entry.id === selectedToken.id,
-                  );
+                  const token = next.mapTokens[selectedSceneId]?.find((entry) => entry.id === selectedToken.id);
                   if (token) token.x = Math.min(96, token.x + 4);
                   return next;
                 });
@@ -177,9 +166,7 @@ export function MapsDungeonTab() {
               const x = ((event.clientX - target.left) / target.width) * 100;
               const y = ((event.clientY - target.top) / target.height) * 100;
               updateActiveProject((next) => {
-                const token = next.mapTokens[selectedSceneId]?.find(
-                  (entry) => entry.id === selectedToken.id,
-                );
+                const token = next.mapTokens[selectedSceneId]?.find((entry) => entry.id === selectedToken.id);
                 if (token) {
                   token.x = Math.max(4, Math.min(96, Math.round(x)));
                   token.y = Math.max(4, Math.min(96, Math.round(y)));
@@ -263,10 +250,7 @@ export function MapsDungeonTab() {
                   if (!customObjective.trim()) return;
                   updateActiveProject((next) => {
                     const current = next.customSceneObjectives[selectedSceneId] ?? [];
-                    next.customSceneObjectives[selectedSceneId] = [
-                      ...current,
-                      customObjective.trim(),
-                    ];
+                    next.customSceneObjectives[selectedSceneId] = [...current, customObjective.trim()];
                     next.sceneObjectiveState[selectedSceneId] = {
                       ...(next.sceneObjectiveState[selectedSceneId] ?? {}),
                       [customObjective.trim()]: false,
@@ -455,10 +439,8 @@ export function MapsDungeonTab() {
 
           <div className="space-y-1 text-sm">
             {(draft.roomLinks[selectedDungeonId] ?? []).map((link) => {
-              const from =
-                dungeon?.rooms.find((room) => room.id === link.fromRoomId)?.name ?? link.fromRoomId;
-              const to =
-                dungeon?.rooms.find((room) => room.id === link.toRoomId)?.name ?? link.toRoomId;
+              const from = dungeon?.rooms.find((room) => room.id === link.fromRoomId)?.name ?? link.fromRoomId;
+              const to = dungeon?.rooms.find((room) => room.id === link.toRoomId)?.name ?? link.toRoomId;
               return (
                 <p key={link.id}>
                   {from} → {to} ({link.label})

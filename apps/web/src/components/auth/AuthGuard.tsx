@@ -9,9 +9,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const convexEnabled = Boolean(
-    ((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim(),
-  );
+  const convexEnabled = Boolean(((import.meta.env.VITE_CONVEX_URL as string | undefined) ?? "").trim());
   const { enabled: authEnabled } = useAppAuth();
 
   if (!authEnabled || !convexEnabled) return <AuthGuardDisabled />;

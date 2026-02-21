@@ -100,14 +100,14 @@ export function BoardCard({
               card.rarity
                 ? (RARITY_COLORS[card.rarity] ?? RARITY_COLORS.common)
                 : RARITY_COLORS.common,
-              card.rarity ? (RARITY_GLOW[card.rarity] ?? "") : "",
+              card.rarity ? (RARITY_GLOW[card.rarity] ?? "") : ""
             ),
         isSelected && "ring-2 ring-yellow-400 ring-offset-1 ring-offset-slate-900",
         isTargetable && "ring-2 ring-red-500 shadow-lg shadow-red-500/50 animate-pulse",
         isAttacking && "ring-2 ring-orange-500 shadow-lg shadow-orange-500/50",
         isActivatable && "ring-2 ring-green-500 shadow-lg shadow-green-500/40 animate-pulse",
         card.hasAttacked && "opacity-60",
-        onClick && "cursor-pointer hover:shadow-lg",
+        onClick && "cursor-pointer hover:shadow-lg"
       )}
     >
       {isFaceDown ? (
@@ -146,7 +146,7 @@ export function BoardCard({
                 "absolute top-0 left-0 px-0.5 rounded text-[6px] font-bold uppercase",
                 card.cardType === "spell" && "bg-green-600 text-white",
                 card.cardType === "trap" && "bg-purple-600 text-white",
-                card.cardType === "field" && "bg-teal-600 text-white",
+                card.cardType === "field" && "bg-teal-600 text-white"
               )}
             >
               {card.cardType[0]}
@@ -295,7 +295,7 @@ export function EmptySlot({
           ? "border-green-500/50 bg-green-500/10 hover:bg-green-500/20"
           : "border-slate-700/50 bg-slate-900/30 hover:bg-slate-800/30",
         onClick && "cursor-pointer",
-        className,
+        className
       )}
     >
       {label && <span className="text-[6px] text-slate-500 font-medium">{label}</span>}

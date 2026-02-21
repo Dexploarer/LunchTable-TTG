@@ -17,7 +17,7 @@ export async function sendToEliza(
   userId: string,
   sessionId: string,
   message: string,
-  conversationHistory?: Array<{ role: "user" | "agent"; message: string }>,
+  conversationHistory?: Array<{ role: "user" | "agent"; message: string }>
 ): Promise<string> {
   try {
     const elizaOS = new ElizaOS();
@@ -40,7 +40,7 @@ export async function sendToEliza(
         ephemeral: true, // Don't persist in registry
         autoStart: true, // Initialize immediately
         returnRuntimes: true, // Return the runtime instance
-      },
+      }
     )) as IAgentRuntime[];
 
     if (!runtime) {

@@ -221,21 +221,19 @@ function FeatureCard({
       whileHover={{ y: -8, rotate: featured ? 0 : 1 }}
       className={cn(
         "paper-panel p-8 relative group transition-all duration-300",
-        featured ? "bg-white zine-border shadow-zine-lg scale-105 z-10" : "hover:shadow-zine-lg",
+        featured ? "bg-white zine-border shadow-zine-lg scale-105 z-10" : "hover:shadow-zine-lg"
       )}
     >
       <div className="mb-6 inline-flex p-4 border-2 border-primary bg-white shadow-zine-sm group-hover:shadow-zine transition-all group-hover:-rotate-3">
         <Icon
           className={cn(
             "w-8 h-8",
-            featured ? "text-primary" : "text-primary/40 group-hover:text-primary",
+            featured ? "text-primary" : "text-primary/40 group-hover:text-primary"
           )}
         />
       </div>
 
-      <h3 className="text-2xl font-black mb-3 uppercase ink-bleed group-hover:ink-bleed-advanced transition-all">
-        {title}
-      </h3>
+      <h3 className="text-2xl font-black mb-3 uppercase ink-bleed group-hover:ink-bleed-advanced transition-all">{title}</h3>
 
       <p className="font-bold text-primary/60 leading-tight uppercase text-xs group-hover:text-primary transition-colors">
         {description}
